@@ -16,22 +16,42 @@ export interface CustomerResult {
   address?: string;
 }
 
-// isSale true => customer, false => supplier (same endpoint, adjust if backend differs)
 export const addCustomer = async (data: CustomerPayload) => {
   const response = await api.post('/customer/', data);
   return response.data;
 };
 
-// Search customers/suppliers by name.
-// ASSUMPTION: backend supports GET /customer?name=xxx&type=sale|purchase
-// Adjust the URL/params below to match your actual backend route.
+// Hits GET /customer/search?name=xxx
+// Handles both response shapes: array of plain name strings, or array of
+// objects that may only contain `name` (no id/email/phone/address yet).
 export const searchCustomers = async (
-  name: string,
-  type: 'sale' | 'purchase'
+  name: string
 ): Promise<CustomerResult[]> => {
-  const response = await api.get('/customer', {
-    params: { name, type },
+  const response = await api.get('/customer/search', {
+    params: { query: name },
   });
-  // adjust based on actual response shape, e.g. response.data.customers
-  return response.data?.customers ?? response.data?.data ?? response.data ?? [];
+
+  // TEMP DEBUG - remove once search is confirmed working
+  console.log('searchCustomers raw response:', JSON.stringify(response.data));
+
+  const raw =
+    response.data?.customers ??
+    response.data?.data ??
+    response.data?.results ??
+    response.data ??
+    [];
+
+  return raw.map((item: any): CustomerResult => {
+    if (typeof item === 'string') {
+      return { name: item };
+    }
+    return {
+      id: item.id,
+      _id: item._id,
+      name: item.name,
+      email: item.email,
+      phoneNo: item.phoneNo,
+      address: item.address,
+    };
+  });
 };

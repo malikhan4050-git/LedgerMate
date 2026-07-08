@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -66,6 +66,7 @@ const LoginScreen = ({ navigation }: Props) => {
       const response = await api.post('/auth/login', data);
 
       const { token, user, business } = response.data.result;
+      
 
       await Promise.all([
         AsyncStorage.setItem('token', token),
@@ -86,9 +87,19 @@ const LoginScreen = ({ navigation }: Props) => {
       console.log(error.response?.status);
       console.log(error.response?.data);
 
+      const errorMessage = error.response?.data?.message;
+
+      if (
+        error.response?.status === 400 &&
+        errorMessage === 'Business details not found'
+      ) {
+        navigation.replace('BusinessDetails');
+        return;
+      }
+
       Alert.alert(
         'Login Failed',
-        error.response?.data?.message || 'Something went wrong.',
+        errorMessage || 'Something went wrong.',
       );
     }
   };
@@ -115,6 +126,7 @@ const LoginScreen = ({ navigation }: Props) => {
             autoCapitalize="none"
             value={data.emailORphoneNo}
             onChangeText={text => handleChange('emailORphoneNo', text)}
+            error={errors.emailORphoneNo}
           />
 
           <View style={styles.passwordContainer}>
@@ -123,12 +135,22 @@ const LoginScreen = ({ navigation }: Props) => {
               secureTextEntry={!showPassword}
               value={data.password}
               onChangeText={text => handleChange('password', text)}
+              error={errors.password}
             />
           </View>
 
-          <TouchableOpacity style={styles.forgotContainer}>
+          <Pressable
+            android_ripple={{ color: 'transparent' }}
+            style={({ pressed }: { pressed: boolean }) => [
+              styles.forgotContainer,
+              { transform: [{ scale: pressed ? 0.98 : 1 }] },
+            ]}
+            onPress={() => {
+              // Add forgot password action here if needed
+            }}
+          >
             <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
+          </Pressable>
 
           <GradientButton title="Login" onPress={handleLogin} />
         </View>
@@ -136,9 +158,15 @@ const LoginScreen = ({ navigation }: Props) => {
         <View style={styles.bottomContainer}>
           <Text style={styles.bottomText}>Don't have an account?</Text>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <Pressable
+            android_ripple={{ color: 'transparent' }}
+            style={({ pressed }: { pressed: boolean }) => [
+              { transform: [{ scale: pressed ? 0.98 : 1 }] },
+            ]}
+            onPress={() => navigation.navigate('Signup')}
+          >
             <Text style={styles.signupText}>Sign Up</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

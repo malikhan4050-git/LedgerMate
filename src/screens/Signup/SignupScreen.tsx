@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,6 +11,8 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAppDispatch } from '../../redux/hooks';
+import { setSession } from '../../redux/slices/sessionSlice';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 
 import { validateSignupForm } from '../../utils/validators';
@@ -25,6 +27,7 @@ import api from '../../api/axios';
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 const SignupScreen = ({ navigation }: Props) => {
+  const dispatch = useAppDispatch();
   const [data, setData] = useState({
     name: '',
     email: '',
@@ -72,11 +75,19 @@ const SignupScreen = ({ navigation }: Props) => {
 
       const { token, user } = response.data.result;
 
-      // Save token
-      await AsyncStorage.setItem('token', token);
+      // Persist auth data locally
+      await Promise.all([
+        AsyncStorage.setItem('token', token),
+        AsyncStorage.setItem('user', JSON.stringify(user)),
+      ]);
 
-      // Save user
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      dispatch(
+        setSession({
+          token,
+          user,
+          business: null,
+        }),
+      );
 
       console.log('Signup Successful');
       console.log('Token:', token);
@@ -156,8 +167,12 @@ const SignupScreen = ({ navigation }: Props) => {
             />
           </View>
 
-          <TouchableOpacity
-            style={styles.checkboxContainer}
+          <Pressable
+            android_ripple={{ color: 'transparent' }}
+            style={({ pressed }: { pressed: boolean }) => [
+              styles.checkboxContainer,
+              { transform: [{ scale: pressed ? 0.98 : 1 }] },
+            ]}
             onPress={() => {
               setAgree(prev => !prev);
 
@@ -173,7 +188,7 @@ const SignupScreen = ({ navigation }: Props) => {
               I agree to the <Text style={styles.link}>Terms of Service</Text>{' '}
               and <Text style={styles.link}>Privacy Policy</Text>
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {errors.agree ? (
             <Text
@@ -188,9 +203,15 @@ const SignupScreen = ({ navigation }: Props) => {
         <View style={styles.bottomContainer}>
           <Text style={styles.bottomText}>Already have an account?</Text>
 
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Pressable
+            android_ripple={{ color: 'transparent' }}
+            style={({ pressed }: { pressed: boolean }) => [
+              { transform: [{ scale: pressed ? 0.98 : 1 }] },
+            ]}
+            onPress={() => navigation.goBack()}
+          >
             <Text style={styles.loginText}>Login</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

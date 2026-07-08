@@ -4,7 +4,7 @@ import Colors from '../../theme/Colors';
 
 export default StyleSheet.create({
   title: {
-    paddingTop: 20,
+    paddingTop: 30,
     fontSize: 40,
     fontWeight: '700',
     color: Colors.primaryText,

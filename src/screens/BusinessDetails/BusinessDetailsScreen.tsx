@@ -76,6 +76,8 @@ const BusinessDetailsScreen = ({ navigation }: Props) => {
       const savedBusiness = response.data?.result?.business ?? business;
 
       if (token && savedUser) {
+        await AsyncStorage.setItem('business', JSON.stringify(savedBusiness));
+
         dispatch(
           setSession({
             token,

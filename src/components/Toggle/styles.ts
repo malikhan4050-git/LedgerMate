@@ -3,7 +3,7 @@ import Colors from '../../theme/Colors';
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 30,
+    marginBottom: 10,
   },
 
   title: {
@@ -11,6 +11,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.secondaryText,
     marginBottom: 12,
+  },
+
+  compactToggleContainer: {
+    borderRadius: 8,
+  },
+
+  compactOption: {
+    paddingVertical: 10,
+  },
+
+  compactOptionText: {
+    fontSize: 14,
   },
 
   toggleContainer: {
@@ -34,13 +46,14 @@ const styles = StyleSheet.create({
 
   optionText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '400',
     color: Colors.primaryBlue,
   },
 
   selectedText: {
     color: Colors.white,
   },
+  
 });
 
 export default styles;

@@ -8,11 +8,6 @@ import styles from './styles';
 const AdvanceDashboardScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <DashboardLogo />
-        </View>
-      </View>
       <View
         style={{
           flex: 1,

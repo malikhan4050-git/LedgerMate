@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primaryBlue,
   },
+  
 });
 
 export default styles;

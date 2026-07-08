@@ -54,7 +54,13 @@ const SplashScreen = ({ navigation }: Props) => {
         }),
       );
 
-      navigation.replace('App');
+      const hasBusinessDetails = business && business.success !== false;
+
+      if (!hasBusinessDetails) {
+        navigation.replace('BusinessDetails');
+      } else {
+        navigation.replace('App');
+      }
     } catch (error) {
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('business');

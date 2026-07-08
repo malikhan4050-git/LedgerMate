@@ -37,6 +37,12 @@ export default StyleSheet.create({
     fontWeight: '700',
   },
 
+  pressedOverlay: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: Sizes.borderRadius,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+  },
+
   socialButton: {
     height: 58,
 

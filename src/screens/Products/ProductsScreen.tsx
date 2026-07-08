@@ -1,16 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const ReportScreen = () => {
+const ProductsScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Report</Text>
-      <Text style={styles.subtitle}>View your statements and performance reports here.</Text>
+      <Text style={styles.title}>Products</Text>
+      <Text style={styles.subtitle}>View your products and modify them here.</Text>
     </View>
   );
 };
 
-export default ReportScreen;
+export default ProductsScreen;
 
 const styles = StyleSheet.create({
   container: {

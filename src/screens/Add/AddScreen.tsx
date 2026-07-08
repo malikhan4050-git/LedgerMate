@@ -81,10 +81,10 @@ const AddScreen = () => {
     setSearching(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const results = await searchCustomers(searchText.trim(), mode);
+        const results = await searchCustomers(searchText.trim());
         setSearchResults(results.map(mapResult));
-      } catch (error) {
-        console.log('Customer search failed:', error);
+      } catch (error: any) {
+        console.log('Customer search failed:', error?.response?.status, error?.response?.data);
         setSearchResults([]);
       } finally {
         setSearching(false);

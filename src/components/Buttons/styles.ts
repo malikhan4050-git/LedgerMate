@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import Colors from '../../theme/Colors';
 import Sizes from '../../theme/Sizes';
@@ -92,5 +92,11 @@ export default StyleSheet.create({
     fontWeight: '600',
 
     color: '#000',
+  },
+  disabledButton: {
+    opacity: 0.7,
+  },
+  disabledText: {
+    color: '#FFFFFF',
   },
 });

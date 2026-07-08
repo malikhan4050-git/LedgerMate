@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -14,6 +16,16 @@ import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddCustomerModal from './AddCustomerModal';
 import styles from './styles';
+import { searchCustomers, CustomerResult } from '../../services/customerApi';
+import { createEntry } from '../../services/entryApi';
+
+interface Party {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNo?: string;
+  address?: string;
+}
 
 const AddScreen = () => {
   const [mode, setMode] = useState<'sale' | 'purchase'>('sale');
@@ -40,35 +52,60 @@ const AddScreen = () => {
     manualTotal: '',
   });
 
-  // Static customers data
-  const customers = [
-    { id: '1', name: 'John Doe' },
-    { id: '2', name: 'Jane Smith' },
-    { id: '3', name: 'Robert Johnson' },
-    { id: '4', name: 'Sarah Williams' },
-  ];
+  // Live search results from backend (dummy data removed)
+  const [searchResults, setSearchResults] = useState<Party[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const suppliers = [
-    { id: '1', name: 'ABC Supplies' },
-    { id: '2', name: 'XYZ Distributors' },
-    { id: '3', name: 'Global Traders' },
-    { id: '4', name: 'Local Suppliers Inc.' },
-  ];
+  const mapResult = (item: CustomerResult): Party => ({
+    id: item.id || item._id || item.name,
+    name: item.name,
+    email: item.email,
+    phoneNo: item.phoneNo,
+    address: item.address,
+  });
 
-  const data = isSale ? customers : suppliers;
+  // Debounced search whenever searchText or mode changes
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
 
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+    if (searchText.trim() === '') {
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
 
-  const handleSelect = (item: { id: string; name: string }) => {
+    setSearching(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const results = await searchCustomers(searchText.trim(), mode);
+        setSearchResults(results.map(mapResult));
+      } catch (error) {
+        console.log('Customer search failed:', error);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 400);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [searchText, mode]);
+
+  const handleSelect = (item: Party) => {
     setSelectedItem(item.name);
     setSearchText(item.name);
     setShowDropdown(false);
     setErrors((prev) => ({ ...prev, customer: '' }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate fields
     let isValid = true;
     const newErrors = {
@@ -103,16 +140,28 @@ const AddScreen = () => {
 
     setErrors(newErrors);
 
-    if (isValid) {
-      console.log('Saving entry...', {
-        customer: selectedItem,
-        purchasedItems,
-        manualTotal,
-        dateTime,
-        notes,
-        mode,
+    if (!isValid) {
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await createEntry({
+        name: selectedItem,
+        entryType: mode,
+        itemsDescription: purchasedItems,
+        manualTotalPrice: parseFloat(manualTotal),
+        transactionDate: new Date(dateTime).toISOString(),
       });
-      // Proceed with save logic
+
+      Alert.alert('Success', 'Entry saved successfully!');
+      handleCancel();
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || 'Failed to save entry. Try again.';
+      Alert.alert('Error', message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -123,6 +172,7 @@ const AddScreen = () => {
     setPurchasedItems('');
     setManualTotal('');
     setNotes('');
+    setSearchResults([]);
     setErrors({
       customer: '',
       purchasedItems: '',
@@ -135,19 +185,20 @@ const AddScreen = () => {
     setModalVisible(true);
   };
 
+  // Called after AddCustomerModal successfully saves via API.
   const handleModalSave = (customerData: {
+    id?: string;
+    _id?: string;
     name: string;
-    email: string;
-    phoneNo: string;
-    address: string;
+    email?: string;
+    phoneNo?: string;
+    address?: string;
   }) => {
-    // Add the new customer to the local list
-    const newId = (customers.length + 1).toString();
-    customers.push({ id: newId, name: customerData.name });
-    
-    // Select the newly added customer
+    // Select the newly added customer directly - no need to store locally
+    // since the list now comes live from the backend search.
     setSelectedItem(customerData.name);
     setSearchText(customerData.name);
+    setErrors((prev) => ({ ...prev, customer: '' }));
     setModalVisible(false);
   };
 
@@ -173,9 +224,12 @@ const AddScreen = () => {
             leftTitle="Sale"
             rightTitle="Purchase"
             compact
-            onValueChange={(value) =>
-              setMode(value === 'simple' ? 'sale' : 'purchase')
-            }
+            onValueChange={(value) => {
+              setMode(value === 'simple' ? 'sale' : 'purchase');
+              setSearchText('');
+              setSelectedItem('');
+              setSearchResults([]);
+            }}
           />
 
           <View style={styles.addRow}>
@@ -227,9 +281,16 @@ const AddScreen = () => {
                 <Text style={styles.errorText}>{errors.customer}</Text>
               ) : null}
 
-              {showDropdown && filteredData.length > 0 && (
+              {showDropdown && searching && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" />
+                  <Text style={styles.loadingText}>Searching...</Text>
+                </View>
+              )}
+
+              {showDropdown && !searching && searchResults.length > 0 && (
                 <View style={styles.dropdownList}>
-                  {filteredData.map((item) => (
+                  {searchResults.map((item) => (
                     <TouchableOpacity
                       key={item.id}
                       style={[
@@ -254,8 +315,9 @@ const AddScreen = () => {
               )}
 
               {showDropdown &&
+                !searching &&
                 searchText !== '' &&
-                filteredData.length === 0 && (
+                searchResults.length === 0 && (
                   <View style={styles.noResults}>
                     <Text style={styles.noResultsText}>No results found</Text>
                   </View>
@@ -356,14 +418,22 @@ const AddScreen = () => {
 
           {/* Action Buttons - Stacked Vertically */}
           <View style={styles.saveButtonWrapper}>
-            <GradientButton
-              title="Save Entry"
-              titleStyle={styles.buttonText}
-              onPress={handleSave}
-            />
+            {saving ? (
+              <ActivityIndicator size="small" />
+            ) : (
+              <GradientButton
+                title="Save Entry"
+                titleStyle={styles.buttonText}
+                onPress={handleSave}
+              />
+            )}
           </View>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={handleCancel}
+            disabled={saving}
+          >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
         </View>

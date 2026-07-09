@@ -152,6 +152,7 @@ const AddScreen = () => {
         itemsDescription: purchasedItems,
         manualTotalPrice: parseFloat(manualTotal),
         transactionDate: new Date(dateTime).toISOString(),
+        notes: notes,
       });
 
       Alert.alert('Success', 'Entry saved successfully!');

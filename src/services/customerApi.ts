@@ -28,11 +28,8 @@ export const searchCustomers = async (
   name: string
 ): Promise<CustomerResult[]> => {
   const response = await api.get('/customer/search', {
-    params: { query: name },
+    params: { name },
   });
-
-  // TEMP DEBUG - remove once search is confirmed working
-  console.log('searchCustomers raw response:', JSON.stringify(response.data));
 
   const raw =
     response.data?.customers ??

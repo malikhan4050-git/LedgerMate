@@ -5,7 +5,8 @@ export interface EntryPayload {
   entryType: 'sale' | 'purchase';
   itemsDescription: string;
   manualTotalPrice: number;
-  transactionDate: string;   // ISO date string
+  transactionDate: string;
+  notes?: string;
 }
 
 export const createEntry = async (data: EntryPayload) => {

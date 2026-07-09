@@ -64,14 +64,17 @@ const LoginScreen = ({ navigation }: Props) => {
 
     try {
       const response = await api.post('/auth/login', data);
+      console.log(response);
 
-      const { token, user, business } = response.data.result;
-      
+      const responsePayload = response?.data?.result ?? response?.data ?? {};
+      const token = responsePayload.token ?? null;
+      const user = responsePayload.user ?? null;
+      const business = responsePayload.business ?? null;
 
       await Promise.all([
-        AsyncStorage.setItem('token', token),
-        AsyncStorage.setItem('user', JSON.stringify(user)),
-        AsyncStorage.setItem('business', JSON.stringify(business)),
+        AsyncStorage.setItem('token', token ?? ''),
+        AsyncStorage.setItem('user', JSON.stringify(user ?? null)),
+        AsyncStorage.setItem('business', JSON.stringify(business ?? null)),
       ]);
 
       dispatch(
@@ -82,7 +85,11 @@ const LoginScreen = ({ navigation }: Props) => {
         }),
       );
 
-      navigation.replace('App');
+      if (!business || business.success === false) {
+        navigation.replace('BusinessDetails');
+      } else {
+        navigation.replace('App');
+      }
     } catch (error: any) {
       console.log(error.response?.status);
       console.log(error.response?.data);

@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 
 import GradientButton from '../../components/Buttons/GradientButton';
-import { addCustomer } from '../../services/customerApi'; // adjust path as per your folder structure
+import { addCustomer } from '../../services/customerApi';
+import { addSupplier } from '../../services/supplierApi';
 import styles from './styles';
 
 interface AddCustomerModalProps {
@@ -99,6 +100,7 @@ const AddCustomerModal = ({
     });
   };
 
+  // ADDED: Now supports both Customer and Supplier APIs based on isSale
   const handleModalSave = async () => {
     if (!validateForm()) {
       return;
@@ -106,10 +108,14 @@ const AddCustomerModal = ({
 
     setLoading(true);
     try {
-      // Call API to add customer/supplier
-      const response = await addCustomer(newCustomer);
+      let response;
+      if (isSale) {
+        response = await addCustomer(newCustomer);
+      } else {
+        response = await addSupplier(newCustomer);
+      }
+      console.log(response);
 
-      // Pass saved data back to parent (use API response if it returns the created object)
       onSave(response?.data ?? newCustomer);
 
       resetForm();
@@ -123,7 +129,6 @@ const AddCustomerModal = ({
         error?.response?.data?.message ||
         'Something went wrong. Please try again.';
 
-      // Show duplicate email error under email field if backend indicates that
       if (message.toLowerCase().includes('email')) {
         setModalErrors((prev) => ({ ...prev, email: message }));
       } else {
@@ -161,7 +166,6 @@ const AddCustomerModal = ({
                 {isSale ? 'Add New Customer' : 'Add New Supplier'}
               </Text>
 
-              {/* Name */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Name *</Text>
                 <TextInput
@@ -185,7 +189,6 @@ const AddCustomerModal = ({
                 ) : null}
               </View>
 
-              {/* Email */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Email *</Text>
                 <TextInput
@@ -211,7 +214,6 @@ const AddCustomerModal = ({
                 ) : null}
               </View>
 
-              {/* Phone No */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Phone No *</Text>
                 <TextInput
@@ -236,7 +238,6 @@ const AddCustomerModal = ({
                 ) : null}
               </View>
 
-              {/* Address */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Address *</Text>
                 <TextInput
@@ -263,7 +264,6 @@ const AddCustomerModal = ({
                 ) : null}
               </View>
 
-              {/* Modal Buttons - Stacked Vertically */}
               <View style={styles.modalSaveButtonWrapper}>
                 {loading ? (
                   <ActivityIndicator size="small" color="#ffffff" />

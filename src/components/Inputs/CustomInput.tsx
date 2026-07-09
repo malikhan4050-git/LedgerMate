@@ -4,15 +4,14 @@ import {
   Text,
   TextInput,
   TextInputProps,
-  StyleProp,
-  TextStyle,
+  type StyleProp,
 } from 'react-native';
 
 import styles from './styles';
 
 interface Props extends TextInputProps {
   error?: string;
-  inputStyle?: StyleProp<TextStyle>;
+  inputStyle?: StyleProp<any>;
 }
 
 const CustomInput = ({

@@ -41,10 +41,12 @@ const SplashScreen = ({ navigation }: Props) => {
         },
       });
 
-      const { user, business } = response.data.result;
+      const responsePayload = response?.data?.result ?? response?.data ?? {};
+      const user = responsePayload.user ?? null;
+      const business = responsePayload.business ?? null;
 
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-      await AsyncStorage.setItem('business', JSON.stringify(business));
+      await AsyncStorage.setItem('user', JSON.stringify(user ?? null));
+      await AsyncStorage.setItem('business', JSON.stringify(business ?? null));
 
       dispatch(
         setSession({

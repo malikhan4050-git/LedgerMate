@@ -17,6 +17,7 @@ import GradientButton from '../../components/Buttons/GradientButton';
 import AddCustomerModal from './AddCustomerModal';
 import styles from './styles';
 import { searchCustomers, CustomerResult } from '../../services/customerApi';
+import { searchSuppliers, SupplierResult } from '../../services/supplierApi';
 import { createEntry } from '../../services/entryApi';
 
 interface Party {
@@ -33,6 +34,7 @@ const AddScreen = () => {
 
   const [searchText, setSearchText] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
+  const [selectedPartyId, setSelectedPartyId] = useState<string | null>(null); // ADDED: Store ID
   const [showDropdown, setShowDropdown] = useState(false);
   const [purchasedItems, setPurchasedItems] = useState('');
   const [manualTotal, setManualTotal] = useState('');
@@ -42,23 +44,20 @@ const AddScreen = () => {
   });
   const [notes, setNotes] = useState('');
 
-  // Modal state
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Validation errors state
   const [errors, setErrors] = useState({
     customer: '',
     purchasedItems: '',
     manualTotal: '',
   });
 
-  // Live search results from backend (dummy data removed)
   const [searchResults, setSearchResults] = useState<Party[]>([]);
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const mapResult = (item: CustomerResult): Party => ({
+  const mapCustomerResult = (item: CustomerResult): Party => ({
     id: item.id || item._id || item.name,
     name: item.name,
     email: item.email,
@@ -66,7 +65,14 @@ const AddScreen = () => {
     address: item.address,
   });
 
-  // Debounced search whenever searchText or mode changes
+  const mapSupplierResult = (item: SupplierResult): Party => ({
+    id: item.id || item._id || item.name,
+    name: item.name,
+    email: item.email,
+    phoneNo: item.phoneNo,
+    address: item.address,
+  });
+
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -81,10 +87,21 @@ const AddScreen = () => {
     setSearching(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const results = await searchCustomers(searchText.trim());
-        setSearchResults(results.map(mapResult));
+        let results;
+        if (isSale) {
+          const customerResults = await searchCustomers(searchText.trim());
+          results = customerResults.map(mapCustomerResult);
+        } else {
+          const supplierResults = await searchSuppliers(searchText.trim());
+          results = supplierResults.map(mapSupplierResult);
+        }
+        setSearchResults(results);
       } catch (error: any) {
-        console.log('Customer search failed:', error?.response?.status, error?.response?.data);
+        console.log(
+          'Search failed:',
+          error?.response?.status,
+          error?.response?.data,
+        );
         setSearchResults([]);
       } finally {
         setSearching(false);
@@ -96,17 +113,17 @@ const AddScreen = () => {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [searchText, mode]);
+  }, [searchText, mode, isSale]);
 
   const handleSelect = (item: Party) => {
     setSelectedItem(item.name);
+    setSelectedPartyId(item.id); // Store the ID
     setSearchText(item.name);
     setShowDropdown(false);
-    setErrors((prev) => ({ ...prev, customer: '' }));
+    setErrors(prev => ({ ...prev, customer: '' }));
   };
 
   const handleSave = async () => {
-    // Validate fields
     let isValid = true;
     const newErrors = {
       customer: '',
@@ -114,7 +131,6 @@ const AddScreen = () => {
       manualTotal: '',
     };
 
-    // Validate Customer/Supplier
     if (!selectedItem || selectedItem.trim() === '') {
       newErrors.customer = isSale
         ? 'Please select a customer'
@@ -122,13 +138,18 @@ const AddScreen = () => {
       isValid = false;
     }
 
-    // Validate Purchased Items
+    if (!selectedPartyId) {
+      newErrors.customer = isSale
+        ? 'Customer ID not found'
+        : 'Supplier ID not found';
+      isValid = false;
+    }
+
     if (!purchasedItems || purchasedItems.trim() === '') {
       newErrors.purchasedItems = 'Please enter purchased items';
       isValid = false;
     }
 
-    // Validate Manual Total Price
     if (
       !manualTotal ||
       manualTotal.trim() === '' ||
@@ -146,18 +167,29 @@ const AddScreen = () => {
 
     setSaving(true);
     try {
-      await createEntry({
-        name: selectedItem,
+      // FIXED: Pass customerId or supplierId based on entry type
+      const entryData: any = {
         entryType: mode,
         itemsDescription: purchasedItems,
         manualTotalPrice: parseFloat(manualTotal),
         transactionDate: new Date(dateTime).toISOString(),
         notes: notes,
-      });
+      };
+
+      if (isSale) {
+        entryData.customer = selectedPartyId; // Pass customer ID
+      } else {
+        entryData.supplier = selectedPartyId; // Pass supplier ID
+      }
+
+      console.log('Sending entry data:', entryData); // Debug log
+
+      await createEntry(entryData);
 
       Alert.alert('Success', 'Entry saved successfully!');
       handleCancel();
     } catch (error: any) {
+      console.log('Error response:', error?.response?.data); // Debug log
       const message =
         error?.response?.data?.message || 'Failed to save entry. Try again.';
       Alert.alert('Error', message);
@@ -165,11 +197,10 @@ const AddScreen = () => {
       setSaving(false);
     }
   };
-
   const handleCancel = () => {
-    // Reset all fields
     setSearchText('');
     setSelectedItem('');
+    setSelectedPartyId(null);
     setPurchasedItems('');
     setManualTotal('');
     setNotes('');
@@ -181,12 +212,10 @@ const AddScreen = () => {
     });
   };
 
-  // Modal handlers
   const handleAddNewCustomer = () => {
     setModalVisible(true);
   };
 
-  // Called after AddCustomerModal successfully saves via API.
   const handleModalSave = (customerData: {
     id?: string;
     _id?: string;
@@ -195,11 +224,13 @@ const AddScreen = () => {
     phoneNo?: string;
     address?: string;
   }) => {
-    // Select the newly added customer directly - no need to store locally
-    // since the list now comes live from the backend search.
+    const id = customerData.id || customerData._id;
+    if (id) {
+      setSelectedPartyId(id);
+    }
     setSelectedItem(customerData.name);
     setSearchText(customerData.name);
-    setErrors((prev) => ({ ...prev, customer: '' }));
+    setErrors(prev => ({ ...prev, customer: '' }));
     setModalVisible(false);
   };
 
@@ -225,10 +256,11 @@ const AddScreen = () => {
             leftTitle="Sale"
             rightTitle="Purchase"
             compact
-            onValueChange={(value) => {
+            onValueChange={value => {
               setMode(value === 'simple' ? 'sale' : 'purchase');
               setSearchText('');
               setSelectedItem('');
+              setSelectedPartyId(null);
               setSearchResults([]);
             }}
           />
@@ -254,14 +286,15 @@ const AddScreen = () => {
                   }
                   placeholderTextColor="#8E8E93"
                   value={searchText}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setSearchText(text);
                     setShowDropdown(true);
                     if (text === '') {
                       setSelectedItem('');
+                      setSelectedPartyId(null);
                     }
                     if (errors.customer) {
-                      setErrors((prev) => ({ ...prev, customer: '' }));
+                      setErrors(prev => ({ ...prev, customer: '' }));
                     }
                   }}
                   onFocus={() => setShowDropdown(true)}
@@ -291,7 +324,7 @@ const AddScreen = () => {
 
               {showDropdown && !searching && searchResults.length > 0 && (
                 <View style={styles.dropdownList}>
-                  {searchResults.map((item) => (
+                  {searchResults.map(item => (
                     <TouchableOpacity
                       key={item.id}
                       style={[
@@ -346,10 +379,10 @@ const AddScreen = () => {
               multiline
               numberOfLines={4}
               value={purchasedItems}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setPurchasedItems(text);
                 if (errors.purchasedItems) {
-                  setErrors((prev) => ({ ...prev, purchasedItems: '' }));
+                  setErrors(prev => ({ ...prev, purchasedItems: '' }));
                 }
               }}
               textAlignVertical="top"
@@ -377,10 +410,10 @@ const AddScreen = () => {
                 placeholderTextColor="#8E8E93"
                 keyboardType="numeric"
                 value={manualTotal}
-                onChangeText={(text) => {
+                onChangeText={text => {
                   setManualTotal(text);
                   if (errors.manualTotal) {
-                    setErrors((prev) => ({ ...prev, manualTotal: '' }));
+                    setErrors(prev => ({ ...prev, manualTotal: '' }));
                   }
                 }}
               />
@@ -390,7 +423,6 @@ const AddScreen = () => {
             ) : null}
           </View>
 
-          {/* Date and Time - Full Width */}
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Date & Time *</Text>
             <TextInput
@@ -402,7 +434,6 @@ const AddScreen = () => {
             />
           </View>
 
-          {/* Notes Section - Optional */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionLabel}>Notes (Optional)</Text>
             <TextInput
@@ -417,7 +448,6 @@ const AddScreen = () => {
             />
           </View>
 
-          {/* Action Buttons - Stacked Vertically */}
           <View style={styles.saveButtonWrapper}>
             {saving ? (
               <ActivityIndicator size="small" />
@@ -440,7 +470,6 @@ const AddScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Modal Component */}
       <AddCustomerModal
         visible={modalVisible}
         isSale={isSale}

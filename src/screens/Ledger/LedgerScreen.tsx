@@ -8,9 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
-  TextInput,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import { getEntries } from '../../services/entryApi';
 import styles from './styles';
@@ -28,28 +26,13 @@ interface Entry {
 
 const LedgerScreen = () => {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [filteredEntries, setFilteredEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchText, setSearchText] = useState('');
 
   // Fetch entries on component mount
   useEffect(() => {
     fetchEntries();
   }, []);
-
-  // Filter entries when search text changes
-  useEffect(() => {
-    if (searchText.trim() === '') {
-      setFilteredEntries(entries);
-    } else {
-      const filtered = entries.filter((entry) =>
-        entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase())
-      );
-      setFilteredEntries(filtered);
-    }
-  }, [searchText, entries]);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -61,7 +44,6 @@ const LedgerScreen = () => {
       // Handle different response structures
       const entriesData = response?.entries || response?.data || response?.result || [];
       setEntries(entriesData);
-      setFilteredEntries(entriesData);
     } catch (error: any) {
       console.error('Error fetching entries:', error);
       setError(error?.response?.data?.message || 'Failed to load entries');
@@ -93,6 +75,16 @@ const LedgerScreen = () => {
     );
   }
 
+  // Render empty state
+  if (entries.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No entries found</Text>
+        <Text style={styles.emptySubtext}>Add your first entry from the Add tab</Text>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
@@ -102,66 +94,35 @@ const LedgerScreen = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Ledger Overview</Text>
             <Text style={styles.headerSubtitle}>
-              {filteredEntries.length} transaction{filteredEntries.length > 1 ? 's' : ''} recorded
+              {entries.length} transaction{entries.length > 1 ? 's' : ''} recorded
             </Text>
           </View>
 
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Icon 
-              name="search-outline" 
-              size={20} 
-              color="#8E8E93" 
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by customer or items..."
-              placeholderTextColor="#8E8E93"
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-            {searchText !== '' && (
-              <TouchableOpacity onPress={() => setSearchText('')}>
-                <Icon name="close-circle" size={20} color="#8E8E93" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Empty state for search results */}
-          {filteredEntries.length === 0 && searchText !== '' ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No results found</Text>
-              <Text style={styles.emptySubtext}>Try searching with different keywords</Text>
+          {/* Raw Data Display (Step 1 - Just showing data) */}
+          {entries.map((entry) => (
+            <View
+              key={entry._id}
+              style={{
+                backgroundColor: '#f5f5f5',
+                padding: 12,
+                marginBottom: 8,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ fontWeight: 'bold' }}>Name: {entry.name}</Text>
+              <Text>Type: {entry.entryType}</Text>
+              <Text>Items: {entry.itemsDescription}</Text>
+              <Text>Amount: PKR {entry.manualTotalPrice}</Text>
+              <Text>Date: {new Date(entry.transactionDate).toLocaleString()}</Text>
+              {entry.notes && <Text>Notes: {entry.notes}</Text>}
             </View>
-          ) : (
-            /* Raw Data Display */
-            filteredEntries.map((entry) => (
-              <View
-                key={entry._id}
-                style={{
-                  backgroundColor: '#f5f5f5',
-                  padding: 12,
-                  marginBottom: 8,
-                  borderRadius: 8,
-                }}
-              >
-                <Text style={{ fontWeight: 'bold' }}>Name: {entry.name}</Text>
-                <Text>Type: {entry.entryType}</Text>
-                <Text>Items: {entry.itemsDescription}</Text>
-                <Text>Amount: PKR {entry.manualTotalPrice}</Text>
-                <Text>Date: {new Date(entry.transactionDate).toLocaleString()}</Text>
-                {entry.notes && <Text>Notes: {entry.notes}</Text>}
-              </View>
-            ))
-          )}
+          ))}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

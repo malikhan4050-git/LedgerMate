@@ -1,8 +1,10 @@
-import api from '../api/axios'; // same folder as api.ts
+import api from '../api/axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface EntryPayload {
-  name: string;              // customer/supplier name
   entryType: 'sale' | 'purchase';
+  customer?: string;
+  supplier?: string;
   itemsDescription: string;
   manualTotalPrice: number;
   transactionDate: string;
@@ -10,8 +12,17 @@ export interface EntryPayload {
 }
 
 export const createEntry = async (data: EntryPayload) => {
-  const response = await api.post('/entry/', data);
-  return response.data; // { success, message, entry }
+  // Get business ID from AsyncStorage
+  const businessStr = await AsyncStorage.getItem('business');
+  const business = businessStr ? JSON.parse(businessStr) : null;
+  
+  const payload = {
+    ...data,
+    business: business?.id || business?._id, // Add business ID
+  };
+  
+  const response = await api.post('/entry/', payload);
+  return response.data;
 };
 
 export const getEntries = async () => {

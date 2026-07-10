@@ -228,7 +228,7 @@ const LedgerScreen = () => {
 
               return (
                 <View key={entry._id} style={styles.card}>
-                  {/* Card Header - Type Badge */}
+                  {/* Card Header - Type Badge and Actions */}
                   <View style={styles.cardHeader}>
                     <View
                       style={[
@@ -248,6 +248,20 @@ const LedgerScreen = () => {
                       >
                         {isSale ? 'Sale' : 'Purchase'}
                       </Text>
+                    </View>
+                    <View style={styles.cardActions}>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => console.log('Edit entry:', entry._id)}
+                      >
+                        <Icon name="pencil-outline" size={18} color="#1E90FF" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => console.log('Delete entry:', entry._id)}
+                      >
+                        <Icon name="trash-outline" size={18} color="#FF3B30" />
+                      </TouchableOpacity>
                     </View>
                   </View>
 

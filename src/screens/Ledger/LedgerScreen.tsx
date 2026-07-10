@@ -47,7 +47,8 @@ const LedgerScreen = () => {
     } else {
       const filtered = entries.filter((entry) =>
         entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase())
+        entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase()) ||
+        entry.notes?.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredEntries(filtered);
     }

@@ -83,7 +83,8 @@ export default StyleSheet.create({
 
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
 
@@ -251,69 +252,80 @@ export default StyleSheet.create({
     fontWeight: '600',
   },
   filterIconContainer: {
-  padding: 4,
-  marginLeft: 4,
-},
+    padding: 4,
+    marginLeft: 4,
+  },
 
-// Filter Modal Styles
-modalOverlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
+  // Filter Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-modalContent: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: Sizes.borderRadius,
-  padding: 20,
-  width: '85%',
-  maxWidth: 320,
-},
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 20,
+    width: '85%',
+    maxWidth: 320,
+  },
 
-modalHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 20,
-  paddingBottom: 12,
-  borderBottomWidth: 1,
-  borderBottomColor: '#F0F0F0',
-},
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
 
-modalTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: Colors.primaryText,
-},
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
 
-filterOption: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 14,
-  paddingHorizontal: 12,
-  borderRadius: Sizes.borderRadius,
-  marginBottom: 4,
-},
+  filterOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: Sizes.borderRadius,
+    marginBottom: 4,
+  },
 
-filterOptionActive: {
-  backgroundColor: '#F0F8FF',
-},
+  filterOptionActive: {
+    backgroundColor: '#F0F8FF',
+  },
 
-filterOptionLeft: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
+  filterOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
-filterOptionText: {
-  fontSize: 16,
-  color: '#555',
-  marginLeft: 12,
-},
+  filterOptionText: {
+    fontSize: 16,
+    color: '#555',
+    marginLeft: 12,
+  },
 
-filterOptionTextActive: {
-  color: '#1E90FF',
-  fontWeight: '600',
-},
+  filterOptionTextActive: {
+    color: '#1E90FF',
+    fontWeight: '600',
+  },
+  cardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  actionButton: {
+    padding: 6,
+    marginLeft: 4,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+  },
 });

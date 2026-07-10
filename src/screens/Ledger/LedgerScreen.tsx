@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { getEntries } from '../../services/entryApi';
 import styles from './styles';
@@ -26,13 +28,28 @@ interface Entry {
 
 const LedgerScreen = () => {
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState('');
 
   // Fetch entries on component mount
   useEffect(() => {
     fetchEntries();
   }, []);
+
+  // Filter entries when search text changes
+  useEffect(() => {
+    if (searchText.trim() === '') {
+      setFilteredEntries(entries);
+    } else {
+      const filtered = entries.filter((entry) =>
+        entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredEntries(filtered);
+    }
+  }, [searchText, entries]);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -41,9 +58,16 @@ const LedgerScreen = () => {
       const response = await getEntries();
       console.log('API Response:', response);
       
-      // Handle different response structures
-      const entriesData = response?.entries || response?.data || response?.result || [];
+      let entriesData = response?.entries || response?.data || response?.result || [];
+      
+      // Map the data to ensure name is properly extracted
+      entriesData = entriesData.map((entry: any) => ({
+        ...entry,
+        name: entry.name || entry.customer?.name || entry.supplier?.name || 'Unknown',
+      }));
+      
       setEntries(entriesData);
+      setFilteredEntries(entriesData);
     } catch (error: any) {
       console.error('Error fetching entries:', error);
       setError(error?.response?.data?.message || 'Failed to load entries');
@@ -51,6 +75,14 @@ const LedgerScreen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+      time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+    };
   };
 
   // Render loading state
@@ -75,16 +107,6 @@ const LedgerScreen = () => {
     );
   }
 
-  // Render empty state
-  if (entries.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No entries found</Text>
-        <Text style={styles.emptySubtext}>Add your first entry from the Add tab</Text>
-      </View>
-    );
-  }
-
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
@@ -94,35 +116,106 @@ const LedgerScreen = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Ledger Overview</Text>
             <Text style={styles.headerSubtitle}>
-              {entries.length} transaction{entries.length > 1 ? 's' : ''} recorded
+              {filteredEntries.length} transaction{filteredEntries.length > 1 ? 's' : ''} recorded
             </Text>
           </View>
 
-          {/* Raw Data Display (Step 1 - Just showing data) */}
-          {entries.map((entry) => (
-            <View
-              key={entry._id}
-              style={{
-                backgroundColor: '#f5f5f5',
-                padding: 12,
-                marginBottom: 8,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ fontWeight: 'bold' }}>Name: {entry.name}</Text>
-              <Text>Type: {entry.entryType}</Text>
-              <Text>Items: {entry.itemsDescription}</Text>
-              <Text>Amount: PKR {entry.manualTotalPrice}</Text>
-              <Text>Date: {new Date(entry.transactionDate).toLocaleString()}</Text>
-              {entry.notes && <Text>Notes: {entry.notes}</Text>}
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <Icon 
+              name="search-outline" 
+              size={20} 
+              color="#8E8E93" 
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search transactions..."
+              placeholderTextColor="#8E8E93"
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+            {searchText !== '' && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Icon name="close-circle" size={20} color="#8E8E93" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Empty state for search results */}
+          {filteredEntries.length === 0 && searchText !== '' ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No results found</Text>
+              <Text style={styles.emptySubtext}>Try searching with different keywords</Text>
             </View>
-          ))}
+          ) : (
+            /* Cards */
+            filteredEntries.map((entry) => {
+              const { date, time } = formatDate(entry.transactionDate);
+              const isSale = entry.entryType === 'sale';
+              
+              return (
+                <View key={entry._id} style={styles.card}>
+                  {/* Card Header - Type Badge */}
+                  <View style={styles.cardHeader}>
+                    <View style={[
+                      styles.cardBadge,
+                      isSale ? styles.cardBadgeSale : styles.cardBadgePurchase
+                    ]}>
+                      <Text style={[
+                        styles.cardBadgeText,
+                        isSale ? styles.cardBadgeTextSale : styles.cardBadgeTextPurchase
+                      ]}>
+                        {isSale ? 'Sale' : 'Purchase'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Card Body - Amount and Items */}
+                  <View style={styles.cardBody}>
+                    <Text style={[
+                      styles.cardAmount,
+                      isSale ? styles.cardAmountSale : styles.cardAmountPurchase
+                    ]}>
+                      PKR {entry.manualTotalPrice}
+                    </Text>
+                    <Text style={styles.cardItems}>
+                      {entry.itemsDescription}
+                    </Text>
+                    {entry.notes && (
+                      <View style={styles.cardNotesContainer}>
+                        <Icon name="chatbubble-outline" size={14} color="#8E8E93" />
+                        <Text style={styles.cardNotes} numberOfLines={1}>
+                          {entry.notes}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Card Footer - Date/Time and Name */}
+                  <View style={styles.cardFooter}>
+                    <View style={styles.cardFooterLeft}>
+                      <Text style={styles.cardDate}>{date}</Text>
+                      <Text style={styles.cardTime}>{time}</Text>
+                    </View>
+                    <View style={styles.cardFooterRight}>
+                      <Icon name="person-outline" size={14} color="#8E8E93" />
+                      <Text style={styles.cardName} numberOfLines={1}>
+                        {entry.name}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

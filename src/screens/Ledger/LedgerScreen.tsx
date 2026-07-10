@@ -9,6 +9,7 @@ import {
   Alert,
   TouchableOpacity,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -32,6 +33,7 @@ const LedgerScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [refreshing, setRefreshing] = useState(false); 
 
   // Fetch entries on component mount
   useEffect(() => {
@@ -77,6 +79,12 @@ const LedgerScreen = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchEntries();
+    setRefreshing(false);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
@@ -117,6 +125,14 @@ const LedgerScreen = () => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#1E90FF']}
+          // tintColor={['1E90FF']} helpful for iOS.
+          />
+        }
       >
         <View style={styles.container}>
           {/* Header */}

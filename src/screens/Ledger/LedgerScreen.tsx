@@ -53,6 +53,14 @@ const LedgerScreen = () => {
     }
   }, [searchText, entries]);
 
+  const sortEntriesByDate = (entriesData : any[]) => {
+    return [...entriesData].sort((a, b) => {
+      const dateA = new Date(a.transactionDate || a.createdAt);
+      const dateB = new Date(b.transactionDate || b.createdAt);
+      return dateB.getTime() - dateA.getTime();
+    })
+  };
+
   const fetchEntries = async () => {
     setLoading(true);
     setError(null);
@@ -68,6 +76,8 @@ const LedgerScreen = () => {
         name: entry.name || entry.customer?.name || entry.supplier?.name || 'Unknown',
       }));
       
+      entriesData = sortEntriesByDate(entriesData);
+
       setEntries(entriesData);
       setFilteredEntries(entriesData);
     } catch (error: any) {

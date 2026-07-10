@@ -5,13 +5,13 @@ import Sizes from '../../theme/Sizes';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: '#F8F9FA',
     padding: Sizes.screenPadding,
   },
 
   keyboardContainer: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: '#F8F9FA',
   },
 
   scrollContainer: {
@@ -22,7 +22,7 @@ export default StyleSheet.create({
   // Header
   header: {
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 16,
   },
 
   headerTitle: {
@@ -34,60 +34,29 @@ export default StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: Colors.secondaryText,
-    marginTop: 4,
-  },
-
-  // Filter Toggle
-  filterContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#F0F0F0',
-    borderRadius: Sizes.borderRadius,
-    padding: 4,
-    marginBottom: 16,
-  },
-
-  filterButton: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: Sizes.borderRadius - 4,
-    alignItems: 'center',
-  },
-
-  filterButtonActive: {
-    backgroundColor: Colors.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.secondaryText,
-  },
-
-  filterButtonTextActive: {
-    color: Colors.primaryText,
-    fontWeight: '600',
+    marginTop: 2,
   },
 
   // Search Bar
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     borderRadius: Sizes.borderRadius,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     height: 44,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#E8E8E8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   searchIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
 
   searchInput: {
@@ -99,37 +68,33 @@ export default StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: Colors.white,
+    backgroundColor: '#FFFFFF',
     borderRadius: Sizes.borderRadius,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#F0F0F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
   },
 
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
     marginBottom: 8,
   },
 
-  cardName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.primaryText,
-    flex: 1,
+  cardBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 12,
+    backgroundColor: '#E8F5E9',
   },
 
-  cardBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  cardBadgeSale: {
     backgroundColor: '#E8F5E9',
   },
 
@@ -139,7 +104,10 @@ export default StyleSheet.create({
 
   cardBadgeText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+
+  cardBadgeTextSale: {
     color: '#2E7D32',
   },
 
@@ -148,27 +116,16 @@ export default StyleSheet.create({
   },
 
   cardBody: {
-    marginBottom: 8,
-  },
-
-  cardItems: {
-    fontSize: 14,
-    color: Colors.secondaryText,
-    marginBottom: 4,
-  },
-
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    marginBottom: 12,
   },
 
   cardAmount: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 4,
+  },
+
+  cardAmountSale: {
     color: '#2E7D32',
   },
 
@@ -176,19 +133,61 @@ export default StyleSheet.create({
     color: '#C62828',
   },
 
-  cardDate: {
-    fontSize: 12,
-    color: Colors.secondaryText,
+  cardItems: {
+    fontSize: 14,
+    color: '#555555',
+    marginBottom: 4,
   },
 
-  cardActions: {
+  cardNotesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+
+  cardNotes: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginLeft: 4,
+    flex: 1,
+  },
+
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F5',
+  },
+
+  cardFooterLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
 
-  actionButton: {
-    padding: 8,
+  cardDate: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginRight: 6,
+  },
+
+  cardTime: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
+
+  cardFooterRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    maxWidth: '50%',
+  },
+
+  cardName: {
+    fontSize: 12,
+    color: '#555555',
     marginLeft: 4,
+    fontWeight: '500',
   },
 
   // Empty State
@@ -197,10 +196,6 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 60,
-  },
-
-  emptyIcon: {
-    marginBottom: 16,
   },
 
   emptyText: {

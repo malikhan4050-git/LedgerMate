@@ -250,4 +250,70 @@ export default StyleSheet.create({
     color: Colors.white,
     fontWeight: '600',
   },
+  filterIconContainer: {
+  padding: 4,
+  marginLeft: 4,
+},
+
+// Filter Modal Styles
+modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+modalContent: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: Sizes.borderRadius,
+  padding: 20,
+  width: '85%',
+  maxWidth: 320,
+},
+
+modalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+  paddingBottom: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: '#F0F0F0',
+},
+
+modalTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: Colors.primaryText,
+},
+
+filterOption: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 14,
+  paddingHorizontal: 12,
+  borderRadius: Sizes.borderRadius,
+  marginBottom: 4,
+},
+
+filterOptionActive: {
+  backgroundColor: '#F0F8FF',
+},
+
+filterOptionLeft: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+filterOptionText: {
+  fontSize: 16,
+  color: '#555',
+  marginLeft: 12,
+},
+
+filterOptionTextActive: {
+  color: '#1E90FF',
+  fontWeight: '600',
+},
 });

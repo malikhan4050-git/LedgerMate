@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import FilterModal from './FilterModal';
+
 import { getEntries } from '../../services/entryApi';
 import styles from './styles';
 
@@ -33,33 +35,44 @@ const LedgerScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
-  const [refreshing, setRefreshing] = useState(false); 
-
+  const [refreshing, setRefreshing] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'sale' | 'purchase'
+  >('all');
   // Fetch entries on component mount
   useEffect(() => {
     fetchEntries();
   }, []);
-
-  // Filter entries when search text changes
   useEffect(() => {
-    if (searchText.trim() === '') {
-      setFilteredEntries(entries);
-    } else {
-      const filtered = entries.filter((entry) =>
-        entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase()) ||
-        entry.notes?.toLowerCase().includes(searchText.toLowerCase())
-      );
-      setFilteredEntries(filtered);
-    }
-  }, [searchText, entries]);
+    let filtered = entries;
 
-  const sortEntriesByDate = (entriesData : any[]) => {
+    // Apply search filter
+    if (searchText.trim() !== '') {
+      filtered = filtered.filter(
+        entry =>
+          entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          entry.itemsDescription
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          entry.notes?.toLowerCase().includes(searchText.toLowerCase()),
+      );
+    }
+
+    // Apply type filter
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(entry => entry.entryType === selectedFilter);
+    }
+
+    setFilteredEntries(filtered);
+  }, [searchText, entries, selectedFilter]);
+
+  const sortEntriesByDate = (entriesData: any[]) => {
     return [...entriesData].sort((a, b) => {
       const dateA = new Date(a.transactionDate || a.createdAt);
       const dateB = new Date(b.transactionDate || b.createdAt);
       return dateB.getTime() - dateA.getTime();
-    })
+    });
   };
 
   const fetchEntries = async () => {
@@ -68,15 +81,20 @@ const LedgerScreen = () => {
     try {
       const response = await getEntries();
       console.log('API Response:', response);
-      
-      let entriesData = response?.entries || response?.data || response?.result || [];
-      
+
+      let entriesData =
+        response?.entries || response?.data || response?.result || [];
+
       // Map the data to ensure name is properly extracted
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
-        name: entry.name || entry.customer?.name || entry.supplier?.name || 'Unknown',
+        name:
+          entry.name ||
+          entry.customer?.name ||
+          entry.supplier?.name ||
+          'Unknown',
       }));
-      
+
       entriesData = sortEntriesByDate(entriesData);
 
       setEntries(entriesData);
@@ -99,8 +117,16 @@ const LedgerScreen = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
-      date: date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
-      time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      date: date.toLocaleDateString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+      time: date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }),
     };
   };
 
@@ -138,10 +164,10 @@ const LedgerScreen = () => {
         keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={['#1E90FF']}
-          // tintColor={['1E90FF']} helpful for iOS.
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#1E90FF']}
+            // tintColor={['1E90FF']} helpful for iOS.
           />
         }
       >
@@ -150,16 +176,16 @@ const LedgerScreen = () => {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Ledger Overview</Text>
             <Text style={styles.headerSubtitle}>
-              {filteredEntries.length} transaction{filteredEntries.length > 1 ? 's' : ''} recorded
+              {filteredEntries.length} transaction
+              {filteredEntries.length > 1 ? 's' : ''} recorded
             </Text>
           </View>
 
-          {/* Search Bar */}
           <View style={styles.searchContainer}>
-            <Icon 
-              name="search-outline" 
-              size={20} 
-              color="#8E8E93" 
+            <Icon
+              name="search-outline"
+              size={20}
+              color="#8E8E93"
               style={styles.searchIcon}
             />
             <TextInput
@@ -174,32 +200,52 @@ const LedgerScreen = () => {
                 <Icon name="close-circle" size={20} color="#8E8E93" />
               </TouchableOpacity>
             )}
+            <TouchableOpacity
+              style={styles.filterIconContainer}
+              onPress={() => setFilterModalVisible(true)}
+            >
+              <Icon
+                name="options-outline"
+                size={22}
+                color={selectedFilter !== 'all' ? '#1E90FF' : '#8E8E93'}
+              />
+            </TouchableOpacity>
           </View>
 
           {/* Empty state for search results */}
           {filteredEntries.length === 0 && searchText !== '' ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No results found</Text>
-              <Text style={styles.emptySubtext}>Try searching with different keywords</Text>
+              <Text style={styles.emptySubtext}>
+                Try searching with different keywords
+              </Text>
             </View>
           ) : (
             /* Cards */
-            filteredEntries.map((entry) => {
+            filteredEntries.map(entry => {
               const { date, time } = formatDate(entry.transactionDate);
               const isSale = entry.entryType === 'sale';
-              
+
               return (
                 <View key={entry._id} style={styles.card}>
                   {/* Card Header - Type Badge */}
                   <View style={styles.cardHeader}>
-                    <View style={[
-                      styles.cardBadge,
-                      isSale ? styles.cardBadgeSale : styles.cardBadgePurchase
-                    ]}>
-                      <Text style={[
-                        styles.cardBadgeText,
-                        isSale ? styles.cardBadgeTextSale : styles.cardBadgeTextPurchase
-                      ]}>
+                    <View
+                      style={[
+                        styles.cardBadge,
+                        isSale
+                          ? styles.cardBadgeSale
+                          : styles.cardBadgePurchase,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.cardBadgeText,
+                          isSale
+                            ? styles.cardBadgeTextSale
+                            : styles.cardBadgeTextPurchase,
+                        ]}
+                      >
                         {isSale ? 'Sale' : 'Purchase'}
                       </Text>
                     </View>
@@ -207,10 +253,14 @@ const LedgerScreen = () => {
 
                   {/* Card Body - Amount and Items */}
                   <View style={styles.cardBody}>
-                    <Text style={[
-                      styles.cardAmount,
-                      isSale ? styles.cardAmountSale : styles.cardAmountPurchase
-                    ]}>
+                    <Text
+                      style={[
+                        styles.cardAmount,
+                        isSale
+                          ? styles.cardAmountSale
+                          : styles.cardAmountPurchase,
+                      ]}
+                    >
                       PKR {entry.manualTotalPrice}
                     </Text>
                     <Text style={styles.cardItems}>
@@ -218,7 +268,11 @@ const LedgerScreen = () => {
                     </Text>
                     {entry.notes && (
                       <View style={styles.cardNotesContainer}>
-                        <Icon name="chatbubble-outline" size={14} color="#8E8E93" />
+                        <Icon
+                          name="chatbubble-outline"
+                          size={14}
+                          color="#8E8E93"
+                        />
                         <Text style={styles.cardNotes} numberOfLines={1}>
                           {entry.notes}
                         </Text>
@@ -245,6 +299,12 @@ const LedgerScreen = () => {
           )}
         </View>
       </ScrollView>
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        selectedFilter={selectedFilter}
+        onSelectFilter={setSelectedFilter}
+      />
     </KeyboardAvoidingView>
   );
 };

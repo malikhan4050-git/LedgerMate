@@ -13,9 +13,11 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import FilterModal from './FilterModal';
-
-import { getEntries } from '../../services/entryApi';
+import FilterModal from './components/FilterModal';
+import { EntryPayload, getEntries } from '../../services/entryApi';
+import { updateEntry, deleteEntry } from '../../services/entryApi';
+import EditEntryModal from './components/EditEntryModal';
+import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import styles from './styles';
 
 interface Entry {
@@ -37,6 +39,10 @@ const LedgerScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'sale' | 'purchase'
   >('all');
@@ -108,6 +114,53 @@ const LedgerScreen = () => {
     }
   };
 
+  // --- Edit Handler (opens modal) ---
+  const handleEdit = (entry: any) => {
+    setSelectedEntry(entry);
+    setEditModalVisible(true);
+  };
+
+  // --- Edit Save Handler (called from modal) ---
+  const handleUpdateEntry = async (updatedData: Partial<EntryPayload>) => {
+    if (!selectedEntry) return;
+
+    try {
+      const updated = await updateEntry(selectedEntry._id, updatedData);
+      // Update local state
+      setEntries(prev =>
+        prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
+      );
+      setFilteredEntries(prev =>
+        prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
+      );
+      // Close modal is handled by the modal's onSave
+    } catch (error) {
+      throw error; // Let the modal catch it
+    }
+  };
+
+  // --- Delete Handler (opens modal) ---
+  const handleDeletePress = (entry: any) => {
+    setSelectedEntry(entry);
+    setDeleteModalVisible(true);
+  };
+
+  // --- Delete Confirm Handler (called from modal) ---
+  const handleDeleteConfirm = async (id: string) => {
+    setIsDeleting(true);
+    try {
+      await deleteEntry(id);
+      // Remove from state
+      setEntries(prev => prev.filter(entry => entry._id !== id));
+      setFilteredEntries(prev => prev.filter(entry => entry._id !== id));
+      setDeleteModalVisible(false);
+      setSelectedEntry(null);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete entry. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchEntries();
@@ -252,13 +305,13 @@ const LedgerScreen = () => {
                     <View style={styles.cardActions}>
                       <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => console.log('Edit entry:', entry._id)}
+                        onPress={() => handleEdit(entry)}
                       >
                         <Icon name="pencil-outline" size={18} color="#1E90FF" />
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => console.log('Delete entry:', entry._id)}
+                        onPress={() => handleDeletePress(entry)}
                       >
                         <Icon name="trash-outline" size={18} color="#FF3B30" />
                       </TouchableOpacity>
@@ -318,6 +371,29 @@ const LedgerScreen = () => {
         onClose={() => setFilterModalVisible(false)}
         selectedFilter={selectedFilter}
         onSelectFilter={setSelectedFilter}
+      />
+      {/* Edit Modal */}
+      <EditEntryModal
+        visible={editModalVisible}
+        entry={selectedEntry}
+        onClose={() => {
+          setEditModalVisible(false);
+          setSelectedEntry(null);
+        }}
+        onSave={handleUpdateEntry}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        visible={deleteModalVisible}
+        entryId={selectedEntry?._id || ''}
+        entryName={selectedEntry?.itemsDescription || selectedEntry?.name}
+        onClose={() => {
+          setDeleteModalVisible(false);
+          setSelectedEntry(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
       />
     </KeyboardAvoidingView>
   );

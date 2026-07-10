@@ -153,8 +153,8 @@ const AddCustomerModal = ({
     >
       <KeyboardAvoidingView
         style={styles.modalKeyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        behavior={Platform.OS === 'android' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

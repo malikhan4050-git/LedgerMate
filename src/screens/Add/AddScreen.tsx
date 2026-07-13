@@ -11,7 +11,9 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 
 import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
@@ -126,16 +128,16 @@ const AddScreen = () => {
     }
   }, [isManuallySet]);
 
-const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-  setShowDatePicker(false);
-  if (selectedDate) {
-    const newDate = new Date(selectedDate);
-    newDate.setHours(selectedDate.getHours());
-    newDate.setMinutes(selectedDate.getMinutes());
-    setSelectedDate(newDate);
-    setIsManuallySet(true);
-  }
-};
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const newDate = new Date(selectedDate);
+      newDate.setHours(selectedDate.getHours());
+      newDate.setMinutes(selectedDate.getMinutes());
+      setSelectedDate(newDate);
+      setIsManuallySet(true);
+    }
+  };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedTime?: Date) => {
     setShowTimePicker(false);
@@ -288,6 +290,10 @@ const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
             selectedValue={isSale ? 'simple' : 'advanced'}
             leftTitle="Sale"
             rightTitle="Purchase"
+            leftSubtitle="Selling Something" 
+            rightSubtitle="Buying Something" 
+            leftIcon="gift-outline"
+            rightIcon="cart-outline"
             compact
             onValueChange={value => {
               setMode(value === 'simple' ? 'sale' : 'purchase');
@@ -297,7 +303,6 @@ const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
               setSearchResults([]);
             }}
           />
-
           <View style={styles.addRow}>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>
@@ -462,10 +467,10 @@ const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
               {/* Date picker button */}
               <TouchableOpacity
                 style={[
-                  styles.input, 
-                  styles.dateTimeInput, 
+                  styles.input,
+                  styles.dateTimeInput,
                   styles.dateInput,
-                  { flex: 1, marginRight: 8 }
+                  { flex: 1, marginRight: 8 },
                 ]}
                 onPress={() => setShowDatePicker(true)}
               >
@@ -480,10 +485,10 @@ const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
 
               <TouchableOpacity
                 style={[
-                  styles.input, 
-                  styles.dateTimeInput, 
+                  styles.input,
+                  styles.dateTimeInput,
                   styles.timeInput,
-                  { flex: 1, marginLeft: 8 }
+                  { flex: 1, marginLeft: 8 },
                 ]}
                 onPress={() => setShowTimePicker(true)}
               >

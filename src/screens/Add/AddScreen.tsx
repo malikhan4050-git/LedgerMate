@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
@@ -34,14 +35,14 @@ const AddScreen = () => {
 
   const [searchText, setSearchText] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
-  const [selectedPartyId, setSelectedPartyId] = useState<string | null>(null); // ADDED: Store ID
+  const [selectedPartyId, setSelectedPartyId] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [purchasedItems, setPurchasedItems] = useState('');
   const [manualTotal, setManualTotal] = useState('');
-  const [dateTime, setDateTime] = useState(() => {
-    const now = new Date();
-    return now.toISOString().slice(0, 16);
-  });
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [isManuallySet, setIsManuallySet] = useState(false);
   const [notes, setNotes] = useState('');
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -115,9 +116,44 @@ const AddScreen = () => {
     };
   }, [searchText, mode, isSale]);
 
+  // Live time update (stops when user manually picks)
+  useEffect(() => {
+    if (!isManuallySet) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        setSelectedDate(now);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isManuallySet]);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      // Preserve the time from the current selectedDate
+      const newDate = new Date(selectedDate);
+      newDate.setHours(selectedDate.getHours());
+      newDate.setMinutes(selectedDate.getMinutes());
+      setSelectedDate(newDate);
+      setIsManuallySet(true);
+    }
+  };
+
+  const onTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      // Preserve the date from the current selectedDate
+      const newDate = new Date(selectedDate);
+      newDate.setHours(selectedTime.getHours());
+      newDate.setMinutes(selectedTime.getMinutes());
+      setSelectedDate(newDate);
+      setIsManuallySet(true);
+    }
+  };
+
   const handleSelect = (item: Party) => {
     setSelectedItem(item.name);
-    setSelectedPartyId(item.id); // Store the ID
+    setSelectedPartyId(item.id);
     setSearchText(item.name);
     setShowDropdown(false);
     setErrors(prev => ({ ...prev, customer: '' }));
@@ -140,8 +176,8 @@ const AddScreen = () => {
 
     if (!selectedPartyId) {
       newErrors.customer = isSale
-        ? 'Customer ID not found'
-        : 'Supplier ID not found';
+        ? 'Please select the customer from the list'
+        : 'Please select the supplier from the list';
       isValid = false;
     }
 
@@ -167,29 +203,28 @@ const AddScreen = () => {
 
     setSaving(true);
     try {
-      // FIXED: Pass customerId or supplierId based on entry type
       const entryData: any = {
         entryType: mode,
         itemsDescription: purchasedItems,
         manualTotalPrice: parseFloat(manualTotal),
-        transactionDate: new Date(dateTime).toISOString(),
+        transactionDate: selectedDate.toISOString(),
         notes: notes,
       };
 
       if (isSale) {
-        entryData.customer = selectedPartyId; // Pass customer ID
+        entryData.customer = selectedPartyId;
       } else {
-        entryData.supplier = selectedPartyId; // Pass supplier ID
+        entryData.supplier = selectedPartyId;
       }
 
-      console.log('Sending entry data:', entryData); // Debug log
+      console.log('Sending entry data:', entryData);
 
       await createEntry(entryData);
 
       Alert.alert('Success', 'Entry saved successfully!');
       handleCancel();
     } catch (error: any) {
-      console.log('Error response:', error?.response?.data); // Debug log
+      console.log('Error response:', error?.response?.data);
       const message =
         error?.response?.data?.message || 'Failed to save entry. Try again.';
       Alert.alert('Error', message);
@@ -197,6 +232,7 @@ const AddScreen = () => {
       setSaving(false);
     }
   };
+
   const handleCancel = () => {
     setSearchText('');
     setSelectedItem('');
@@ -425,13 +461,63 @@ const AddScreen = () => {
 
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Date & Time *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="YYYY-MM-DD HH:MM"
-              placeholderTextColor="#8E8E93"
-              value={dateTime}
-              onChangeText={setDateTime}
-            />
+            <View style={styles.dateTimeRow}>
+              {/* Date picker button */}
+              <TouchableOpacity
+                style={[styles.input, styles.dateTimeInput, styles.dateInput]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.dateTimeText}>
+                  {selectedDate.toLocaleDateString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Time picker button */}
+              <TouchableOpacity
+                style={[styles.input, styles.dateTimeInput, styles.timeInput]}
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Text style={styles.dateTimeText}>
+                  {selectedDate.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Calendar icon (opens date picker) */}
+              <TouchableOpacity
+                style={styles.calendarIcon}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Icon name="calendar-outline" size={24} color="#1E90FF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Date Picker */}
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+              />
+            )}
+
+            {/* Time Picker */}
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="time"
+                display="default"
+                onChange={onTimeChange}
+              />
+            )}
           </View>
 
           <View style={styles.sectionContainer}>

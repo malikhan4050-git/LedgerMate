@@ -61,51 +61,56 @@ const SignupScreen = ({ navigation }: Props) => {
     }));
   };
 
+  // const handleSignup = async () => {
+  //   const validationErrors = validateSignupForm(data, agree);
+
+  //   setErrors(validationErrors);
+
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await api.post('/auth/signup', data);
+
+  //     const { token, user } = response.data.result;
+
+  //     // Persist auth data locally
+  //     await Promise.all([
+  //       AsyncStorage.setItem('token', token),
+  //       AsyncStorage.setItem('user', JSON.stringify(user)),
+  //     ]);
+
+  //     dispatch(
+  //       setSession({
+  //         token,
+  //         user,
+  //         business: null,
+  //       }),
+  //     );
+
+  //     console.log('Signup Successful');
+  //     console.log('Token:', token);
+  //     console.log('User:', user);
+
+  //     // Go to business details
+  //     navigation.replace('BusinessDetails');
+  //   } catch (error: any) {
+  //     console.log('Status:', error.response?.status);
+  //     console.log('Data:', error.response?.data);
+  //     console.log('Message:', error.message);
+
+  //     Alert.alert(
+  //       'Signup Failed',
+  //       error.response?.data?.message || 'Something went wrong.',
+  //     );
+  //   }
+  // };
+
+
   const handleSignup = async () => {
-    const validationErrors = validateSignupForm(data, agree);
-
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
-
-    try {
-      const response = await api.post('/auth/signup', data);
-
-      const { token, user } = response.data.result;
-
-      // Persist auth data locally
-      await Promise.all([
-        AsyncStorage.setItem('token', token),
-        AsyncStorage.setItem('user', JSON.stringify(user)),
-      ]);
-
-      dispatch(
-        setSession({
-          token,
-          user,
-          business: null,
-        }),
-      );
-
-      console.log('Signup Successful');
-      console.log('Token:', token);
-      console.log('User:', user);
-
-      // Go to business details
-      navigation.replace('BusinessDetails');
-    } catch (error: any) {
-      console.log('Status:', error.response?.status);
-      console.log('Data:', error.response?.data);
-      console.log('Message:', error.message);
-
-      Alert.alert(
-        'Signup Failed',
-        error.response?.data?.message || 'Something went wrong.',
-      );
-    }
-  };
+    navigation.replace('BusinessDetails')
+  }
 
   return (
     <KeyboardAvoidingView

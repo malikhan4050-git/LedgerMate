@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
@@ -116,7 +116,6 @@ const AddScreen = () => {
     };
   }, [searchText, mode, isSale]);
 
-  // Live time update (stops when user manually picks)
   useEffect(() => {
     if (!isManuallySet) {
       const interval = setInterval(() => {
@@ -127,22 +126,20 @@ const AddScreen = () => {
     }
   }, [isManuallySet]);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      // Preserve the time from the current selectedDate
-      const newDate = new Date(selectedDate);
-      newDate.setHours(selectedDate.getHours());
-      newDate.setMinutes(selectedDate.getMinutes());
-      setSelectedDate(newDate);
-      setIsManuallySet(true);
-    }
-  };
+const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  setShowDatePicker(false);
+  if (selectedDate) {
+    const newDate = new Date(selectedDate);
+    newDate.setHours(selectedDate.getHours());
+    newDate.setMinutes(selectedDate.getMinutes());
+    setSelectedDate(newDate);
+    setIsManuallySet(true);
+  }
+};
 
-  const onTimeChange = (event: any, selectedTime?: Date) => {
+  const onTimeChange = (event: DateTimePickerEvent, selectedTime?: Date) => {
     setShowTimePicker(false);
     if (selectedTime) {
-      // Preserve the date from the current selectedDate
       const newDate = new Date(selectedDate);
       newDate.setHours(selectedTime.getHours());
       newDate.setMinutes(selectedTime.getMinutes());
@@ -277,8 +274,8 @@ const AddScreen = () => {
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
-      behavior={Platform.OS === 'android' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 64}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -464,7 +461,12 @@ const AddScreen = () => {
             <View style={styles.dateTimeRow}>
               {/* Date picker button */}
               <TouchableOpacity
-                style={[styles.input, styles.dateTimeInput, styles.dateInput]}
+                style={[
+                  styles.input, 
+                  styles.dateTimeInput, 
+                  styles.dateInput,
+                  { flex: 1, marginRight: 8 }
+                ]}
                 onPress={() => setShowDatePicker(true)}
               >
                 <Text style={styles.dateTimeText}>
@@ -476,9 +478,13 @@ const AddScreen = () => {
                 </Text>
               </TouchableOpacity>
 
-              {/* Time picker button */}
               <TouchableOpacity
-                style={[styles.input, styles.dateTimeInput, styles.timeInput]}
+                style={[
+                  styles.input, 
+                  styles.dateTimeInput, 
+                  styles.timeInput,
+                  { flex: 1, marginLeft: 8 }
+                ]}
                 onPress={() => setShowTimePicker(true)}
               >
                 <Text style={styles.dateTimeText}>
@@ -489,17 +495,8 @@ const AddScreen = () => {
                   })}
                 </Text>
               </TouchableOpacity>
-
-              {/* Calendar icon (opens date picker) */}
-              <TouchableOpacity
-                style={styles.calendarIcon}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Icon name="calendar-outline" size={24} color="#1E90FF" />
-              </TouchableOpacity>
             </View>
 
-            {/* Date Picker */}
             {showDatePicker && (
               <DateTimePicker
                 value={selectedDate}

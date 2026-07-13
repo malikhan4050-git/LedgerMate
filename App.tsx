@@ -7,7 +7,6 @@ import { store } from './src/redux/store';
 const App = () => {
   return (
     <Provider store={store}>
-      {/* Simply remove SafeAreaView here. Handle it inside each screen/navigator instead */}
       <RootNavigator />
     </Provider>
   );

@@ -241,16 +241,19 @@ export default StyleSheet.create({
     width: '100%',
     marginTop: 20,
   },
+
   inputError: {
     borderColor: '#FF3B30',
     borderWidth: 1.5,
   },
+
   errorText: {
     fontSize: 12,
     color: '#FF3B30',
     marginTop: 4,
     marginLeft: 4,
   },
+
   // Modal styles
   modalOverlay: {
     flex: 1,
@@ -258,6 +261,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modalContent: {
     backgroundColor: Colors.white,
     borderRadius: Sizes.borderRadius,
@@ -265,6 +269,7 @@ export default StyleSheet.create({
     width: '90%',
     maxHeight: '80%',
   },
+
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -272,15 +277,18 @@ export default StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
+
   modalFieldContainer: {
     marginBottom: 14,
   },
+
   modalLabel: {
     fontSize: 14,
     color: Colors.secondaryText,
     marginBottom: 6,
     fontWeight: '600',
   },
+
   modalInput: {
     width: '100%',
     borderWidth: 1,
@@ -292,6 +300,7 @@ export default StyleSheet.create({
     color: Colors.primaryText,
     backgroundColor: Colors.white,
   },
+
   modalCancelButton: {
     width: '100%',
     height: 48,
@@ -303,18 +312,22 @@ export default StyleSheet.create({
     backgroundColor: Colors.white,
     marginTop: 10,
   },
+
   modalCancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: Colors.secondaryText,
   },
+
   modalSaveButtonWrapper: {
     width: '100%',
     marginTop: 10,
   },
+
   modalKeyboardContainer: {
     flex: 1,
   },
+
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -326,13 +339,53 @@ export default StyleSheet.create({
     alignItems: 'center',
     borderRadius: Sizes.borderRadius,
   },
+
   loadingContainer: {
     paddingVertical: 10,
     alignItems: 'center',
   },
+
   loadingText: {
     fontSize: 14,
     color: '#8E8E93',
     fontStyle: 'italic',
+  },
+
+  // === NEW DATE/TIME STYLES (deduped) ===
+  dateTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8, // use margin if gap isn't supported
+  },
+
+  dateTimeInput: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 8,
+    backgroundColor: '#FAFAFA',
+  },
+
+  dateInput: {
+    flex: 1.2, // slightly more space for date
+  },
+
+  timeInput: {
+    flex: 0.9,
+  },
+
+  dateTimeText: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+  },
+
+  calendarIcon: {
+    padding: 8,
+    backgroundColor: '#F0F4FF',
+    borderRadius: 8,
   },
 });

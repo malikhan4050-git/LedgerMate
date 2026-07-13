@@ -23,7 +23,7 @@ const iconMap: Record<string, string> = {
   Home: 'home-outline',
   Ledger: 'book-outline',
   Add: 'add-circle-outline',
-  Products: 'bar-chart-outline',
+  Products: 'grid-outline',
   Profile: 'person-outline',
 };
 

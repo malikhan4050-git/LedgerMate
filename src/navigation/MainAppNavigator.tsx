@@ -1,7 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, StyleSheet, Platform, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import DashboardHomeScreen from '../screens/Dashboard/DashboardHomeScreen';
 import LedgerScreen from '../screens/Ledger/LedgerScreen';
@@ -28,42 +30,40 @@ const iconMap: Record<string, string> = {
 };
 
 const MainAppNavigator = () => {
+  // Custom header with NO text - just gradient + status bar
+  const renderCustomHeader = () => {
+    return (
+      <LinearGradient
+        colors={['#4A90E2', '#4CCB8C']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradientHeader}
+      >
+        {/* Status bar area - translucent so gradient shows through */}
+        <StatusBar
+          translucent={true}
+          backgroundColor="transparent"
+          barStyle="light-content"
+        />
+        <View />
+      </LinearGradient>
+    );
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {
-        const headerTitles: Record<string, string> = {
-          Home: 'Dashboard',
-          Ledger: 'Ledger Overview',
-          Add: 'Add Entry',
-          Products: 'Products',
-          Profile: 'Profile Settings',
-        };
-
         return {
           headerShown: true,
-          headerTitle: headerTitles[route.name] ?? route.name,
-          headerTitleAlign: 'center',
+          header: () => renderCustomHeader(), // No title passed anymore
 
-          // Render the same gradient used by buttons as the header background
-          headerBackground: () => (
-            <LinearGradient
-              colors={["#4A90E2", "#4CCB8C"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ flex: 1 }}
-            />
-          ),
-
+          // Keep height the same so screen content doesn't shift
           headerStyle: {
-            height: 60,
+            height: Platform.OS === 'ios' ? 40 : 20,
+            backgroundColor: 'transparent',
           },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: '700',
-            fontSize: 18,
-            color: '#FFFFFF',
-          },
-          
+
+          // Tab bar styling - PULLED UPWARD
           tabBarIcon: ({ color, size }) => {
             const iconName = iconMap[route.name] ?? 'ellipse-outline';
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -71,14 +71,11 @@ const MainAppNavigator = () => {
           tabBarActiveTintColor: '#1E90FF',
           tabBarInactiveTintColor: '#8E8E93',
           tabBarStyle: {
-            height: 64,
-            paddingBottom: 6,
-            paddingTop: 6,
-            borderTopWidth: 0.5,
-            borderTopColor: '#d1d1d1',
+            height: 70,
           },
         };
-      }}>
+      }}
+    >
       <Tab.Screen name="Home" component={DashboardHomeScreen} />
       <Tab.Screen name="Ledger" component={LedgerScreen} />
       <Tab.Screen name="Add" component={AddScreen} />
@@ -87,5 +84,18 @@ const MainAppNavigator = () => {
     </Tab.Navigator>
   );
 };
+
+// Styles
+const styles = StyleSheet.create({
+  gradientHeader: {
+    flex: 1,
+    paddingTop:
+      Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+    height: Platform.OS === 'ios' ? 40 : 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+});
 
 export default MainAppNavigator;

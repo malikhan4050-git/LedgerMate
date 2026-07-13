@@ -290,8 +290,8 @@ const AddScreen = () => {
             selectedValue={isSale ? 'simple' : 'advanced'}
             leftTitle="Sale"
             rightTitle="Purchase"
-            leftSubtitle="Selling Something" 
-            rightSubtitle="Buying Something" 
+            leftSubtitle="Selling Something"
+            rightSubtitle="Buying Something"
             leftIcon="gift-outline"
             rightIcon="cart-outline"
             compact
@@ -315,40 +315,36 @@ const AddScreen = () => {
                   errors.customer && styles.inputError,
                 ]}
               >
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder={
-                    isSale
-                      ? 'Search or select customer'
-                      : 'Search or select supplier'
-                  }
-                  placeholderTextColor="#8E8E93"
-                  value={searchText}
-                  onChangeText={text => {
-                    setSearchText(text);
-                    setShowDropdown(true);
-                    if (text === '') {
-                      setSelectedItem('');
-                      setSelectedPartyId(null);
-                    }
-                    if (errors.customer) {
-                      setErrors(prev => ({ ...prev, customer: '' }));
-                    }
-                  }}
-                  onFocus={() => setShowDropdown(true)}
-                />
                 <TouchableOpacity
-                  style={styles.dropdownIcon}
-                  onPress={() => setShowDropdown(!showDropdown)}
+                  activeOpacity={1} // Prevents visual flash on press
+                  style={{ flex: 1 }}
+                  onPress={() => setShowDropdown(true)} // 👈 Tapping anywhere opens dropdown
                 >
-                  <Icon
-                    name={showDropdown ? 'chevron-up' : 'chevron-down'}
-                    size={20}
-                    color="#8E8E93"
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder={
+                      isSale
+                        ? 'Search or select customer'
+                        : 'Search or select supplier'
+                    }
+                    placeholderTextColor="#8E8E93"
+                    value={searchText}
+                    onChangeText={text => {
+                      setSearchText(text);
+                      setShowDropdown(true);
+                      if (text === '') {
+                        setSelectedItem('');
+                        setSelectedPartyId(null);
+                      }
+                      if (errors.customer) {
+                        setErrors(prev => ({ ...prev, customer: '' }));
+                      }
+                    }}
+                    onFocus={() => setShowDropdown(true)} // 👈 Backup for native focus
+                    editable={true}
                   />
                 </TouchableOpacity>
               </View>
-
               {errors.customer ? (
                 <Text style={styles.errorText}>{errors.customer}</Text>
               ) : null}

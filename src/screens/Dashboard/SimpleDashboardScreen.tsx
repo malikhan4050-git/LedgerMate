@@ -3,7 +3,6 @@ import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
-import DashboardLogo from '../../components/Logo/DashboardLogo';
 import styles from './styles';
 import type { RootState } from '../../redux/store';
 

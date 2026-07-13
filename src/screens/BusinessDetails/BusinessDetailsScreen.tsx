@@ -163,15 +163,17 @@ const BusinessDetailsScreen = ({ navigation }: Props) => {
             onChangeText={text => handleChange('currency', text)}
             error={errors.currency}
           />
-
           <ToggleSelector
             title="Ledger Mode"
             selectedValue={business.mode}
             leftTitle="Simple"
             rightTitle="Advanced"
+            leftSubtitle="Basic ledger for daily entries" // ✅ Add this
+            rightSubtitle="Detailed reports & analytics" // ✅ Add this
+            leftIcon="receipt-outline" // ✅ Add this
+            rightIcon="diamond-outline" // ✅ Add this
             onValueChange={value => handleChange('mode', value)}
           />
-
           <GradientButton
             title="Create Business Book"
             onPress={handleCreateBusiness}

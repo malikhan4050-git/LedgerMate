@@ -1,8 +1,6 @@
-import {Platform, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import Colors from '../../theme/Colors';
 import Sizes from '../../theme/Sizes';
-import { getStatusBarHeight } from 'react-native-status-bar-height';
-
 
 const styles = StyleSheet.create({
   keyboardContainer: {
@@ -62,28 +60,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primaryBlue,
   },
-  // ============================================
-// NEW STYLES FOR THE GRADIENT HEADER & LAYOUT
-// (These do NOT conflict with existing styles)
-// ============================================
-
-  gradientHeader: {
-    paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
-    height: Platform.OS === 'ios' ? 100 : 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  headerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: 10,
-  },
-  mainContainer: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
+  
 });
 
 export default styles;

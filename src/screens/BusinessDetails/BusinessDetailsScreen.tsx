@@ -16,6 +16,7 @@ import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import styles from './styles';
 import api from '../../api/axios';
 import { validateBusinessForm } from '../../utils/validators';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BusinessDetails'>;
 
@@ -96,91 +97,93 @@ const BusinessDetailsScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardContainer}
-      behavior={Platform.OS === 'android' ? 'padding' : undefined}
-    >
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'android' ? 'padding' : undefined}
       >
-        {/* Logo */}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo */}
 
-        <View style={styles.logoContainer}>
-          <AppLogo />
-        </View>
+          <View style={styles.logoContainer}>
+            <AppLogo />
+          </View>
 
-        {/* Header */}
+          {/* Header */}
 
-        <Header
-          title="Setup Business"
-          subtitle="Configure your digital ledger book details"
-        />
-
-        {/* Form */}
-
-        <View style={styles.formContainer}>
-          <CustomInput
-            placeholder="Business Name"
-            value={business.businessName}
-            onChangeText={text => handleChange('businessName', text)}
-            error={errors.businessName}
+          <Header
+            title="Setup Business"
+            subtitle="Configure your digital ledger book details"
           />
 
-          <CustomInput
-            placeholder="Owner Name"
-            value={business.ownerName}
-            onChangeText={text => handleChange('ownerName', text)}
-            error={errors.ownerName}
-          />
+          {/* Form */}
 
-          <CustomInput
-            placeholder="Phone Number"
-            keyboardType="phone-pad"
-            value={business.phoneNo}
-            onChangeText={text => handleChange('phoneNo', text)}
-            error={errors.phoneNo}
-          />
+          <View style={styles.formContainer}>
+            <CustomInput
+              placeholder="Business Name"
+              value={business.businessName}
+              onChangeText={text => handleChange('businessName', text)}
+              error={errors.businessName}
+            />
 
-          <CustomInput
-            placeholder="Business Type"
-            value={business.businessType}
-            onChangeText={text => handleChange('businessType', text)}
-            error={errors.businessType}
-          />
+            <CustomInput
+              placeholder="Owner Name"
+              value={business.ownerName}
+              onChangeText={text => handleChange('ownerName', text)}
+              error={errors.ownerName}
+            />
 
-          <CustomInput
-            placeholder="Address"
-            value={business.address}
-            onChangeText={text => handleChange('address', text)}
-            error={errors.address}
-          />
+            <CustomInput
+              placeholder="Phone Number"
+              keyboardType="phone-pad"
+              value={business.phoneNo}
+              onChangeText={text => handleChange('phoneNo', text)}
+              error={errors.phoneNo}
+            />
 
-          <CustomInput
-            placeholder="Currency"
-            value={business.currency}
-            onChangeText={text => handleChange('currency', text)}
-            error={errors.currency}
-          />
-          <ToggleSelector
-            title="Ledger Mode"
-            selectedValue={business.mode}
-            leftTitle="Simple"
-            rightTitle="Advanced"
-            leftSubtitle="Basic ledger for daily entries" // ✅ Add this
-            rightSubtitle="Detailed reports & analytics" // ✅ Add this
-            leftIcon="receipt-outline" // ✅ Add this
-            rightIcon="diamond-outline" // ✅ Add this
-            onValueChange={value => handleChange('mode', value)}
-          />
-          <GradientButton
-            title="Create Business Book"
-            onPress={handleCreateBusiness}
-          />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <CustomInput
+              placeholder="Business Type"
+              value={business.businessType}
+              onChangeText={text => handleChange('businessType', text)}
+              error={errors.businessType}
+            />
+
+            <CustomInput
+              placeholder="Address"
+              value={business.address}
+              onChangeText={text => handleChange('address', text)}
+              error={errors.address}
+            />
+
+            <CustomInput
+              placeholder="Currency"
+              value={business.currency}
+              onChangeText={text => handleChange('currency', text)}
+              error={errors.currency}
+            />
+            <ToggleSelector
+              title="Ledger Mode"
+              selectedValue={business.mode}
+              leftTitle="Simple"
+              rightTitle="Advanced"
+              leftSubtitle="Basic ledger for daily entries" // ✅ Add this
+              rightSubtitle="Detailed reports & analytics" // ✅ Add this
+              leftIcon="receipt-outline" // ✅ Add this
+              rightIcon="diamond-outline" // ✅ Add this
+              onValueChange={value => handleChange('mode', value)}
+            />
+            <GradientButton
+              title="Create Business Book"
+              onPress={handleCreateBusiness}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

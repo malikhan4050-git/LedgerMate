@@ -37,7 +37,23 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.white,
+  },
+
+  optionContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  icon: {
+    marginRight: 6,
   },
 
   selectedOption: {
@@ -53,7 +69,17 @@ const styles = StyleSheet.create({
   selectedText: {
     color: Colors.white,
   },
-  
+
+  subtitleText: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+
+  selectedSubtitleText: {
+    color: 'rgba(255, 255, 255, 0.8)', // White with slight transparency
+  },
 });
 
 export default styles;

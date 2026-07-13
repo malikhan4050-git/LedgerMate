@@ -14,10 +14,10 @@ type Props = {
   selectedValue: string;
   leftTitle: string;
   rightTitle: string;
-  leftSubtitle?: string;   // ✅ NEW: Subtitle for left button
-  rightSubtitle?: string;  // ✅ NEW: Subtitle for right button
-  leftIcon?: string;       // Optional icon name for left
-  rightIcon?: string;      // Optional icon name for right
+  leftSubtitle?: string;   
+  rightSubtitle?: string;  
+  leftIcon?: string;       
+  rightIcon?: string;      
   compact?: boolean;
   onValueChange: (value: string) => void;
 };
@@ -42,7 +42,6 @@ const ToggleSelector = ({
       {/* Toggle Container */}
       <View style={[styles.toggleContainer, compact && styles.compactToggleContainer]}>
         
-        {/* LEFT OPTION (e.g., Sale) */}
         <Pressable
           style={[
             styles.option,
@@ -73,7 +72,6 @@ const ToggleSelector = ({
               </Text>
             </View>
 
-            {/* ✅ NEW: Left Subtitle */}
             {leftSubtitle && (
               <Text
                 style={[
@@ -87,7 +85,6 @@ const ToggleSelector = ({
           </View>
         </Pressable>
 
-        {/* RIGHT OPTION (e.g., Purchase) */}
         <Pressable
           style={[
             styles.option,
@@ -118,7 +115,6 @@ const ToggleSelector = ({
               </Text>
             </View>
 
-            {/* ✅ NEW: Right Subtitle */}
             {rightSubtitle && (
               <Text
                 style={[

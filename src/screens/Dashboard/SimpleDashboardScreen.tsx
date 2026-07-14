@@ -1,6 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  View,
+  Text,
+  ScrollView,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 
 import styles from './styles';
@@ -12,18 +15,22 @@ const SimpleDashboardScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Greeting */}
-      <View style={styles.greetingContainer}>
-        <Text style={styles.greeting}>
-          Welcome back, {username || 'User'}!
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Here's your business at a glance.
-        </Text>
+    <ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Dashboard</Text>
+          <Text style={styles.headerSubtitle}>
+            Welcome back, {username || 'User'}!
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            Here's a quick overview of your business activities.
+          </Text>
+        </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 

@@ -9,6 +9,21 @@ export default StyleSheet.create({
     backgroundColor: Colors.white,
     padding: Sizes.screenPadding,
   },
+  header: {
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
+
+  headerSubtitle: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+    marginTop: 2,
+  },
 
   fieldContainer: {
     marginBottom: 14,

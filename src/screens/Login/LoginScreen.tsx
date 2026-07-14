@@ -53,68 +53,68 @@ const LoginScreen = ({ navigation }: Props) => {
     }));
   };
 
-  // const handleLogin = async () => {
-  //   const validationErrors = validateLoginForm(data);
-
-  //   setErrors(validationErrors);
-
-  //   if (Object.keys(validationErrors).length > 0) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await api.post('/auth/login', data);
-  //     console.log(response);
-
-  //     const responsePayload = response?.data?.result ?? response?.data ?? {};
-  //     const token = responsePayload.token ?? null;
-  //     const user = responsePayload.user ?? null;
-  //     const business = responsePayload.business ?? null;
-
-  //     await Promise.all([
-  //       AsyncStorage.setItem('token', token ?? ''),
-  //       AsyncStorage.setItem('user', JSON.stringify(user ?? null)),
-  //       AsyncStorage.setItem('business', JSON.stringify(business ?? null)),
-  //     ]);
-
-  //     dispatch(
-  //       setSession({
-  //         token,
-  //         user,
-  //         business,
-  //       }),
-  //     );
-
-  //     if (!business || business.success === false) {
-  //       navigation.replace('BusinessDetails');
-  //     } else {
-  //       navigation.replace('App');
-  //     }
-  //   } catch (error: any) {
-  //     console.log(error.response?.status);
-  //     console.log(error.response?.data);
-
-  //     const errorMessage = error.response?.data?.message;
-
-  //     if (
-  //       error.response?.status === 400 &&
-  //       errorMessage === 'Business details not found'
-  //     ) {
-  //       navigation.replace('BusinessDetails');
-  //       return;
-  //     }
-
-  //     Alert.alert(
-  //       'Login Failed',
-  //       errorMessage || 'Something went wrong.',
-  //     );
-  //   }
-  // };
-
   const handleLogin = async () => {
-  // Bypass everything - just navigate directly
-  navigation.replace('App'); // or 'BusinessDetails' if you want to test that screen
-};
+    const validationErrors = validateLoginForm(data);
+
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    try {
+      const response = await api.post('/auth/login', data);
+      console.log(response);
+
+      const responsePayload = response?.data?.result ?? response?.data ?? {};
+      const token = responsePayload.token ?? null;
+      const user = responsePayload.user ?? null;
+      const business = responsePayload.business ?? null;
+
+      await Promise.all([
+        AsyncStorage.setItem('token', token ?? ''),
+        AsyncStorage.setItem('user', JSON.stringify(user ?? null)),
+        AsyncStorage.setItem('business', JSON.stringify(business ?? null)),
+      ]);
+
+      dispatch(
+        setSession({
+          token,
+          user,
+          business,
+        }),
+      );
+
+      if (!business || business.success === false) {
+        navigation.replace('BusinessDetails');
+      } else {
+        navigation.replace('App');
+      }
+    } catch (error: any) {
+      console.log(error.response?.status);
+      console.log(error.response?.data);
+
+      const errorMessage = error.response?.data?.message;
+
+      if (
+        error.response?.status === 400 &&
+        errorMessage === 'Business details not found'
+      ) {
+        navigation.replace('BusinessDetails');
+        return;
+      }
+
+      Alert.alert(
+        'Login Failed',
+        errorMessage || 'Something went wrong.',
+      );
+    }
+  };
+
+//   const handleLogin = async () => {
+//   // Bypass everything - just navigate directly
+//   navigation.replace('App'); // or 'BusinessDetails' if you want to test that screen
+// };
 
   return (
     <KeyboardAvoidingView

@@ -1,44 +1,39 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import Colors from '../../constants/Colors';
+import Colors from '../../theme/Colors';
+import Sizes from '../../theme/Sizes';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.WHITE,
+    backgroundColor: '#F8F9FA',
+    padding: Sizes.screenPadding,
+  },
+
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
 
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 16,
   },
 
-  logoContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
   },
 
-  greetingContainer: {
-    marginTop: 5,
-    paddingHorizontal: 22,
+  headerSubtitle: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+    marginTop: 2,
   },
-
-  greeting: {
-    fontSize: 22,
-
-    fontWeight: '700',
-
-    color: Colors.BLACK,
-  },
-
   subtitle: {
-
-    fontSize: 15,
-
-    color: Colors.BLACK,
+    fontSize: 14,
+    color: Colors.secondaryText,
+    marginTop: 4,
   },
 });

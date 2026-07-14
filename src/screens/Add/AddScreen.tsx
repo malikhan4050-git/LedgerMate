@@ -285,6 +285,12 @@ const AddScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Add New Entries Here</Text>
+            <Text style={styles.headerSubtitle}>
+              Add a new {isSale ? 'sale' : 'purchase'} transaction
+            </Text>
+          </View>
           <ToggleSelector
             title="Transaction Type"
             selectedValue={isSale ? 'simple' : 'advanced'}

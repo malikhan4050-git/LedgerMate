@@ -1,21 +1,36 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  View,
+  Text,
+  ScrollView,
+} from 'react-native';
+import { useSelector } from 'react-redux';
 
-import styles from './styles';
+import styles from './stylesAdvanceDashboard';
+import type { RootState } from '../../redux/store';
 
 const AdvanceDashboardScreen = () => {
+  const username = useSelector(
+    (state: RootState) => state.session.user?.name,
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <Text>Advance Dashboard Screen</Text>
+    <ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Advance Dashboard</Text>
+          <Text style={styles.headerSubtitle}>
+            Welcome back, {username || 'User'}!
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            Here's your advance business analytics.
+          </Text>
+        </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 

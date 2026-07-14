@@ -9,11 +9,7 @@ import { useSelector } from 'react-redux';
 import styles from './styles';
 import type { RootState } from '../../redux/store';
 
-const SimpleDashboardScreen = () => {
-  const username = useSelector(
-    (state: RootState) => state.session.user?.name,
-  );
-
+const ProductsScreen = () => {
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -31,4 +27,4 @@ const SimpleDashboardScreen = () => {
   );
 };
 
-export default SimpleDashboardScreen;
+export default ProductsScreen;

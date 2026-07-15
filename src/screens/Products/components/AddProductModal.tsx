@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import GradientButton from '../../../components/Buttons/GradientButton';
-import styles from '../styles';
+import styles from './styles';
 
 interface AddProductModalProps {
   visible: boolean;

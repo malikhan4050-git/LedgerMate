@@ -36,10 +36,7 @@ const ToggleSelector = ({
 }: Props) => {
   return (
     <View style={styles.container}>
-      {/* Title */}
       <Text style={styles.title}>{title}</Text>
-
-      {/* Toggle Container */}
       <View style={[styles.toggleContainer, compact && styles.compactToggleContainer]}>
         
         <Pressable
@@ -51,7 +48,6 @@ const ToggleSelector = ({
           onPress={() => onValueChange('simple')}
         >
           <View style={styles.optionContent}>
-            {/* Icon + Text */}
             <View style={styles.optionRow}>
               {leftIcon && (
                 <Icon
@@ -94,7 +90,6 @@ const ToggleSelector = ({
           onPress={() => onValueChange('advanced')}
         >
           <View style={styles.optionContent}>
-            {/* Icon + Text */}
             <View style={styles.optionRow}>
               {rightIcon && (
                 <Icon

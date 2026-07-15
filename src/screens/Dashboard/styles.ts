@@ -259,12 +259,6 @@ export default StyleSheet.create({
     marginTop: 8,
   },
 
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: Colors.secondaryText,
-    marginTop: 2,
-  },
-
   // Add Button
   addButton: {
     flexDirection: 'row',

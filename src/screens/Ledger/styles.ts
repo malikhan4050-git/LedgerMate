@@ -101,7 +101,6 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
 
-
   columnDetails: {
     flex: 1,
     minWidth: 100,

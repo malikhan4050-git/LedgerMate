@@ -14,6 +14,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import FilterModal from './components/FilterModal';
+import LedgerCardModal from './components/LedgerCardModal';
 import { EntryPayload, getEntries } from '../../services/entryApi';
 import { updateEntry, deleteEntry } from '../../services/entryApi';
 import EditEntryModal from './components/EditEntryModal';
@@ -43,6 +44,7 @@ const LedgerScreen = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [cardModalVisible, setCardModalVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'sale' | 'purchase'
   >('all');
@@ -58,7 +60,9 @@ const LedgerScreen = () => {
       filtered = filtered.filter(
         entry =>
           entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase()) ||
+          entry.itemsDescription
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
           entry.notes?.toLowerCase().includes(searchText.toLowerCase()),
       );
     }
@@ -69,6 +73,16 @@ const LedgerScreen = () => {
 
     setFilteredEntries(filtered);
   }, [searchText, entries, selectedFilter]);
+
+  const handleCardPress = (entry: Entry) => {
+    setSelectedEntry(entry);
+    setCardModalVisible(true);
+  };
+
+  const handleCardModalClose = () => {
+    setCardModalVisible(false);
+    setSelectedEntry(null);
+  };
 
   const groupEntriesByDate = (entries: Entry[]) => {
     const grouped: { [key: string]: Entry[] } = {};
@@ -316,37 +330,43 @@ const LedgerScreen = () => {
                     const isSale = entry.entryType === 'sale';
 
                     return (
-                      <View key={entry._id} style={styles.cardRow}>
-                        <View style={[styles.cardCell, styles.columnName]}>
-                          <Text style={styles.cardName} numberOfLines={1}>
-                            {entry.name}
-                          </Text>
-                        </View>
-
-                        <View style={[styles.cardCell, styles.columnDetails]}>
-                          <Text style={styles.cardItems} numberOfLines={1}>
-                            {entry.itemsDescription}
-                          </Text>
-                          {entry.notes && (
-                            <Text style={styles.cardNotes} numberOfLines={1}>
-                              {entry.notes}
+                      <TouchableOpacity
+                        key={entry._id}
+                        activeOpacity={0.7}
+                        onPress={() => handleCardPress(entry)}
+                      >
+                        <View style={styles.cardRow}>
+                          <View style={[styles.cardCell, styles.columnName]}>
+                            <Text style={styles.cardName} numberOfLines={1}>
+                              {entry.name}
                             </Text>
-                          )}
-                        </View>
+                          </View>
 
-                        <View style={[styles.cardCell, styles.columnAmount]}>
-                          <Text
-                            style={[
-                              styles.cardAmount,
-                              isSale
-                                ? styles.cardAmountSale
-                                : styles.cardAmountPurchase,
-                            ]}
-                          >
-                            RS {entry.manualTotalPrice}
-                          </Text>
+                          <View style={[styles.cardCell, styles.columnDetails]}>
+                            <Text style={styles.cardItems} numberOfLines={1}>
+                              {entry.itemsDescription}
+                            </Text>
+                            {entry.notes && (
+                              <Text style={styles.cardNotes} numberOfLines={1}>
+                                {entry.notes}
+                              </Text>
+                            )}
+                          </View>
+
+                          <View style={[styles.cardCell, styles.columnAmount]}>
+                            <Text
+                              style={[
+                                styles.cardAmount,
+                                isSale
+                                  ? styles.cardAmountSale
+                                  : styles.cardAmountPurchase,
+                              ]}
+                            >
+                              PKR {entry.manualTotalPrice}
+                            </Text>
+                          </View>
                         </View>
-                      </View>
+                      </TouchableOpacity>
                     );
                   })}
                 </View>
@@ -383,6 +403,20 @@ const LedgerScreen = () => {
         }}
         onConfirm={handleDeleteConfirm}
         isDeleting={isDeleting}
+      />
+
+      <LedgerCardModal
+        visible={cardModalVisible}
+        entry={selectedEntry}
+        onClose={handleCardModalClose}
+        onEdit={() => {
+          setCardModalVisible(false);
+          handleEdit(selectedEntry);
+        }}
+        onDelete={() => {
+          setCardModalVisible(false);
+          handleDeletePress(selectedEntry);
+        }}
       />
     </KeyboardAvoidingView>
   );

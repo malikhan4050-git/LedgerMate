@@ -67,7 +67,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>

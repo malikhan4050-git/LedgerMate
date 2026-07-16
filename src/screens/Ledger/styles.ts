@@ -19,7 +19,6 @@ export default StyleSheet.create({
     paddingBottom: 20,
   },
 
-  // Header
   header: {
     marginTop: 10,
     marginBottom: 16,
@@ -37,7 +36,6 @@ export default StyleSheet.create({
     marginTop: 2,
   },
 
-  // Search Bar
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,33 +64,96 @@ export default StyleSheet.create({
     padding: 0,
   },
 
-  // Card
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: Sizes.borderRadius,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+  filterIconContainer: {
+    padding: 4,
+    marginLeft: 4,
   },
 
-  cardHeader: {
+  dateGroup: {
+    marginBottom: 16,
+  },
+
+  dateHeader: {
+    paddingVertical: 6,
+    marginBottom: 10,
+  },
+
+  dateHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
+
+  columnHeaders: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    paddingVertical: 6,
+    marginBottom: 4,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 6,
+  },
+
+  columnHeader: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.secondaryText,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+
+  columnType: {
+    minWidth: 50,
+    paddingHorizontal: 4,
+    flexShrink: 0,
+  },
+
+  columnDetails: {
+    flex: 1,
+    minWidth: 100,
+    paddingHorizontal: 4,
+  },
+
+  columnAmount: {
+    minWidth: 70,
+    paddingHorizontal: 4,
+    flexShrink: 0,
+  },
+
+  columnTime: {
+    minWidth: 55,
+    paddingHorizontal: 4,
+    flexShrink: 0,
+  },
+
+  columnBy: {
+    minWidth: 55,
+    paddingHorizontal: 4,
+    flexShrink: 0,
+  },
+
+  cardRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    marginBottom: 2,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#F0F0F0',
+    minHeight: 44,
+  },
+
+  cardCell: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   cardBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 12,
-    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 28,
   },
 
   cardBadgeSale: {
@@ -104,8 +165,9 @@ export default StyleSheet.create({
   },
 
   cardBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
 
   cardBadgeTextSale: {
@@ -116,14 +178,37 @@ export default StyleSheet.create({
     color: '#C62828',
   },
 
-  cardBody: {
-    marginBottom: 12,
+  cardItems: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    textAlign: 'center',
+  },
+
+  cardNotes: {
+    fontSize: 10,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginTop: 1,
+  },
+
+  cardTime: {
+    fontSize: 11,
+    color: '#8E8E93',
+    textAlign: 'center',
+  },
+
+  cardName: {
+    fontSize: 11,
+    color: '#555555',
+    fontWeight: '500',
+    textAlign: 'center',
   },
 
   cardAmount: {
-    fontSize: 22,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 4,
+    textAlign: 'center',
   },
 
   cardAmountSale: {
@@ -134,64 +219,6 @@ export default StyleSheet.create({
     color: '#C62828',
   },
 
-  cardItems: {
-    fontSize: 14,
-    color: '#555555',
-    marginBottom: 4,
-  },
-
-  cardNotesContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-
-  cardNotes: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginLeft: 4,
-    flex: 1,
-  },
-
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F5F5F5',
-  },
-
-  cardFooterLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  cardDate: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginRight: 6,
-  },
-
-  cardTime: {
-    fontSize: 12,
-    color: '#8E8E93',
-  },
-
-  cardFooterRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    maxWidth: '50%',
-  },
-
-  cardName: {
-    fontSize: 12,
-    color: '#555555',
-    marginLeft: 4,
-    fontWeight: '500',
-  },
-
-  // Empty State
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -211,7 +238,6 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
   },
 
-  // Loading
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -225,7 +251,6 @@ export default StyleSheet.create({
     marginTop: 8,
   },
 
-  // Error
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -250,10 +275,6 @@ export default StyleSheet.create({
   retryButtonText: {
     color: Colors.white,
     fontWeight: '600',
-  },
-  filterIconContainer: {
-    padding: 4,
-    marginLeft: 4,
   },
 
   // Filter Modal Styles
@@ -316,31 +337,5 @@ export default StyleSheet.create({
   filterOptionTextActive: {
     color: '#1E90FF',
     fontWeight: '600',
-  },
-  cardActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  actionButton: {
-    padding: 6,
-    marginLeft: 4,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-  },
-    // Date Group Styles
-  dateGroup: {
-    marginBottom: 8,
-  },
-
-  dateHeader: {
-    paddingVertical: 8,
-    marginBottom: 8,
-  },
-
-  dateHeaderText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.primaryText,
   },
 });

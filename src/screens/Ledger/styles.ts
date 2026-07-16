@@ -328,4 +328,19 @@ export default StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#F5F5F5',
   },
+    // Date Group Styles
+  dateGroup: {
+    marginBottom: 8,
+  },
+
+  dateHeader: {
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+
+  dateHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
 });

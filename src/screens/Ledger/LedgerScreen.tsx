@@ -46,26 +46,23 @@ const LedgerScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'sale' | 'purchase'
   >('all');
-  // Fetch entries on component mount
+
   useEffect(() => {
     fetchEntries();
   }, []);
+
   useEffect(() => {
     let filtered = entries;
 
-    // Apply search filter
     if (searchText.trim() !== '') {
       filtered = filtered.filter(
         entry =>
           entry.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          entry.itemsDescription
-            .toLowerCase()
-            .includes(searchText.toLowerCase()) ||
+          entry.itemsDescription.toLowerCase().includes(searchText.toLowerCase()) ||
           entry.notes?.toLowerCase().includes(searchText.toLowerCase()),
       );
     }
 
-    // Apply type filter
     if (selectedFilter !== 'all') {
       filtered = filtered.filter(entry => entry.entryType === selectedFilter);
     }
@@ -73,7 +70,6 @@ const LedgerScreen = () => {
     setFilteredEntries(filtered);
   }, [searchText, entries, selectedFilter]);
 
-  // Group entries by date
   const groupEntriesByDate = (entries: Entry[]) => {
     const grouped: { [key: string]: Entry[] } = {};
 
@@ -107,12 +103,10 @@ const LedgerScreen = () => {
     setError(null);
     try {
       const response = await getEntries();
-      console.log('API Response:', response);
 
       let entriesData =
         response?.entries || response?.data || response?.result || [];
 
-      // Map the data to ensure name is properly extracted
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
         name:
@@ -135,43 +129,36 @@ const LedgerScreen = () => {
     }
   };
 
-  // --- Edit Handler (opens modal) ---
   const handleEdit = (entry: any) => {
     setSelectedEntry(entry);
     setEditModalVisible(true);
   };
 
-  // --- Edit Save Handler (called from modal) ---
   const handleUpdateEntry = async (updatedData: Partial<EntryPayload>) => {
     if (!selectedEntry) return;
 
     try {
       const updated = await updateEntry(selectedEntry._id, updatedData);
-      // Update local state
       setEntries(prev =>
         prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
       );
       setFilteredEntries(prev =>
         prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
       );
-      // Close modal is handled by the modal's onSave
     } catch (error) {
-      throw error; // Let the modal catch it
+      throw error;
     }
   };
 
-  // --- Delete Handler (opens modal) ---
   const handleDeletePress = (entry: any) => {
     setSelectedEntry(entry);
     setDeleteModalVisible(true);
   };
 
-  // --- Delete Confirm Handler (called from modal) ---
   const handleDeleteConfirm = async (id: string) => {
     setIsDeleting(true);
     try {
       await deleteEntry(id);
-      // Remove from state
       setEntries(prev => prev.filter(entry => entry._id !== id));
       setFilteredEntries(prev => prev.filter(entry => entry._id !== id));
       setDeleteModalVisible(false);
@@ -182,6 +169,7 @@ const LedgerScreen = () => {
       setIsDeleting(false);
     }
   };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchEntries();
@@ -204,7 +192,6 @@ const LedgerScreen = () => {
     };
   };
 
-  // Render loading state
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -214,7 +201,6 @@ const LedgerScreen = () => {
     );
   }
 
-  // Render error state
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -241,12 +227,10 @@ const LedgerScreen = () => {
             refreshing={refreshing}
             onRefresh={onRefresh}
             colors={['#1E90FF']}
-            // tintColor={['1E90FF']} helpful for iOS.
           />
         }
       >
         <View style={styles.container}>
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Ledger Overview</Text>
             <Text style={styles.headerSubtitle}>
@@ -286,7 +270,6 @@ const LedgerScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Empty state for search results */}
           {filteredEntries.length === 0 && searchText !== '' ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No results found</Text>
@@ -302,7 +285,6 @@ const LedgerScreen = () => {
               </Text>
             </View>
           ) : (
-            /* Grouped Cards by Date */
             (() => {
               const groupedEntries = groupEntriesByDate(filteredEntries);
               const sortedDates = Object.keys(groupedEntries).sort((a, b) => {
@@ -313,20 +295,35 @@ const LedgerScreen = () => {
 
               return sortedDates.map(dateKey => (
                 <View key={dateKey} style={styles.dateGroup}>
-                  {/* Date Header */}
                   <View style={styles.dateHeader}>
                     <Text style={styles.dateHeaderText}>{dateKey}</Text>
                   </View>
 
-                  {/* Cards for this date */}
+                  <View style={styles.columnHeaders}>
+                    <Text style={[styles.columnHeader, styles.columnType]}>
+                      Type
+                    </Text>
+                    <Text style={[styles.columnHeader, styles.columnDetails]}>
+                      Details
+                    </Text>
+                    <Text style={[styles.columnHeader, styles.columnAmount]}>
+                      Amount
+                    </Text>
+                    <Text style={[styles.columnHeader, styles.columnTime]}>
+                      Time
+                    </Text>
+                    <Text style={[styles.columnHeader, styles.columnBy]}>
+                      By
+                    </Text>
+                  </View>
+
                   {groupedEntries[dateKey].map(entry => {
-                    const { date, time } = formatDate(entry.transactionDate);
+                    const { time } = formatDate(entry.transactionDate);
                     const isSale = entry.entryType === 'sale';
 
                     return (
-                      <View key={entry._id} style={styles.card}>
-                        {/* Card Header - Type Badge and Actions */}
-                        <View style={styles.cardHeader}>
+                      <View key={entry._id} style={styles.cardRow}>
+                        <View style={[styles.cardCell, styles.columnType]}>
                           <View
                             style={[
                               styles.cardBadge,
@@ -343,35 +340,23 @@ const LedgerScreen = () => {
                                   : styles.cardBadgeTextPurchase,
                               ]}
                             >
-                              {isSale ? 'Sale' : 'Purchase'}
+                              {isSale ? 'S' : 'P'}
                             </Text>
-                          </View>
-                          <View style={styles.cardActions}>
-                            <TouchableOpacity
-                              style={styles.actionButton}
-                              onPress={() => handleEdit(entry)}
-                            >
-                              <Icon
-                                name="pencil-outline"
-                                size={18}
-                                color="#1E90FF"
-                              />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={styles.actionButton}
-                              onPress={() => handleDeletePress(entry)}
-                            >
-                              <Icon
-                                name="trash-outline"
-                                size={18}
-                                color="#FF3B30"
-                              />
-                            </TouchableOpacity>
                           </View>
                         </View>
 
-                        {/* Card Body - Amount and Items */}
-                        <View style={styles.cardBody}>
+                        <View style={[styles.cardCell, styles.columnDetails]}>
+                          <Text style={styles.cardItems} numberOfLines={1}>
+                            {entry.itemsDescription}
+                          </Text>
+                          {entry.notes && (
+                            <Text style={styles.cardNotes} numberOfLines={1}>
+                              {entry.notes}
+                            </Text>
+                          )}
+                        </View>
+
+                        <View style={[styles.cardCell, styles.columnAmount]}>
                           <Text
                             style={[
                               styles.cardAmount,
@@ -380,41 +365,18 @@ const LedgerScreen = () => {
                                 : styles.cardAmountPurchase,
                             ]}
                           >
-                            PKR {entry.manualTotalPrice}
+                            RS {entry.manualTotalPrice}
                           </Text>
-                          <Text style={styles.cardItems}>
-                            {entry.itemsDescription}
-                          </Text>
-                          {entry.notes && (
-                            <View style={styles.cardNotesContainer}>
-                              <Icon
-                                name="chatbubble-outline"
-                                size={14}
-                                color="#8E8E93"
-                              />
-                              <Text style={styles.cardNotes} numberOfLines={1}>
-                                {entry.notes}
-                              </Text>
-                            </View>
-                          )}
                         </View>
 
-                        {/* Card Footer - Date/Time and Name */}
-                        <View style={styles.cardFooter}>
-                          <View style={styles.cardFooterLeft}>
-                            <Text style={styles.cardDate}>{date}</Text>
-                            <Text style={styles.cardTime}>{time}</Text>
-                          </View>
-                          <View style={styles.cardFooterRight}>
-                            <Icon
-                              name="person-outline"
-                              size={14}
-                              color="#8E8E93"
-                            />
-                            <Text style={styles.cardName} numberOfLines={1}>
-                              {entry.name}
-                            </Text>
-                          </View>
+                        <View style={[styles.cardCell, styles.columnTime]}>
+                          <Text style={styles.cardTime}>{time}</Text>
+                        </View>
+
+                        <View style={[styles.cardCell, styles.columnBy]}>
+                          <Text style={styles.cardName} numberOfLines={1}>
+                            {entry.name}
+                          </Text>
                         </View>
                       </View>
                     );
@@ -425,13 +387,14 @@ const LedgerScreen = () => {
           )}
         </View>
       </ScrollView>
+
       <FilterModal
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
         selectedFilter={selectedFilter}
         onSelectFilter={setSelectedFilter}
       />
-      {/* Edit Modal */}
+
       <EditEntryModal
         visible={editModalVisible}
         entry={selectedEntry}
@@ -442,7 +405,6 @@ const LedgerScreen = () => {
         onSave={handleUpdateEntry}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         visible={deleteModalVisible}
         entryId={selectedEntry?._id || ''}

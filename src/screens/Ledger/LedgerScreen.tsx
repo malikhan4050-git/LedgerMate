@@ -215,7 +215,7 @@ const LedgerScreen = () => {
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
-      behavior={Platform.OS === 'android' ? 'padding' : undefined}
+      behavior={Platform.OS === 'android' ? 'padding' : 'padding'}
       keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
     >
       <ScrollView
@@ -300,20 +300,14 @@ const LedgerScreen = () => {
                   </View>
 
                   <View style={styles.columnHeaders}>
-                    <Text style={[styles.columnHeader, styles.columnType]}>
-                      Type
+                    <Text style={[styles.columnHeader, styles.columnName]}>
+                      Name
                     </Text>
                     <Text style={[styles.columnHeader, styles.columnDetails]}>
                       Details
                     </Text>
                     <Text style={[styles.columnHeader, styles.columnAmount]}>
                       Amount
-                    </Text>
-                    <Text style={[styles.columnHeader, styles.columnTime]}>
-                      Time
-                    </Text>
-                    <Text style={[styles.columnHeader, styles.columnBy]}>
-                      By
                     </Text>
                   </View>
 
@@ -323,26 +317,10 @@ const LedgerScreen = () => {
 
                     return (
                       <View key={entry._id} style={styles.cardRow}>
-                        <View style={[styles.cardCell, styles.columnType]}>
-                          <View
-                            style={[
-                              styles.cardBadge,
-                              isSale
-                                ? styles.cardBadgeSale
-                                : styles.cardBadgePurchase,
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.cardBadgeText,
-                                isSale
-                                  ? styles.cardBadgeTextSale
-                                  : styles.cardBadgeTextPurchase,
-                              ]}
-                            >
-                              {isSale ? 'S' : 'P'}
-                            </Text>
-                          </View>
+                        <View style={[styles.cardCell, styles.columnName]}>
+                          <Text style={styles.cardName} numberOfLines={1}>
+                            {entry.name}
+                          </Text>
                         </View>
 
                         <View style={[styles.cardCell, styles.columnDetails]}>
@@ -366,16 +344,6 @@ const LedgerScreen = () => {
                             ]}
                           >
                             RS {entry.manualTotalPrice}
-                          </Text>
-                        </View>
-
-                        <View style={[styles.cardCell, styles.columnTime]}>
-                          <Text style={styles.cardTime}>{time}</Text>
-                        </View>
-
-                        <View style={[styles.cardCell, styles.columnBy]}>
-                          <Text style={styles.cardName} numberOfLines={1}>
-                            {entry.name}
                           </Text>
                         </View>
                       </View>

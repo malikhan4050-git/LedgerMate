@@ -73,6 +73,27 @@ const LedgerScreen = () => {
     setFilteredEntries(filtered);
   }, [searchText, entries, selectedFilter]);
 
+  // Group entries by date
+  const groupEntriesByDate = (entries: Entry[]) => {
+    const grouped: { [key: string]: Entry[] } = {};
+
+    entries.forEach(entry => {
+      const date = new Date(entry.transactionDate || entry.createdAt);
+      const dateKey = date.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(entry);
+    });
+
+    return grouped;
+  };
+
   const sortEntriesByDate = (entriesData: any[]) => {
     return [...entriesData].sort((a, b) => {
       const dateA = new Date(a.transactionDate || a.createdAt);
@@ -273,96 +294,134 @@ const LedgerScreen = () => {
                 Try searching with different keywords
               </Text>
             </View>
+          ) : filteredEntries.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No entries found</Text>
+              <Text style={styles.emptySubtext}>
+                Add your first entry from the Add tab
+              </Text>
+            </View>
           ) : (
-            /* Cards */
-            filteredEntries.map(entry => {
-              const { date, time } = formatDate(entry.transactionDate);
-              const isSale = entry.entryType === 'sale';
+            /* Grouped Cards by Date */
+            (() => {
+              const groupedEntries = groupEntriesByDate(filteredEntries);
+              const sortedDates = Object.keys(groupedEntries).sort((a, b) => {
+                const dateA = new Date(a);
+                const dateB = new Date(b);
+                return dateB.getTime() - dateA.getTime();
+              });
 
-              return (
-                <View key={entry._id} style={styles.card}>
-                  {/* Card Header - Type Badge and Actions */}
-                  <View style={styles.cardHeader}>
-                    <View
-                      style={[
-                        styles.cardBadge,
-                        isSale
-                          ? styles.cardBadgeSale
-                          : styles.cardBadgePurchase,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.cardBadgeText,
-                          isSale
-                            ? styles.cardBadgeTextSale
-                            : styles.cardBadgeTextPurchase,
-                        ]}
-                      >
-                        {isSale ? 'Sale' : 'Purchase'}
-                      </Text>
-                    </View>
-                    <View style={styles.cardActions}>
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleEdit(entry)}
-                      >
-                        <Icon name="pencil-outline" size={18} color="#1E90FF" />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleDeletePress(entry)}
-                      >
-                        <Icon name="trash-outline" size={18} color="#FF3B30" />
-                      </TouchableOpacity>
-                    </View>
+              return sortedDates.map(dateKey => (
+                <View key={dateKey} style={styles.dateGroup}>
+                  {/* Date Header */}
+                  <View style={styles.dateHeader}>
+                    <Text style={styles.dateHeaderText}>{dateKey}</Text>
                   </View>
 
-                  {/* Card Body - Amount and Items */}
-                  <View style={styles.cardBody}>
-                    <Text
-                      style={[
-                        styles.cardAmount,
-                        isSale
-                          ? styles.cardAmountSale
-                          : styles.cardAmountPurchase,
-                      ]}
-                    >
-                      PKR {entry.manualTotalPrice}
-                    </Text>
-                    <Text style={styles.cardItems}>
-                      {entry.itemsDescription}
-                    </Text>
-                    {entry.notes && (
-                      <View style={styles.cardNotesContainer}>
-                        <Icon
-                          name="chatbubble-outline"
-                          size={14}
-                          color="#8E8E93"
-                        />
-                        <Text style={styles.cardNotes} numberOfLines={1}>
-                          {entry.notes}
-                        </Text>
+                  {/* Cards for this date */}
+                  {groupedEntries[dateKey].map(entry => {
+                    const { date, time } = formatDate(entry.transactionDate);
+                    const isSale = entry.entryType === 'sale';
+
+                    return (
+                      <View key={entry._id} style={styles.card}>
+                        {/* Card Header - Type Badge and Actions */}
+                        <View style={styles.cardHeader}>
+                          <View
+                            style={[
+                              styles.cardBadge,
+                              isSale
+                                ? styles.cardBadgeSale
+                                : styles.cardBadgePurchase,
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.cardBadgeText,
+                                isSale
+                                  ? styles.cardBadgeTextSale
+                                  : styles.cardBadgeTextPurchase,
+                              ]}
+                            >
+                              {isSale ? 'Sale' : 'Purchase'}
+                            </Text>
+                          </View>
+                          <View style={styles.cardActions}>
+                            <TouchableOpacity
+                              style={styles.actionButton}
+                              onPress={() => handleEdit(entry)}
+                            >
+                              <Icon
+                                name="pencil-outline"
+                                size={18}
+                                color="#1E90FF"
+                              />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={styles.actionButton}
+                              onPress={() => handleDeletePress(entry)}
+                            >
+                              <Icon
+                                name="trash-outline"
+                                size={18}
+                                color="#FF3B30"
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+
+                        {/* Card Body - Amount and Items */}
+                        <View style={styles.cardBody}>
+                          <Text
+                            style={[
+                              styles.cardAmount,
+                              isSale
+                                ? styles.cardAmountSale
+                                : styles.cardAmountPurchase,
+                            ]}
+                          >
+                            PKR {entry.manualTotalPrice}
+                          </Text>
+                          <Text style={styles.cardItems}>
+                            {entry.itemsDescription}
+                          </Text>
+                          {entry.notes && (
+                            <View style={styles.cardNotesContainer}>
+                              <Icon
+                                name="chatbubble-outline"
+                                size={14}
+                                color="#8E8E93"
+                              />
+                              <Text style={styles.cardNotes} numberOfLines={1}>
+                                {entry.notes}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+
+                        {/* Card Footer - Date/Time and Name */}
+                        <View style={styles.cardFooter}>
+                          <View style={styles.cardFooterLeft}>
+                            <Text style={styles.cardDate}>{date}</Text>
+                            <Text style={styles.cardTime}>{time}</Text>
+                          </View>
+                          <View style={styles.cardFooterRight}>
+                            <Icon
+                              name="person-outline"
+                              size={14}
+                              color="#8E8E93"
+                            />
+                            <Text style={styles.cardName} numberOfLines={1}>
+                              {entry.name}
+                            </Text>
+                          </View>
+                        </View>
                       </View>
-                    )}
-                  </View>
-
-                  {/* Card Footer - Date/Time and Name */}
-                  <View style={styles.cardFooter}>
-                    <View style={styles.cardFooterLeft}>
-                      <Text style={styles.cardDate}>{date}</Text>
-                      <Text style={styles.cardTime}>{time}</Text>
-                    </View>
-                    <View style={styles.cardFooterRight}>
-                      <Icon name="person-outline" size={14} color="#8E8E93" />
-                      <Text style={styles.cardName} numberOfLines={1}>
-                        {entry.name}
-                      </Text>
-                    </View>
-                  </View>
+                    );
+                  })}
                 </View>
-              );
-            })
+              ));
+            })()
           )}
         </View>
       </ScrollView>

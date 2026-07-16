@@ -79,7 +79,7 @@ export default StyleSheet.create({
   },
 
   dateHeaderText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: Colors.primaryText,
   },
@@ -101,11 +101,6 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
 
-  columnType: {
-    minWidth: 50,
-    paddingHorizontal: 4,
-    flexShrink: 0,
-  },
 
   columnDetails: {
     flex: 1,
@@ -119,13 +114,7 @@ export default StyleSheet.create({
     flexShrink: 0,
   },
 
-  columnTime: {
-    minWidth: 55,
-    paddingHorizontal: 4,
-    flexShrink: 0,
-  },
-
-  columnBy: {
+  columnName: {
     minWidth: 55,
     paddingHorizontal: 4,
     flexShrink: 0,

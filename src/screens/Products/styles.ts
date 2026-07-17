@@ -31,12 +31,6 @@ export default StyleSheet.create({
     marginTop: 2,
   },
 
-  subtitle: {
-    fontSize: 14,
-    color: Colors.secondaryText,
-    marginTop: 4,
-  },
-
   // Locked State Styles
   lockedContainer: {
     flex: 1,
@@ -149,5 +143,113 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
   },
 
- 
+  // Product Card Styles
+  productCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  productCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  productIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+
+  productInfo: {
+    flex: 1,
+  },
+
+  productName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primaryText,
+  },
+
+  productCategory: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginTop: 1,
+  },
+
+  productActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  actionButton: {
+    padding: 6,
+    marginLeft: 4,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+  },
+
+  productCardBody: {
+    flexDirection: 'row',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F5',
+  },
+
+  productDetail: {
+    flex: 1,
+  },
+
+  productDetailLabel: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+  },
+
+  productDetailValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    marginTop: 2,
+  },
+
+  productDivider: {
+    width: 1,
+    height: '100%',
+    backgroundColor: '#F0F0F0',
+    marginHorizontal: 16,
+  },
+
+  lowStock: {
+    color: '#FF3B30',
+  },
+
+  inStock: {
+    color: '#2E7D32',
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+
+  loadingText: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+    marginTop: 8,
+  },
 });

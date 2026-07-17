@@ -280,15 +280,15 @@ const ProductsScreen = () => {
                 </Text>
               </View>
             </View>
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>
-                Total Products: {filteredProducts.length}
-              </Text>
-            </View>
           </View>
         ))
       )}
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Total Products: {filteredProducts.length}
+        </Text>
+      </View>
 
       {/* Add Product Modal */}
       <AddProductModal

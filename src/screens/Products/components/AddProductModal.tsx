@@ -21,9 +21,10 @@ interface AddProductModalProps {
   onClose: () => void;
   onSave: (productData: {
     name: string;
-    price: string;
-    stock: string;
+    price: number;
+    stock: number;
     category: string;
+    unit: string;
   }) => void;
 }
 
@@ -37,12 +38,14 @@ const AddProductModal = ({
     price: '',
     stock: '',
     category: '',
+    unit: '',
   });
   const [modalErrors, setModalErrors] = useState({
     name: '',
     price: '',
     stock: '',
     category: '',
+    unit: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +56,7 @@ const AddProductModal = ({
       price: '',
       stock: '',
       category: '',
+      unit: '',
     };
 
     if (!newProduct.name || newProduct.name.trim() === '') {
@@ -87,6 +91,12 @@ const AddProductModal = ({
       isValid = false;
     }
 
+    // After category validation
+    if (!newProduct.unit || newProduct.unit.trim() === '') {
+      newErrors.unit = 'Please enter unit';
+      isValid = false;
+    }
+
     setModalErrors(newErrors);
     return isValid;
   };
@@ -97,44 +107,53 @@ const AddProductModal = ({
       price: '',
       stock: '',
       category: '',
+      unit: '',
     });
     setModalErrors({
       name: '',
       price: '',
       stock: '',
       category: '',
+      unit: '',
     });
   };
-// Add product using API
-const handleModalSave = async () => {
-  if (!validateForm()) {
-    return;
-  }
+  // Add product using API
+  const handleModalSave = async () => {
+    if (!validateForm()) {
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const payload = {
-      name: newProduct.name.trim(),
-      price: parseFloat(newProduct.price),
-      stock: parseInt(newProduct.stock, 10),
-      category: newProduct.category.trim(),
-    };
+    setLoading(true);
+    try {
+      const payload = {
+        name: newProduct.name.trim(),
+        price: parseFloat(newProduct.price),
+        stock: parseInt(newProduct.stock, 10),
+        category: newProduct.category.trim(),
+        unit: newProduct.unit.trim(),
+      };
 
-    await addProduct(payload);
+      await addProduct(payload);
 
-    onSave(newProduct);
-    resetForm();
+      onSave({
+        name: newProduct.name.trim(),
+        price: parseFloat(newProduct.price),
+        stock: parseInt(newProduct.stock, 10),
+        category: newProduct.category.trim(),
+        unit: newProduct.unit.trim(),
+      });
+      resetForm();
 
-    Alert.alert('Success', 'Product added successfully!');
-  } catch (error: any) {
-    const message =
-      error?.response?.data?.message ||
-      'Something went wrong. Please try again.';
-    Alert.alert('Error', message);
-  } finally {
-    setLoading(false);
-  }
-};
+      Alert.alert('Success', 'Product added successfully!');
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        'Something went wrong. Please try again.';
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleModalCancel = () => {
     onClose();
     resetForm();
@@ -172,10 +191,10 @@ const handleModalSave = async () => {
                   placeholderTextColor="#8E8E93"
                   value={newProduct.name}
                   editable={!loading}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setNewProduct({ ...newProduct, name: text });
                     if (modalErrors.name) {
-                      setModalErrors((prev) => ({ ...prev, name: '' }));
+                      setModalErrors(prev => ({ ...prev, name: '' }));
                     }
                   }}
                 />
@@ -197,10 +216,10 @@ const handleModalSave = async () => {
                   keyboardType="numeric"
                   value={newProduct.price}
                   editable={!loading}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setNewProduct({ ...newProduct, price: text });
                     if (modalErrors.price) {
-                      setModalErrors((prev) => ({ ...prev, price: '' }));
+                      setModalErrors(prev => ({ ...prev, price: '' }));
                     }
                   }}
                 />
@@ -222,10 +241,10 @@ const handleModalSave = async () => {
                   keyboardType="numeric"
                   value={newProduct.stock}
                   editable={!loading}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setNewProduct({ ...newProduct, stock: text });
                     if (modalErrors.stock) {
-                      setModalErrors((prev) => ({ ...prev, stock: '' }));
+                      setModalErrors(prev => ({ ...prev, stock: '' }));
                     }
                   }}
                 />
@@ -246,15 +265,38 @@ const handleModalSave = async () => {
                   placeholderTextColor="#8E8E93"
                   value={newProduct.category}
                   editable={!loading}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setNewProduct({ ...newProduct, category: text });
                     if (modalErrors.category) {
-                      setModalErrors((prev) => ({ ...prev, category: '' }));
+                      setModalErrors(prev => ({ ...prev, category: '' }));
                     }
                   }}
                 />
                 {modalErrors.category ? (
                   <Text style={styles.errorText}>{modalErrors.category}</Text>
+                ) : null}
+              </View>
+              {/* Unit */}
+              <View style={styles.modalFieldContainer}>
+                <Text style={styles.modalLabel}>Unit *</Text>
+                <TextInput
+                  style={[
+                    styles.modalInput,
+                    modalErrors.unit && styles.inputError,
+                  ]}
+                  placeholder="e.g. kg, liter, dozen, piece"
+                  placeholderTextColor="#8E8E93"
+                  value={newProduct.unit}
+                  editable={!loading}
+                  onChangeText={text => {
+                    setNewProduct({ ...newProduct, unit: text });
+                    if (modalErrors.unit) {
+                      setModalErrors(prev => ({ ...prev, unit: '' }));
+                    }
+                  }}
+                />
+                {modalErrors.unit ? (
+                  <Text style={styles.errorText}>{modalErrors.unit}</Text>
                 ) : null}
               </View>
 

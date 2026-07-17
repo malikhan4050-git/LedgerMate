@@ -1,3 +1,4 @@
+import { addProduct } from '../../../services/productsApi';
 import React, { useState } from 'react';
 import {
   View,
@@ -25,9 +26,6 @@ interface AddProductModalProps {
     category: string;
   }) => void;
 }
-
-// Helper function outside component
-const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const AddProductModal = ({
   visible,
@@ -107,34 +105,36 @@ const AddProductModal = ({
       category: '',
     });
   };
+// Add product using API
+const handleModalSave = async () => {
+  if (!validateForm()) {
+    return;
+  }
 
-  const handleModalSave = async () => {
-    if (!validateForm()) {
-      return;
-    }
+  setLoading(true);
+  try {
+    const payload = {
+      name: newProduct.name.trim(),
+      price: parseFloat(newProduct.price),
+      stock: parseInt(newProduct.stock, 10),
+      category: newProduct.category.trim(),
+    };
 
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      // const response = await addProduct(newProduct);
+    await addProduct(payload);
 
-      // Simulate API call
-      await wait(1000);
+    onSave(newProduct);
+    resetForm();
 
-      onSave(newProduct);
-      resetForm();
-
-      Alert.alert('Success', 'Product added successfully!');
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        'Something went wrong. Please try again.';
-      Alert.alert('Error', message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    Alert.alert('Success', 'Product added successfully!');
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message ||
+      'Something went wrong. Please try again.';
+    Alert.alert('Error', message);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleModalCancel = () => {
     onClose();
     resetForm();

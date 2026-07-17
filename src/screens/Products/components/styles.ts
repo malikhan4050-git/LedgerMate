@@ -2,8 +2,8 @@ import { StyleSheet } from "react-native";
 import Colors from "../../../theme/Colors";
 import Sizes from "../../../theme/Sizes";
 
-const styles = StyleSheet.create({
-     // ========== MODAL STYLES (Required for AddProductModal) ==========
+export default StyleSheet.create({
+  // ========== MODAL STYLES ==========
 
   modalOverlay: {
     flex: 1,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // ========== ERROR STYLES (Required for validation) ==========
+  // ========== ERROR STYLES ==========
 
   inputError: {
     borderColor: '#FF3B30',
@@ -92,11 +92,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 
-  // ========== BUTTON TEXT (Required for GradientButton) ==========
+  // ========== BUTTON TEXT ==========
 
   buttonText: {
     fontSize: 14,
+    fontWeight: '600',
   },
 });
-
-export default styles;

@@ -5,6 +5,7 @@ export interface ProductPayload {
   price: number;
   stock: number;
   category: string;
+  unit?: string;
 }
 
 export interface ProductResult {
@@ -14,6 +15,7 @@ export interface ProductResult {
   price: number;
   stock: number;
   category: string;
+  unit?: string;
   business?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -37,6 +39,7 @@ export const getProducts = async (): Promise<ProductResult[]> => {
     price: item.price,
     stock: item.stock,
     category: item.category,
+    unit: item.unit,
 
   }));
 };

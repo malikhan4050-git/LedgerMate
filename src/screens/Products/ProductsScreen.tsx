@@ -110,9 +110,10 @@ const ProductsScreen = () => {
   // Handle save from modal
   const handleModalSave = (productData: {
     name: string;
-    price: string;
-    stock: string;
+    price: number;
+    stock: number;
     category: string;
+    unit: string;
   }) => {
     console.log('Product saved:', productData);
     fetchProducts();
@@ -275,7 +276,7 @@ const ProductsScreen = () => {
                     product.stock < 10 ? styles.lowStock : styles.inStock,
                   ]}
                 >
-                  {product.stock} units
+                  {product.stock} {product.unit}
                   {product.stock < 10}
                 </Text>
               </View>

@@ -272,11 +272,11 @@ const ProductsScreen = () => {
                 <Text
                   style={[
                     styles.productDetailValue,
-                    product.stock < 20 ? styles.lowStock : styles.inStock,
+                    product.stock < 10 ? styles.lowStock : styles.inStock,
                   ]}
                 >
                   {product.stock} units
-                  {product.stock < 20 && ' ⚠️'}
+                  {product.stock < 10}
                 </Text>
               </View>
             </View>

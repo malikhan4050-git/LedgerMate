@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import Colors from '../../../theme/Colors';
 import Sizes from '../../../theme/Sizes';
 
-export default StyleSheet.create({// ========== LedgerCardModal Styles ==========
+export default StyleSheet.create({
 
 modalCardHeader: {
   flexDirection: 'row',

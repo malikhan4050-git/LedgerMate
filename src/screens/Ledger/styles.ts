@@ -135,37 +135,6 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
 
-  cardBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 28,
-  },
-
-  cardBadgeSale: {
-    backgroundColor: '#E8F5E9',
-  },
-
-  cardBadgePurchase: {
-    backgroundColor: '#FFEBEE',
-  },
-
-  cardBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-
-  cardBadgeTextSale: {
-    color: '#2E7D32',
-  },
-
-  cardBadgeTextPurchase: {
-    color: '#C62828',
-  },
-
   cardItems: {
     fontSize: 12,
     fontWeight: '600',
@@ -178,12 +147,6 @@ export default StyleSheet.create({
     color: '#8E8E93',
     textAlign: 'center',
     marginTop: 1,
-  },
-
-  cardTime: {
-    fontSize: 11,
-    color: '#8E8E93',
-    textAlign: 'center',
   },
 
   cardName: {
@@ -265,7 +228,6 @@ export default StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Filter Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -326,37 +288,7 @@ export default StyleSheet.create({
     color: '#1E90FF',
     fontWeight: '600',
   },
-  // Load More Button
-  loadMoreButton: {
-    backgroundColor: '#F0F0F0',
-    borderRadius: Sizes.borderRadius,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
 
-  loadMoreText: {
-    fontSize: 14,
-    color: '#1E90FF',
-    fontWeight: '600',
-  },
-
-  footerContainer: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-
-  footerText: {
-    fontSize: 14,
-    color: Colors.primaryText,
-  },
-
-  footerSubtext: {
-    fontSize: 12,
-    color: Colors.secondaryText,
-    marginTop: 4,
-  },
-  // Loading More
   loadingMoreContainer: {
     paddingVertical: 20,
     alignItems: 'center',
@@ -369,9 +301,15 @@ export default StyleSheet.create({
     fontSize: 14,
     color: Colors.secondaryText,
   },
+
   footer: {
     marginTop: 8,
     paddingVertical: 16,
     alignItems: 'center',
+  },
+
+  footerText: {
+    fontSize: 14,
+    color: Colors.secondaryText,
   },
 });

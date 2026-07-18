@@ -349,7 +349,6 @@ export default StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: Colors.primaryText,
-    fontWeight: '500',
   },
 
   footerSubtext: {
@@ -371,7 +370,8 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
   },
   footer: {
-  paddingVertical: 16,
-  alignItems: 'center',
-},
+    marginTop: 8,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
 });

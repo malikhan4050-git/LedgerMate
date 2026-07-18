@@ -326,4 +326,52 @@ export default StyleSheet.create({
     color: '#1E90FF',
     fontWeight: '600',
   },
+  // Load More Button
+  loadMoreButton: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: Sizes.borderRadius,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  loadMoreText: {
+    fontSize: 14,
+    color: '#1E90FF',
+    fontWeight: '600',
+  },
+
+  footerContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+
+  footerText: {
+    fontSize: 14,
+    color: Colors.primaryText,
+    fontWeight: '500',
+  },
+
+  footerSubtext: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
+  // Loading More
+  loadingMoreContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  loadingMoreText: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+  },
+  footer: {
+  paddingVertical: 16,
+  alignItems: 'center',
+},
 });

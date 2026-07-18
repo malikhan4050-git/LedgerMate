@@ -124,9 +124,9 @@ const LedgerScreen = () => {
     } else {
       setIsLoadingMore(true);
     }
-    
+
     setError(null);
-    
+
     try {
       const response = await getEntries(page, itemsPerPage);
       console.log('API Response:', response);
@@ -147,7 +147,7 @@ const LedgerScreen = () => {
       const sortedData = sortEntriesByDate(entriesData);
 
       if (append) {
-        setEntries((prev) => [...prev, ...sortedData]);
+        setEntries(prev => [...prev, ...sortedData]);
       } else {
         setEntries(sortedData);
       }
@@ -156,7 +156,6 @@ const LedgerScreen = () => {
       setTotalPages(totalPages);
       setHasMore(page < totalPages);
       setCurrentPage(page);
-
     } catch (error: any) {
       console.error('Error fetching entries:', error);
       setError(error?.response?.data?.message || 'Failed to load entries');
@@ -240,7 +239,10 @@ const LedgerScreen = () => {
   const handleScroll = ({ nativeEvent }: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const paddingToBottom = 40;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+    if (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    ) {
       loadMore();
     }
   };
@@ -258,7 +260,10 @@ const LedgerScreen = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => fetchEntries(1, false)}>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => fetchEntries(1, false)}
+        >
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -417,10 +422,10 @@ const LedgerScreen = () => {
         </View>
 
         <View style={styles.footer}>
-  <Text style={styles.footerText}>
-    Showing {entries.length} of {totalEntries} entries
-  </Text>
-</View>
+          <Text style={styles.footerText}>
+            Showing {entries.length} of {totalEntries} entries
+          </Text>
+        </View>
         {/* Loading More Indicator */}
         {isLoadingMore && (
           <View style={styles.loadingMoreContainer}>

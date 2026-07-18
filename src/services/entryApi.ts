@@ -25,8 +25,10 @@ export const createEntry = async (data: EntryPayload) => {
   return response.data;
 };
 
-export const getEntries = async () => {
-  const response = await api.get('/entry/');
+export const getEntries = async (page: number = 1, limit: number = 20) => {
+  const response = await api.get('/entry/', {
+    params: { page, limit },
+  });
   return response.data;
 };
 

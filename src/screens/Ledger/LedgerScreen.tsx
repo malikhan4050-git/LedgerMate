@@ -45,12 +45,18 @@ const LedgerScreen = () => {
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cardModalVisible, setCardModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalEntries, setTotalEntries] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const itemsPerPage = 20;
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'sale' | 'purchase'
   >('all');
 
   useEffect(() => {
-    fetchEntries();
+    fetchEntries(1, false);
   }, []);
 
   useEffect(() => {
@@ -112,14 +118,22 @@ const LedgerScreen = () => {
     });
   };
 
-  const fetchEntries = async () => {
-    setLoading(true);
+  const fetchEntries = async (page: number = 1, append: boolean = false) => {
+    if (page === 1) {
+      setLoading(true);
+    } else {
+      setIsLoadingMore(true);
+    }
+    
     setError(null);
+    
     try {
-      const response = await getEntries();
+      const response = await getEntries(page, itemsPerPage);
+      console.log('API Response:', response);
 
-      let entriesData =
-        response?.entries || response?.data || response?.result || [];
+      let entriesData = response?.entries || [];
+      const totalPages = response?.totalPages || 1;
+      const totalEntries = response?.totalEntries || 0;
 
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
@@ -130,16 +144,27 @@ const LedgerScreen = () => {
           'Unknown',
       }));
 
-      entriesData = sortEntriesByDate(entriesData);
+      const sortedData = sortEntriesByDate(entriesData);
 
-      setEntries(entriesData);
-      setFilteredEntries(entriesData);
+      if (append) {
+        setEntries((prev) => [...prev, ...sortedData]);
+      } else {
+        setEntries(sortedData);
+      }
+
+      setTotalEntries(totalEntries);
+      setTotalPages(totalPages);
+      setHasMore(page < totalPages);
+      setCurrentPage(page);
+
     } catch (error: any) {
       console.error('Error fetching entries:', error);
       setError(error?.response?.data?.message || 'Failed to load entries');
       Alert.alert('Error', 'Failed to load entries. Please try again.');
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
+      setRefreshing(false);
     }
   };
 
@@ -186,8 +211,13 @@ const LedgerScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchEntries();
-    setRefreshing(false);
+    await fetchEntries(1, false);
+  };
+
+  const loadMore = (): void => {
+    if (!isLoadingMore && hasMore) {
+      fetchEntries(currentPage + 1, true);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -206,6 +236,15 @@ const LedgerScreen = () => {
     };
   };
 
+  // Handle scroll to detect end of list
+  const handleScroll = ({ nativeEvent }: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const paddingToBottom = 40;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+      loadMore();
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -219,7 +258,7 @@ const LedgerScreen = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchEntries}>
+        <TouchableOpacity style={styles.retryButton} onPress={() => fetchEntries(1, false)}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -243,6 +282,8 @@ const LedgerScreen = () => {
             colors={['#1E90FF']}
           />
         }
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <View style={styles.container}>
           <View style={styles.header}>
@@ -374,6 +415,19 @@ const LedgerScreen = () => {
             })()
           )}
         </View>
+
+        <View style={styles.footer}>
+  <Text style={styles.footerText}>
+    Showing {entries.length} of {totalEntries} entries
+  </Text>
+</View>
+        {/* Loading More Indicator */}
+        {isLoadingMore && (
+          <View style={styles.loadingMoreContainer}>
+            <ActivityIndicator size="small" color="#1E90FF" />
+            <Text style={styles.loadingMoreText}>Loading more...</Text>
+          </View>
+        )}
       </ScrollView>
 
       <FilterModal

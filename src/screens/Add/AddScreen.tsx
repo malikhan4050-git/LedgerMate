@@ -131,9 +131,10 @@ const AddScreen = () => {
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
+      const currentTime = new Date(selectedDate);
       const newDate = new Date(selectedDate);
-      newDate.setHours(selectedDate.getHours());
-      newDate.setMinutes(selectedDate.getMinutes());
+      newDate.setHours(currentTime.getHours());
+      newDate.setMinutes(currentTime.getMinutes());
       setSelectedDate(newDate);
       setIsManuallySet(true);
     }

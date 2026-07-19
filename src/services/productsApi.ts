@@ -21,16 +21,15 @@ export interface ProductResult {
   updatedAt?: string;
 }
 
-// GET /product/ - Fetch all products
 export const getProducts = async (): Promise<ProductResult[]> => {
   const response = await api.get('/product/');
   
-  const raw =
-    response.data?.products ??
-    response.data?.data ??
-    response.data?.result ??
-    response.data ??
-    [];
+  const raw = response.data?.products?.products || [];
+  
+  if (!Array.isArray(raw)) {
+    console.error('Products is not an array:', raw);
+    return [];
+  }
   
   return raw.map((item: any): ProductResult => ({
     id: item.id || item._id,
@@ -39,24 +38,20 @@ export const getProducts = async (): Promise<ProductResult[]> => {
     price: item.price,
     stock: item.stock,
     category: item.category,
-    unit: item.unit,
-
+    unit: item.unit || '',
   }));
 };
 
-// POST /product/ - Add a new product
 export const addProduct = async (data: ProductPayload): Promise<ProductResult> => {
   const response = await api.post('/product/', data);
   return response.data?.result || response.data?.data || response.data;
 };
 
-// GET /product/:id - Get a single product by ID
 export const getProduct = async (id: string): Promise<ProductResult> => {
   const response = await api.get(`/product/${id}`);
   return response.data?.result || response.data?.data || response.data;
 };
 
-// PUT /product/:id - Update a product
 export const updateProduct = async (
   id: string,
   data: Partial<ProductPayload>
@@ -65,7 +60,6 @@ export const updateProduct = async (
   return response.data?.result || response.data?.data || response.data;
 };
 
-// DELETE /product/:id - Delete a product
 export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {
   const response = await api.delete(`/product/${id}`);
   return response.data?.result || response.data?.data || response.data;

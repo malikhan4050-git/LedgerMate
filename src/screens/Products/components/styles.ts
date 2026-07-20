@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
-import Colors from "../../../theme/Colors";
-import Sizes from "../../../theme/Sizes";
+import { StyleSheet } from 'react-native';
+import Colors from '../../../theme/Colors';
+import Sizes from '../../../theme/Sizes';
 
 export default StyleSheet.create({
   // ========== MODAL STYLES ==========
@@ -96,6 +96,71 @@ export default StyleSheet.create({
 
   buttonText: {
     fontSize: 14,
+    fontWeight: '600',
+  },
+  // Delete Modal Styles
+  deleteModalHeader: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  deleteModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+
+  deleteModalMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 4,
+  },
+
+  deleteModalSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#8E8E93',
+    marginBottom: 20,
+  },
+
+  deleteModalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+
+  deleteModalCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: Sizes.borderRadius,
+    backgroundColor: '#F0F0F0',
+    alignItems: 'center',
+  },
+
+  deleteModalCancelButtonText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+
+  deleteModalConfirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: Sizes.borderRadius,
+    backgroundColor: '#FF3B30',
+    alignItems: 'center',
+  },
+
+  deleteModalConfirmButtonDisabled: {
+    backgroundColor: '#FF9A95',
+  },
+
+  deleteModalConfirmButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

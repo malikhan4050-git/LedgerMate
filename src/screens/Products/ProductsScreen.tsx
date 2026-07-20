@@ -14,11 +14,9 @@ import { useSelector } from 'react-redux';
 
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddProductModal from './components/AddProductModal';
-import {
-  deleteProduct,
-  ProductResult,
-  getProducts,
-} from '../../services/productsApi';
+import EditProductModal from './components/EditProductModal';
+import DeleteProductModal from './components/DeleteProductModal';
+import { deleteProduct, getProducts } from '../../services/productsApi';
 import styles from './styles';
 import type { RootState } from '../../redux/store';
 
@@ -30,10 +28,12 @@ const ProductsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [products, setProducts] = useState<ProductResult[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<ProductResult[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -134,33 +134,36 @@ const ProductsScreen = () => {
     }
   };
 
-  // Handle delete product
-  const handleDelete = (id: string, name: string) => {
-    Alert.alert(
-      'Delete Product',
-      `Are you sure you want to delete "${name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setIsDeleting(true);
-            try {
-              await deleteProduct(id);
-              Alert.alert('Success', 'Product deleted successfully');
-              await fetchProducts(1, false); // Refresh list from page 1
-            } catch (error: any) {
-              Alert.alert('Error', 'Failed to delete product');
-            } finally {
-              setIsDeleting(false);
-            }
-          },
-        },
-      ],
-    );
+  const handleEditPress = (product: any) => {
+    setSelectedProduct(product);
+    setEditModalVisible(true);
   };
 
+  const handleDeletePress = (product: any) => {
+    setSelectedProduct(product);
+    setDeleteModalVisible(true);
+  };
+
+  const handleEditSave = () => {
+    setEditModalVisible(false);
+    setSelectedProduct(null);
+    fetchProducts(1, false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedProduct) return;
+
+    try {
+      const productId = selectedProduct._id || selectedProduct.id;
+      await deleteProduct(productId);
+      Alert.alert('Success', 'Product deleted successfully');
+      setDeleteModalVisible(false);
+      setSelectedProduct(null);
+      fetchProducts(1, false);
+    } catch (error: any) {
+      Alert.alert('Error', 'Failed to delete product');
+    }
+  };
   // Open modal
   const handleAddProduct = () => {
     setModalVisible(true);
@@ -300,18 +303,17 @@ const ProductsScreen = () => {
               <View style={styles.productActions}>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() =>
-                    Alert.alert('Edit', `Edit "${product.name}" coming soon`)
-                  }
+                  onPress={() => {
+                    handleEditPress(product);
+                  }}
                 >
                   <Icon name="pencil-outline" size={18} color="#1E90FF" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() =>
-                    handleDelete(product._id || product.id || '', product.name)
-                  }
-                  disabled={isDeleting}
+                  onPress={() => {
+                    handleDeletePress(product);
+                  }}
                 >
                   <Icon name="trash-outline" size={18} color="#FF3B30" />
                 </TouchableOpacity>
@@ -363,6 +365,27 @@ const ProductsScreen = () => {
         visible={modalVisible}
         onClose={handleModalClose}
         onSave={handleModalSave}
+      />
+      {/* Edit Product Modal */}
+      <EditProductModal
+        visible={editModalVisible}
+        product={selectedProduct}
+        onClose={() => {
+          setEditModalVisible(false);
+          setSelectedProduct(null);
+        }}
+        onSave={handleEditSave}
+      />
+
+      {/* Delete Product Modal */}
+      <DeleteProductModal
+        visible={deleteModalVisible}
+        productName={selectedProduct?.name || ''}
+        onClose={() => {
+          setDeleteModalVisible(false);
+          setSelectedProduct(null);
+        }}
+        onConfirm={handleDeleteConfirm}
       />
     </ScrollView>
   );

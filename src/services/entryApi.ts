@@ -14,18 +14,41 @@ export interface EntryPayload {
     quantity: number;
     total: number;
   }>;
+  discount?: number;
   transactionDate: string;
   notes?: string;
 }
 
+export interface EntryResponse {
+  _id: string;
+  name?: string;
+  entryType: 'sale' | 'purchase';
+  itemsDescription: string;
+  manualTotalPrice: number;
+  transactionDate: string;
+  notes?: string;
+  createdAt: string;
+  products?: Array<{
+    product: string;
+    name: string;
+    price: number;
+    quantity: number;
+    total: number;
+  }>;
+  discount?: number;
+  subtotal?: number;
+  totalAmount?: number;
+  customer?: { name: string } | string;
+  supplier?: { name: string } | string;
+}
+
 export const createEntry = async (data: EntryPayload) => {
-  // Get business ID from AsyncStorage
   const businessStr = await AsyncStorage.getItem('business');
   const business = businessStr ? JSON.parse(businessStr) : null;
   
   const payload = {
     ...data,
-    business: business?.id || business?._id, // Add business ID
+    business: business?.id || business?._id,
   };
   
   const response = await api.post('/entry/', payload);

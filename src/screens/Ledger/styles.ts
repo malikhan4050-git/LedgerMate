@@ -188,7 +188,13 @@ export default StyleSheet.create({
     fontSize: 14,
     color: Colors.secondaryText,
   },
-
+  cardDiscount: {
+    fontSize: 10,
+    color: Colors.primaryBlue,
+    textAlign: 'center',
+    marginTop: 1,
+    fontWeight: '500',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

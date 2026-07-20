@@ -21,28 +21,74 @@ export interface ProductResult {
   updatedAt?: string;
 }
 
-export const getProducts = async (): Promise<ProductResult[]> => {
+export interface ProductsResponse {
+  products: ProductResult[];
+  totalProducts: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export const getProducts = async (
+  page: number = 1,
+  limit: number = 20,
+): Promise<ProductsResponse> => {
+  const response = await api.get('/product/', {
+    params: { page, limit },
+  });
+
+  // Backend returns: { success: true, products: { products: [...], currentPage, totalPages, totalProducts } }
+  const productsData = response.data?.products?.products || [];
+  const totalProducts = response.data?.products?.totalProducts || 0;
+  const totalPages = response.data?.products?.totalPages || 1;
+  const currentPage = response.data?.products?.currentPage || page;
+
+  const mappedProducts = productsData.map(
+    (item: any): ProductResult => ({
+      id: item.id || item._id,
+      _id: item._id || item.id,
+      name: item.name,
+      price: item.price,
+      stock: item.stock,
+      category: item.category,
+      unit: item.unit || '',
+    }),
+  );
+
+  return {
+    products: mappedProducts,
+    totalProducts,
+    totalPages,
+    currentPage,
+  };
+};
+
+export const getAllProducts = async (): Promise<ProductResult[]> => {
   const response = await api.get('/product/');
-  
-  const raw = response.data?.products?.products || [];
-  
+
+  const raw =
+    response.data?.products?.products || response.data?.products || [];
+
   if (!Array.isArray(raw)) {
     console.error('Products is not an array:', raw);
     return [];
   }
-  
-  return raw.map((item: any): ProductResult => ({
-    id: item.id || item._id,
-    _id: item._id || item.id,
-    name: item.name,
-    price: item.price,
-    stock: item.stock,
-    category: item.category,
-    unit: item.unit || '',
-  }));
+
+  return raw.map(
+    (item: any): ProductResult => ({
+      id: item.id || item._id,
+      _id: item._id || item.id,
+      name: item.name,
+      price: item.price,
+      stock: item.stock,
+      category: item.category,
+      unit: item.unit || '',
+    }),
+  );
 };
 
-export const addProduct = async (data: ProductPayload): Promise<ProductResult> => {
+export const addProduct = async (
+  data: ProductPayload,
+): Promise<ProductResult> => {
   const response = await api.post('/product/', data);
   return response.data?.result || response.data?.data || response.data;
 };
@@ -54,13 +100,15 @@ export const getProduct = async (id: string): Promise<ProductResult> => {
 
 export const updateProduct = async (
   id: string,
-  data: Partial<ProductPayload>
+  data: Partial<ProductPayload>,
 ): Promise<ProductResult> => {
   const response = await api.put(`/product/${id}`, data);
   return response.data?.result || response.data?.data || response.data;
 };
 
-export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {
+export const deleteProduct = async (
+  id: string,
+): Promise<{ success: boolean; message: string }> => {
   const response = await api.delete(`/product/${id}`);
   return response.data?.result || response.data?.data || response.data;
 };

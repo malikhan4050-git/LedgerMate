@@ -15,7 +15,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import FilterModal from './components/FilterModal';
 import LedgerCardModal from './components/LedgerCardModal';
-import { EntryPayload, getEntries } from '../../services/entryApi';
+import {
+  EntryPayload,
+  getEntries,
+  EntryResponse,
+} from '../../services/entryApi';
 import { updateEntry, deleteEntry } from '../../services/entryApi';
 import EditEntryModal from './components/EditEntryModal';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
@@ -30,6 +34,16 @@ interface Entry {
   transactionDate: string;
   notes?: string;
   createdAt: string;
+  products?: Array<{
+    product: string;
+    name: string;
+    price: number;
+    quantity: number;
+    total: number;
+  }>;
+  discount?: number;
+  subtotal?: number;
+  totalAmount?: number;
 }
 
 const LedgerScreen = () => {
@@ -142,6 +156,7 @@ const LedgerScreen = () => {
           entry.customer?.name ||
           entry.supplier?.name ||
           'Unknown',
+        manualTotalPrice: entry.totalAmount || entry.manualTotalPrice || 0,
       }));
 
       const sortedData = sortEntriesByDate(entriesData);
@@ -235,7 +250,6 @@ const LedgerScreen = () => {
     };
   };
 
-  // Handle scroll to detect end of list
   const handleScroll = ({ nativeEvent }: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const paddingToBottom = 40;
@@ -390,8 +404,19 @@ const LedgerScreen = () => {
 
                           <View style={[styles.cardCell, styles.columnDetails]}>
                             <Text style={styles.cardItems} numberOfLines={1}>
-                              {entry.itemsDescription}
+                              {/* For advance users: show product names from products array */}
+                              {entry.products && entry.products.length > 0
+                                ? entry.products.map(p => p.name).join(', ')
+                                : entry.itemsDescription}
                             </Text>
+                            {entry.discount ? (
+                              <Text
+                                style={styles.cardDiscount}
+                                numberOfLines={1}
+                              >
+                                Discount: PKR {entry.discount}
+                              </Text>
+                            ) : null}
                             {entry.notes && (
                               <Text style={styles.cardNotes} numberOfLines={1}>
                                 {entry.notes}
@@ -408,7 +433,7 @@ const LedgerScreen = () => {
                                   : styles.cardAmountPurchase,
                               ]}
                             >
-                              PKR {entry.manualTotalPrice}
+                              PKR {entry.totalAmount || entry.manualTotalPrice}
                             </Text>
                           </View>
                         </View>
@@ -426,7 +451,6 @@ const LedgerScreen = () => {
             Showing {entries.length} of {totalEntries} entries
           </Text>
         </View>
-        {/* Loading More Indicator */}
         {isLoadingMore && (
           <View style={styles.loadingMoreContainer}>
             <ActivityIndicator size="small" color="#1E90FF" />

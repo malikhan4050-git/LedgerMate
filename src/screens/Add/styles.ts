@@ -26,6 +26,7 @@ export default StyleSheet.create({
   },
 
   fieldContainer: {
+    paddingTop: 10,
     marginBottom: 14,
   },
 
@@ -95,10 +96,14 @@ export default StyleSheet.create({
     height: 48,
   },
 
+  searchIcon: {           // ✅ Add this
+  marginRight: 10,
+},
+
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
+    color: Colors.primaryText,
     padding: 0,
   },
 
@@ -403,4 +408,164 @@ export default StyleSheet.create({
     backgroundColor: '#F0F4FF',
     borderRadius: 8,
   },
+  // Product Selection Styles
+selectedProductsContainer: {
+  marginTop: 12,
+},
+
+selectedProductsTitle: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: Colors.secondaryText,
+  marginBottom: 8,
+},
+
+selectedProductCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: Sizes.borderRadius,
+  padding: 12,
+  marginBottom: 8,
+  borderWidth: 1,
+  borderColor: '#F0F0F0',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.04,
+  shadowRadius: 4,
+  elevation: 1,
+},
+
+selectedProductHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+},
+
+selectedProductName: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: Colors.primaryText,
+  flex: 1,
+},
+
+removeProductButton: {
+  padding: 4,
+},
+
+selectedProductBody: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+
+quantityContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+
+quantityButton: {
+  width: 28,
+  height: 28,
+  borderRadius: 14,
+  backgroundColor: '#F0F8FF',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+quantityText: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: Colors.primaryText,
+  minWidth: 20,
+  textAlign: 'center',
+},
+
+unitText: {
+  fontSize: 12,
+  color: Colors.secondaryText,
+  marginLeft: 4,
+},
+
+priceContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 4,
+},
+
+priceLabel: {
+  fontSize: 12,
+  color: Colors.secondaryText,
+},
+
+priceValue: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: Colors.primaryText,
+},
+
+grandTotalContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  backgroundColor: '#FFFFFF',
+  borderRadius: Sizes.borderRadius,
+  padding: 14,
+  marginTop: 12,
+  borderWidth: 1,
+  borderColor: '#E8E8E8',
+},
+
+grandTotalLabel: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: Colors.primaryText,
+},
+
+grandTotalValue: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#1E90FF',
+},
+
+productDropdownItem: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 8,
+},
+
+productDropdownPrice: {
+  fontSize: 12,
+  color: Colors.secondaryText,
+  fontWeight: '500',
+},
+// Final Total Styles
+finalTotalContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  backgroundColor: '#E8F5E9',
+  borderRadius: Sizes.borderRadius,
+  padding: 12,
+  marginTop: 8,
+  borderWidth: 1,
+  borderColor: '#C8E6C9',
+},
+
+finalTotalLabel: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#2E7D32',
+},
+
+finalTotalValue: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: '#1B5E20',
+},
+// Optional: Add a container for the discount section
+discountContainer: {
+  marginTop: 4,
+},
 });

@@ -7,6 +7,13 @@ export interface EntryPayload {
   supplier?: string;
   itemsDescription: string;
   manualTotalPrice: number;
+  products?: Array<{
+    product: string;
+    name: string;
+    price: number;
+    quantity: number;
+    total: number;
+  }>;
   transactionDate: string;
   notes?: string;
 }

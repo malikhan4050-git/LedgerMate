@@ -14,7 +14,11 @@ import { useSelector } from 'react-redux';
 
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddProductModal from './components/AddProductModal';
-import { deleteProduct, ProductResult, getProducts } from '../../services/productsApi';
+import {
+  deleteProduct,
+  ProductResult,
+  getProducts,
+} from '../../services/productsApi';
 import styles from './styles';
 import type { RootState } from '../../redux/store';
 
@@ -37,7 +41,7 @@ const ProductsScreen = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const itemsPerPage = 20;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     if (!isSimpleUser) {
@@ -61,41 +65,52 @@ const ProductsScreen = () => {
 
   // Fetch products from API with pagination
   const fetchProducts = async (page: number = 1, append: boolean = false) => {
-  if (page === 1) {
-    setLoading(true);
-  } else {
-    setIsLoadingMore(true);
-  }
-
-  try {
-    const response = await getProducts(page, itemsPerPage);
-    
-    // Now response has: { products: [...], totalProducts, totalPages, currentPage }
-    const mappedProducts = response.products || [];
-    const totalProductsCount = response.totalProducts || 0;
-    const totalPagesCount = response.totalPages || 1;
-
-    if (append) {
-      setProducts((prev) => [...prev, ...mappedProducts]);
+    if (page === 1) {
+      setLoading(true);
     } else {
-      setProducts(mappedProducts);
-      setFilteredProducts(mappedProducts);
+      setIsLoadingMore(true);
     }
 
-    setTotalProducts(totalProductsCount);
-    setTotalPages(totalPagesCount);
-    setHasMore(page < totalPagesCount);
-    setCurrentPage(page);
-    
-  } catch (error: any) {
-    console.error('Error fetching products:', error);
-    Alert.alert('Error', 'Failed to load products. Please try again.');
-  } finally {
-    setLoading(false);
-    setIsLoadingMore(false);
-    setRefreshing(false);
-  }
-};  const onRefresh = async () => {
+    try {
+      const response = await getProducts(page, itemsPerPage);
+
+      // response = { products: [...], totalProducts, totalPages, currentPage }
+      const productsData = response.products || [];
+      const totalProductsCount = response.totalProducts || 0;
+      const totalPagesCount = response.totalPages || 1;
+
+      // Map the products
+      const mappedProducts = productsData.map((item: any) => ({
+        id: item.id || item._id,
+        _id: item._id || item.id,
+        name: item.name,
+        price: item.price,
+        stock: item.stock,
+        category: item.category,
+        unit: item.unit || '',
+      }));
+      if (append) {
+        setProducts(prev => [...prev, ...mappedProducts]);
+      } else {
+        setProducts(mappedProducts);
+        setFilteredProducts(mappedProducts);
+      }
+
+      setTotalProducts(totalProductsCount);
+      setTotalPages(totalPagesCount);
+      setHasMore(page < totalPagesCount);
+      setCurrentPage(page);
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+      Alert.alert('Error', 'Failed to load products. Please try again.');
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = async () => {
     setRefreshing(true);
     await fetchProducts(1, false);
   };
@@ -188,7 +203,8 @@ const ProductsScreen = () => {
             <Text style={styles.lockedIcon}>🔒</Text>
             <Text style={styles.lockedTitle}>Premium Feature</Text>
             <Text style={styles.lockedDescription}>
-              Upgrade to premium to add, edit, and manage your products inventory.
+              Upgrade to premium to add, edit, and manage your products
+              inventory.
             </Text>
             <View style={styles.upgradeButtonWrapper}>
               <GradientButton
@@ -271,7 +287,7 @@ const ProductsScreen = () => {
           </Text>
         </View>
       ) : (
-        filteredProducts.map((product) => (
+        filteredProducts.map(product => (
           <View key={product._id || product.id} style={styles.productCard}>
             <View style={styles.productCardHeader}>
               <View style={styles.productIconContainer}>
@@ -338,9 +354,16 @@ const ProductsScreen = () => {
       {/* Footer with total count */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Showing {filteredProducts.length} of {totalProducts || filteredProducts.length} products
+          Showing {filteredProducts.length} of{' '}
+          {totalProducts || filteredProducts.length} products
         </Text>
       </View>
+      {/* Add Product Modal */}
+      <AddProductModal
+        visible={modalVisible}
+        onClose={handleModalClose}
+        onSave={handleModalSave}
+      />
     </ScrollView>
   );
 };

@@ -159,7 +159,6 @@ const EditProductModal = ({
       await updateProduct(productId, payload);
       onSave();
       resetForm();
-      Alert.alert('Success', 'Product updated successfully!');
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||

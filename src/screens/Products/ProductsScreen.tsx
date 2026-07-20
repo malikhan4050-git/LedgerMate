@@ -6,18 +6,15 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
-import { ActivityIndicator, Alert } from 'react-native'; // Add ActivityIndicator and Alert
-import {
-  deleteProduct,
-  ProductResult,
-  getProducts,
-} from '../../services/productsApi';
 
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddProductModal from './components/AddProductModal';
+import { deleteProduct, ProductResult, getProducts } from '../../services/productsApi';
 import styles from './styles';
 import type { RootState } from '../../redux/store';
 
@@ -34,13 +31,21 @@ const ProductsScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const itemsPerPage = 20;
+
   useEffect(() => {
     if (!isSimpleUser) {
-      fetchProducts();
+      fetchProducts(1, false);
     }
   }, [isSimpleUser]);
 
-  // Filter products based on search
+  // Filter products based on search (only on already loaded products)
   useEffect(() => {
     if (searchText.trim() === '') {
       setFilteredProducts(products);
@@ -54,25 +59,64 @@ const ProductsScreen = () => {
     }
   }, [searchText, products]);
 
-  // Fetch products from API
-  const fetchProducts = async () => {
+  // Fetch products from API with pagination
+  const fetchProducts = async (page: number = 1, append: boolean = false) => {
+  if (page === 1) {
     setLoading(true);
-    try {
-      const response = await getProducts();
-      setProducts(response);
-      setFilteredProducts(response);
-    } catch (error: any) {
-      console.error('Error fetching products:', error);
-      Alert.alert('Error', 'Failed to load products. Please try again.');
-    } finally {
-      setLoading(false);
+  } else {
+    setIsLoadingMore(true);
+  }
+
+  try {
+    const response = await getProducts(page, itemsPerPage);
+    
+    // Now response has: { products: [...], totalProducts, totalPages, currentPage }
+    const mappedProducts = response.products || [];
+    const totalProductsCount = response.totalProducts || 0;
+    const totalPagesCount = response.totalPages || 1;
+
+    if (append) {
+      setProducts((prev) => [...prev, ...mappedProducts]);
+    } else {
+      setProducts(mappedProducts);
+      setFilteredProducts(mappedProducts);
+    }
+
+    setTotalProducts(totalProductsCount);
+    setTotalPages(totalPagesCount);
+    setHasMore(page < totalPagesCount);
+    setCurrentPage(page);
+    
+  } catch (error: any) {
+    console.error('Error fetching products:', error);
+    Alert.alert('Error', 'Failed to load products. Please try again.');
+  } finally {
+    setLoading(false);
+    setIsLoadingMore(false);
+    setRefreshing(false);
+  }
+};  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchProducts(1, false);
+  };
+
+  // Load more products (for pagination)
+  const loadMore = (): void => {
+    if (!isLoadingMore && hasMore) {
+      fetchProducts(currentPage + 1, true);
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchProducts();
-    setRefreshing(false);
+  // Handle scroll to detect end of list
+  const handleScroll = ({ nativeEvent }: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const paddingToBottom = 40;
+    if (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    ) {
+      loadMore();
+    }
   };
 
   // Handle delete product
@@ -90,7 +134,7 @@ const ProductsScreen = () => {
             try {
               await deleteProduct(id);
               Alert.alert('Success', 'Product deleted successfully');
-              await fetchProducts(); // Refresh list
+              await fetchProducts(1, false); // Refresh list from page 1
             } catch (error: any) {
               Alert.alert('Error', 'Failed to delete product');
             } finally {
@@ -116,7 +160,7 @@ const ProductsScreen = () => {
     unit: string;
   }) => {
     console.log('Product saved:', productData);
-    fetchProducts();
+    fetchProducts(1, false); // Refresh list from page 1
     setModalVisible(false);
   };
 
@@ -144,8 +188,7 @@ const ProductsScreen = () => {
             <Text style={styles.lockedIcon}>🔒</Text>
             <Text style={styles.lockedTitle}>Premium Feature</Text>
             <Text style={styles.lockedDescription}>
-              Upgrade to premium to add, edit, and manage your products
-              inventory.
+              Upgrade to premium to add, edit, and manage your products inventory.
             </Text>
             <View style={styles.upgradeButtonWrapper}>
               <GradientButton
@@ -173,14 +216,14 @@ const ProductsScreen = () => {
           colors={['#1E90FF']}
         />
       }
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
     >
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Products</Text>
         <Text style={styles.headerSubtitle}>Manage your inventory here</Text>
       </View>
 
-      {/* Add Product Button */}
       <View style={styles.addButtonWrapper}>
         <GradientButton
           title="+ Add Product"
@@ -189,7 +232,6 @@ const ProductsScreen = () => {
         />
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Icon
           name="search-outline"
@@ -229,7 +271,7 @@ const ProductsScreen = () => {
           </Text>
         </View>
       ) : (
-        filteredProducts.map(product => (
+        filteredProducts.map((product) => (
           <View key={product._id || product.id} style={styles.productCard}>
             <View style={styles.productCardHeader}>
               <View style={styles.productIconContainer}>
@@ -276,8 +318,8 @@ const ProductsScreen = () => {
                     product.stock < 10 ? styles.lowStock : styles.inStock,
                   ]}
                 >
-                  {product.stock} {product.unit}
-                  {product.stock < 10}
+                  {product.stock} {product.unit || 'units'}
+                  {product.stock < 10 && ' ⚠️'}
                 </Text>
               </View>
             </View>
@@ -285,18 +327,20 @@ const ProductsScreen = () => {
         ))
       )}
 
+      {/* Loading More Indicator */}
+      {isLoadingMore && (
+        <View style={styles.loadingMoreContainer}>
+          <ActivityIndicator size="small" color="#1E90FF" />
+          <Text style={styles.loadingMoreText}>Loading more...</Text>
+        </View>
+      )}
+
+      {/* Footer with total count */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Total Products: {filteredProducts.length}
+          Showing {filteredProducts.length} of {totalProducts || filteredProducts.length} products
         </Text>
       </View>
-
-      {/* Add Product Modal */}
-      <AddProductModal
-        visible={modalVisible}
-        onClose={handleModalClose}
-        onSave={handleModalSave}
-      />
     </ScrollView>
   );
 };

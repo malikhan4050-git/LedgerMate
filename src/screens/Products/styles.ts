@@ -252,4 +252,18 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
     marginTop: 8,
   },
+  // Add these styles to your Products/styles.ts
+
+  loadingMoreContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  loadingMoreText: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+  },
 });

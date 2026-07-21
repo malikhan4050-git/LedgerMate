@@ -9,7 +9,6 @@ import {
   Platform,
   ScrollView,
   Modal,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 
@@ -26,12 +25,14 @@ interface AddProductModalProps {
     category: string;
     unit: string;
   }) => void;
+  showAlert?: (title: string, message: string, type?: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
 const AddProductModal = ({
   visible,
   onClose,
   onSave,
+  showAlert,
 }: AddProductModalProps) => {
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -91,7 +92,6 @@ const AddProductModal = ({
       isValid = false;
     }
 
-    // After category validation
     if (!newProduct.unit || newProduct.unit.trim() === '') {
       newErrors.unit = 'Please enter unit';
       isValid = false;
@@ -117,7 +117,7 @@ const AddProductModal = ({
       unit: '',
     });
   };
-  // Add product using API
+
   const handleModalSave = async () => {
     if (!validateForm()) {
       return;
@@ -144,16 +144,21 @@ const AddProductModal = ({
       });
       resetForm();
 
-      Alert.alert('Success', 'Product added successfully!');
+      if (showAlert) {
+        showAlert('Success', 'Product added successfully!', 'success');
+      }
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
         'Something went wrong. Please try again.';
-      Alert.alert('Error', message);
+      if (showAlert) {
+        showAlert('Error', message, 'error');
+      }
     } finally {
       setLoading(false);
     }
   };
+
   const handleModalCancel = () => {
     onClose();
     resetForm();
@@ -179,7 +184,6 @@ const AddProductModal = ({
             >
               <Text style={styles.modalTitle}>Add New Product</Text>
 
-              {/* Product Name */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Product Name *</Text>
                 <TextInput
@@ -191,10 +195,10 @@ const AddProductModal = ({
                   placeholderTextColor="#8E8E93"
                   value={newProduct.name}
                   editable={!loading}
-                  onChangeText={text => {
+                  onChangeText={(text) => {
                     setNewProduct({ ...newProduct, name: text });
                     if (modalErrors.name) {
-                      setModalErrors(prev => ({ ...prev, name: '' }));
+                      setModalErrors((prev) => ({ ...prev, name: '' }));
                     }
                   }}
                 />
@@ -203,7 +207,6 @@ const AddProductModal = ({
                 ) : null}
               </View>
 
-              {/* Price */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Price *</Text>
                 <TextInput
@@ -216,10 +219,10 @@ const AddProductModal = ({
                   keyboardType="numeric"
                   value={newProduct.price}
                   editable={!loading}
-                  onChangeText={text => {
+                  onChangeText={(text) => {
                     setNewProduct({ ...newProduct, price: text });
                     if (modalErrors.price) {
-                      setModalErrors(prev => ({ ...prev, price: '' }));
+                      setModalErrors((prev) => ({ ...prev, price: '' }));
                     }
                   }}
                 />
@@ -228,7 +231,6 @@ const AddProductModal = ({
                 ) : null}
               </View>
 
-              {/* Stock */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Stock *</Text>
                 <TextInput
@@ -241,10 +243,10 @@ const AddProductModal = ({
                   keyboardType="numeric"
                   value={newProduct.stock}
                   editable={!loading}
-                  onChangeText={text => {
+                  onChangeText={(text) => {
                     setNewProduct({ ...newProduct, stock: text });
                     if (modalErrors.stock) {
-                      setModalErrors(prev => ({ ...prev, stock: '' }));
+                      setModalErrors((prev) => ({ ...prev, stock: '' }));
                     }
                   }}
                 />
@@ -253,7 +255,6 @@ const AddProductModal = ({
                 ) : null}
               </View>
 
-              {/* Category */}
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Category *</Text>
                 <TextInput
@@ -265,10 +266,10 @@ const AddProductModal = ({
                   placeholderTextColor="#8E8E93"
                   value={newProduct.category}
                   editable={!loading}
-                  onChangeText={text => {
+                  onChangeText={(text) => {
                     setNewProduct({ ...newProduct, category: text });
                     if (modalErrors.category) {
-                      setModalErrors(prev => ({ ...prev, category: '' }));
+                      setModalErrors((prev) => ({ ...prev, category: '' }));
                     }
                   }}
                 />
@@ -276,7 +277,7 @@ const AddProductModal = ({
                   <Text style={styles.errorText}>{modalErrors.category}</Text>
                 ) : null}
               </View>
-              {/* Unit */}
+
               <View style={styles.modalFieldContainer}>
                 <Text style={styles.modalLabel}>Unit *</Text>
                 <TextInput
@@ -288,10 +289,10 @@ const AddProductModal = ({
                   placeholderTextColor="#8E8E93"
                   value={newProduct.unit}
                   editable={!loading}
-                  onChangeText={text => {
+                  onChangeText={(text) => {
                     setNewProduct({ ...newProduct, unit: text });
                     if (modalErrors.unit) {
-                      setModalErrors(prev => ({ ...prev, unit: '' }));
+                      setModalErrors((prev) => ({ ...prev, unit: '' }));
                     }
                   }}
                 />
@@ -300,7 +301,6 @@ const AddProductModal = ({
                 ) : null}
               </View>
 
-              {/* Modal Buttons */}
               <View style={styles.modalSaveButtonWrapper}>
                 {loading ? (
                   <ActivityIndicator size="small" color="#ffffff" />

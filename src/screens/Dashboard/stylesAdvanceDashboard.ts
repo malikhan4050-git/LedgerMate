@@ -1,7 +1,3 @@
-// Temporarily using the styles of the Simple Dashboard Screen...
-// the main file -> AdvanceDashboardScreen also using the code of SimpleDashboardScreen...
-
-
 import { StyleSheet } from 'react-native';
 import Colors from '../../theme/Colors';
 import Sizes from '../../theme/Sizes';
@@ -57,7 +53,7 @@ export default StyleSheet.create({
 
   // Greeting
   greeting: {
-    paddingTop : 15,
+    paddingTop: 15,
     fontSize: 14,
     color: Colors.secondaryText,
   },
@@ -248,6 +244,50 @@ export default StyleSheet.create({
 
   recentItemAmountPurchase: {
     color: '#C62828',
+  },
+
+  // Stats Row - Advance User Feature
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 20,
+  },
+
+  statCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  statNumber: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
+  statNumberTotalTransactions: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Colors.secondaryText,
+  },
+  statNumberPurchaseRatio: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#ff1e1e',
+  },
+
+  statLabel: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginTop: 4,
+    fontWeight: '500',
   },
 
   // Empty State

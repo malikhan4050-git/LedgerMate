@@ -35,11 +35,11 @@ const SimpleDashboardScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const totalSales = entries
-    .filter((e) => e.entryType === 'sale')
+    .filter(e => e.entryType === 'sale')
     .reduce((sum, e) => sum + e.manualTotalPrice, 0);
 
   const totalPurchases = entries
-    .filter((e) => e.entryType === 'purchase')
+    .filter(e => e.entryType === 'purchase')
     .reduce((sum, e) => sum + e.manualTotalPrice, 0);
 
   const recentEntries = entries.slice(0, 5);
@@ -47,11 +47,16 @@ const SimpleDashboardScreen = () => {
   const fetchEntries = async () => {
     try {
       const response = await getEntries();
-      let entriesData = response?.entries || response?.data || response?.result || [];
-      
+      let entriesData =
+        response?.entries || response?.data || response?.result || [];
+
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
-        name: entry.name || entry.customer?.name || entry.supplier?.name || 'Unknown',
+        name:
+          entry.name ||
+          entry.customer?.name ||
+          entry.supplier?.name ||
+          'Unknown',
       }));
 
       entriesData = [...entriesData].sort((a, b) => {
@@ -80,10 +85,10 @@ const SimpleDashboardScreen = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -119,7 +124,9 @@ const SimpleDashboardScreen = () => {
     >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <Text style={styles.greeting}>{getGreeting()}, {userName}!</Text>
+        <Text style={styles.greeting}>
+          {getGreeting()}, {userName}!
+        </Text>
         <Text style={styles.subtitle}>Here's your business at a glance</Text>
       </View>
 
@@ -129,7 +136,9 @@ const SimpleDashboardScreen = () => {
             <Icon name="trending-up-outline" size={22} color="#2E7D32" />
           </View>
           <Text style={styles.summaryLabel}>Total to get</Text>
-          <Text style={styles.summaryAmount}>PKR {totalSales.toLocaleString()}</Text>
+          <Text style={styles.summaryAmount}>
+            PKR {totalSales.toLocaleString()}
+          </Text>
         </View>
 
         <View style={[styles.summaryCard, styles.purchaseCard]}>
@@ -137,7 +146,9 @@ const SimpleDashboardScreen = () => {
             <Icon name="trending-down-outline" size={22} color="#C62828" />
           </View>
           <Text style={styles.summaryLabel}>Total to give</Text>
-          <Text style={styles.summaryAmount}>PKR {totalPurchases.toLocaleString()}</Text>
+          <Text style={styles.summaryAmount}>
+            PKR {totalPurchases.toLocaleString()}
+          </Text>
         </View>
       </View>
 
@@ -146,19 +157,24 @@ const SimpleDashboardScreen = () => {
           <Icon name="wallet-outline" size={24} color="#1E90FF" />
           <Text style={styles.balanceLabel}>Net Balance</Text>
         </View>
-        <Text style={[
-          styles.balanceAmount,
-          totalSales - totalPurchases >= 0 ? styles.positive : styles.negative
-        ]}>
+        <Text
+          style={[
+            styles.balanceAmount,
+            totalSales - totalPurchases >= 0
+              ? styles.positive
+              : styles.negative,
+          ]}
+        >
           PKR {(totalSales - totalPurchases).toLocaleString()}
         </Text>
       </View>
 
-      
       <View style={styles.recentSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Transactions</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Ledger' as never)}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Ledger' as never)}
+          >
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
@@ -167,22 +183,32 @@ const SimpleDashboardScreen = () => {
           <View style={styles.emptyState}>
             <Icon name="receipt-outline" size={40} color="#D1D1D6" />
             <Text style={styles.emptyStateText}>No transactions yet</Text>
-            <Text style={styles.subtitle}>Add your first entry from the Add tab</Text>
+            <Text style={styles.subtitle}>
+              Add your first entry from the Add tab
+            </Text>
           </View>
         ) : (
-          recentEntries.map((entry) => {
+          recentEntries.map(entry => {
             const isSale = entry.entryType === 'sale';
             return (
               <View key={entry._id} style={styles.recentItem}>
                 <View style={styles.recentItemLeft}>
-                  <View style={[
-                    styles.recentBadge,
-                    isSale ? styles.recentBadgeSale : styles.recentBadgePurchase
-                  ]}>
-                    <Text style={[
-                      styles.recentBadgeText,
-                      isSale ? styles.recentBadgeTextSale : styles.recentBadgeTextPurchase
-                    ]}>
+                  <View
+                    style={[
+                      styles.recentBadge,
+                      isSale
+                        ? styles.recentBadgeSale
+                        : styles.recentBadgePurchase,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.recentBadgeText,
+                        isSale
+                          ? styles.recentBadgeTextSale
+                          : styles.recentBadgeTextPurchase,
+                      ]}
+                    >
                       {isSale ? 'S' : 'P'}
                     </Text>
                   </View>
@@ -190,13 +216,19 @@ const SimpleDashboardScreen = () => {
                     <Text style={styles.recentItemName} numberOfLines={1}>
                       {entry.itemsDescription}
                     </Text>
-                    <Text style={styles.recentItemDate}>{formatDate(entry.transactionDate)}</Text>
+                    <Text style={styles.recentItemDate}>
+                      {formatDate(entry.transactionDate)}
+                    </Text>
                   </View>
                 </View>
-                <Text style={[
-                  styles.recentItemAmount,
-                  isSale ? styles.recentItemAmountSale : styles.recentItemAmountPurchase
-                ]}>
+                <Text
+                  style={[
+                    styles.recentItemAmount,
+                    isSale
+                      ? styles.recentItemAmountSale
+                      : styles.recentItemAmountPurchase,
+                  ]}
+                >
                   {isSale ? '+' : '-'} PKR {entry.manualTotalPrice}
                 </Text>
               </View>
@@ -210,9 +242,10 @@ const SimpleDashboardScreen = () => {
         title="+ Add a New Entry"
         titleStyle={styles.addButtonText}
         onPress={() => navigation.navigate('Add' as never)}
-       />
+      />
 
-      <View style={styles.footerSpacing} />
+      {/* Extra bottom spacing for tab bar */}
+      <View style={{ height: 80 }} />
     </ScrollView>
   );
 };

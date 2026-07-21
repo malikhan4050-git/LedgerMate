@@ -7,8 +7,8 @@ import {
   TextInput,
   RefreshControl,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
+import { useAlert } from '../../hooks/useAlert';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 
@@ -21,6 +21,7 @@ import styles from './styles';
 import type { RootState } from '../../redux/store';
 
 const ProductsScreen = () => {
+  const { showAlert } = useAlert();
   const business = useSelector((state: RootState) => state.session.business);
   const isSimpleUser = business?.mode === 'simple';
 
@@ -102,7 +103,7 @@ const ProductsScreen = () => {
       setCurrentPage(page);
     } catch (error: any) {
       console.error('Error fetching products:', error);
-      Alert.alert('Error', 'Failed to load products. Please try again.');
+      showAlert('Error', 'Failed to load products. Please try again.', 'error');
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -156,12 +157,12 @@ const ProductsScreen = () => {
     try {
       const productId = selectedProduct._id || selectedProduct.id;
       await deleteProduct(productId);
-      Alert.alert('Success', 'Product deleted successfully');
+      showAlert('Success', 'Product deleted successfully', 'success');
       setDeleteModalVisible(false);
       setSelectedProduct(null);
       fetchProducts(1, false);
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to delete product');
+      showAlert('Error', 'Failed to delete product', 'error');
     }
   };
   // Open modal

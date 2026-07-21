@@ -234,7 +234,7 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
-    borderTopWidth: 1,
+    // borderTopWidth: 1,
     borderTopColor: '#E8E8E8',
     marginTop: 4,
   },

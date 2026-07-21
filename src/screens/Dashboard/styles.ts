@@ -281,7 +281,4 @@ export default StyleSheet.create({
     fontWeight: '600',
   },
 
-  footerSpacing: {
-    height: 20,
-  },
 });

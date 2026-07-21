@@ -615,7 +615,14 @@ const AdvanceUserAddScreen = () => {
                   <View key={index} style={styles.selectedProductCard}>
                     <View style={styles.selectedProductHeader}>
                       <Text style={styles.selectedProductName}>
-                        {item.name}
+                        {item.name} {/* Close Button */}
+              {/* <View style={styles.modalSaveButtonWrapper}>
+                <GradientButton
+                  title="Close"
+                  titleStyle={styles.buttonText}
+                  onPress={onClose}
+                />
+              </View> */}
                       </Text>
                       <TouchableOpacity
                         onPress={() => handleRemoveProduct(index)}

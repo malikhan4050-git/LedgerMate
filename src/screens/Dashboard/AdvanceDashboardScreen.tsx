@@ -1,7 +1,3 @@
-// Temporarily using the code of Simple Dashboard Screen for the output purposes...
-// the styles file -> stylesDashboardScreen.ts is also containing the styles of the Simple Dashboard Screen.
-
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -17,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
 import { getEntries } from '../../services/entryApi';
-import styles from './styles';
+import styles from './stylesAdvanceDashboard';
 
 interface Entry {
   _id: string;
@@ -28,9 +24,19 @@ interface Entry {
   transactionDate: string;
   notes?: string;
   createdAt: string;
+  products?: Array<{
+    product: string;
+    name: string;
+    price: number;
+    quantity: number;
+    total: number;
+  }>;
+  discount?: number;
+  subtotal?: number;
+  totalAmount?: number;
 }
 
-const SimpleDashboardScreen = () => {
+const AdvanceDashboardScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state: any) => state.session?.user);
 
@@ -38,24 +44,31 @@ const SimpleDashboardScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Calculate totals using totalAmount for advance users, fallback to manualTotalPrice
   const totalSales = entries
-    .filter((e) => e.entryType === 'sale')
-    .reduce((sum, e) => sum + e.manualTotalPrice, 0);
+    .filter(e => e.entryType === 'sale')
+    .reduce((sum, e) => sum + (e.totalAmount || e.manualTotalPrice || 0), 0);
 
   const totalPurchases = entries
-    .filter((e) => e.entryType === 'purchase')
-    .reduce((sum, e) => sum + e.manualTotalPrice, 0);
+    .filter(e => e.entryType === 'purchase')
+    .reduce((sum, e) => sum + (e.totalAmount || e.manualTotalPrice || 0), 0);
 
   const recentEntries = entries.slice(0, 5);
 
   const fetchEntries = async () => {
     try {
-      const response = await getEntries();
-      let entriesData = response?.entries || response?.data || response?.result || [];
-      
+      const response = await getEntries(1, 50);
+      let entriesData =
+        response?.entries || response?.data || response?.result || [];
+
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
-        name: entry.name || entry.customer?.name || entry.supplier?.name || 'Unknown',
+        name:
+          entry.name ||
+          entry.customer?.name ||
+          entry.supplier?.name ||
+          'Unknown',
+        manualTotalPrice: entry.totalAmount || entry.manualTotalPrice || 0,
       }));
 
       entriesData = [...entriesData].sort((a, b) => {
@@ -84,10 +97,10 @@ const SimpleDashboardScreen = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -121,48 +134,63 @@ const SimpleDashboardScreen = () => {
         />
       }
     >
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <Text style={styles.greeting}>{getGreeting()}, {userName}!</Text>
+        <Text style={styles.greeting}>
+          {getGreeting()}, {userName}!
+        </Text>
         <Text style={styles.subtitle}>Here's your business at a glance</Text>
       </View>
 
+      {/* Summary Cards Row */}
       <View style={styles.summaryRow}>
         <View style={[styles.summaryCard, styles.salesCard]}>
           <View style={styles.summaryIconContainer}>
             <Icon name="trending-up-outline" size={22} color="#2E7D32" />
           </View>
-          <Text style={styles.summaryLabel}>Total to get</Text>
-          <Text style={styles.summaryAmount}>PKR {totalSales.toLocaleString()}</Text>
+          <Text style={styles.summaryLabel}>Total Sales</Text>
+          <Text style={styles.summaryAmount}>
+            PKR {totalSales.toLocaleString()}
+          </Text>
         </View>
 
         <View style={[styles.summaryCard, styles.purchaseCard]}>
           <View style={styles.summaryIconContainer}>
             <Icon name="trending-down-outline" size={22} color="#C62828" />
           </View>
-          <Text style={styles.summaryLabel}>Total to give</Text>
-          <Text style={styles.summaryAmount}>PKR {totalPurchases.toLocaleString()}</Text>
+          <Text style={styles.summaryLabel}>Total Purchases</Text>
+          <Text style={styles.summaryAmount}>
+            PKR {totalPurchases.toLocaleString()}
+          </Text>
         </View>
       </View>
 
+      {/* Net Balance */}
       <View style={styles.balanceCard}>
         <View style={styles.balanceLeft}>
           <Icon name="wallet-outline" size={24} color="#1E90FF" />
           <Text style={styles.balanceLabel}>Net Balance</Text>
         </View>
-        <Text style={[
-          styles.balanceAmount,
-          totalSales - totalPurchases >= 0 ? styles.positive : styles.negative
-        ]}>
+        <Text
+          style={[
+            styles.balanceAmount,
+            totalSales - totalPurchases >= 0
+              ? styles.positive
+              : styles.negative,
+          ]}
+        >
           PKR {(totalSales - totalPurchases).toLocaleString()}
         </Text>
       </View>
 
-      
+      {/* Recent Transactions */}
       <View style={styles.recentSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Transactions</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Ledger' as never)}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Ledger' as never)}
+          >
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
@@ -171,37 +199,58 @@ const SimpleDashboardScreen = () => {
           <View style={styles.emptyState}>
             <Icon name="receipt-outline" size={40} color="#D1D1D6" />
             <Text style={styles.emptyStateText}>No transactions yet</Text>
-            <Text style={styles.subtitle}>Add your first entry from the Add tab</Text>
+            <Text style={styles.subtitle}>
+              Add your first entry from the Add tab
+            </Text>
           </View>
         ) : (
-          recentEntries.map((entry) => {
+          recentEntries.map(entry => {
             const isSale = entry.entryType === 'sale';
+            const amount = entry.totalAmount || entry.manualTotalPrice || 0;
+
             return (
               <View key={entry._id} style={styles.recentItem}>
                 <View style={styles.recentItemLeft}>
-                  <View style={[
-                    styles.recentBadge,
-                    isSale ? styles.recentBadgeSale : styles.recentBadgePurchase
-                  ]}>
-                    <Text style={[
-                      styles.recentBadgeText,
-                      isSale ? styles.recentBadgeTextSale : styles.recentBadgeTextPurchase
-                    ]}>
+                  <View
+                    style={[
+                      styles.recentBadge,
+                      isSale
+                        ? styles.recentBadgeSale
+                        : styles.recentBadgePurchase,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.recentBadgeText,
+                        isSale
+                          ? styles.recentBadgeTextSale
+                          : styles.recentBadgeTextPurchase,
+                      ]}
+                    >
                       {isSale ? 'S' : 'P'}
                     </Text>
                   </View>
                   <View>
                     <Text style={styles.recentItemName} numberOfLines={1}>
-                      {entry.itemsDescription}
+                      {/* Show product names for advance users, fallback to itemsDescription */}
+                      {entry.products && entry.products.length > 0
+                        ? entry.products.map(p => p.name).join(', ')
+                        : entry.itemsDescription}
                     </Text>
-                    <Text style={styles.recentItemDate}>{formatDate(entry.transactionDate)}</Text>
+                    <Text style={styles.recentItemDate}>
+                      {formatDate(entry.transactionDate)}
+                    </Text>
                   </View>
                 </View>
-                <Text style={[
-                  styles.recentItemAmount,
-                  isSale ? styles.recentItemAmountSale : styles.recentItemAmountPurchase
-                ]}>
-                  {isSale ? '+' : '-'} PKR {entry.manualTotalPrice}
+                <Text
+                  style={[
+                    styles.recentItemAmount,
+                    isSale
+                      ? styles.recentItemAmountSale
+                      : styles.recentItemAmountPurchase,
+                  ]}
+                >
+                  {isSale ? '+' : '-'} PKR {amount}
                 </Text>
               </View>
             );
@@ -209,16 +258,44 @@ const SimpleDashboardScreen = () => {
         )}
       </View>
 
+      {/* Stats Row - Advance User Features */}
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumberTotalTransactions}>{entries.length}</Text>
+          <Text style={styles.statLabel}>Total Transactions</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>
+            {entries.length > 0
+              ? Math.round((totalSales / (totalSales + totalPurchases)) * 100)
+              : 0}
+            %
+          </Text>
+          <Text style={styles.statLabel}>Sales Ratio</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumberPurchaseRatio}>
+            {entries.length > 0
+              ? Math.round(
+                  (totalPurchases / (totalSales + totalPurchases)) * 100,
+                )
+              : 0}
+            %
+          </Text>
+          <Text style={styles.statLabel}>Purchase Ratio</Text>
+        </View>
+      </View>
+
       {/* Add Entry Button */}
       <GradientButton
         title="+ Add a New Entry"
         titleStyle={styles.addButtonText}
         onPress={() => navigation.navigate('Add' as never)}
-       />
+      />
 
       <View style={styles.footerSpacing} />
     </ScrollView>
   );
 };
 
-export default SimpleDashboardScreen;
+export default AdvanceDashboardScreen;

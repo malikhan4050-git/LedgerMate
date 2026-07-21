@@ -128,13 +128,22 @@ const LedgerCardModal = ({
                     {isSale ? 'Sale' : 'Purchase'}
                   </Text>
                 </View>
-                <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
+                <TouchableOpacity
+                  onPress={onClose}
+                  style={styles.modalCloseButton}
+                >
                   <Icon name="close-outline" size={24} color="#333" />
                 </TouchableOpacity>
               </View>
 
               {/* Title */}
               <Text style={styles.modalCardTitle}>Transaction Details</Text>
+
+              {/* Record ID */}
+              <View style={styles.modalCardRow}>
+                <Text style={styles.modalCardLabel}>Record ID</Text>
+                <Text style={styles.modalCardValueSmall}>{entry._id}</Text>
+              </View>
 
               {/* Customer/Supplier Name */}
               <View style={styles.modalCardRow}>
@@ -163,7 +172,9 @@ const LedgerCardModal = ({
               {/* For Advance Users: Show Product Details with Quantity and Price */}
               {isAdvanceUser && productList.length > 0 && (
                 <View style={styles.modalCardProductContainer}>
-                  <Text style={styles.modalCardProductTitle}>Product Details</Text>
+                  <Text style={styles.modalCardProductTitle}>
+                    Product Details
+                  </Text>
                   {productList.map((product, index) => (
                     <View key={index} style={styles.modalCardProductRow}>
                       <View style={styles.modalCardProductInfo}>
@@ -184,43 +195,6 @@ const LedgerCardModal = ({
                       </View>
                     </View>
                   ))}
-                </View>
-              )}
-
-              {/* Subtotal (for Advance Users) */}
-              {isAdvanceUser && entry.subtotal && (
-                <View style={styles.modalCardRow}>
-                  <Text style={styles.modalCardLabel}>Subtotal</Text>
-                  <Text style={styles.modalCardValue}>
-                    PKR {entry.subtotal}
-                  </Text>
-                </View>
-              )}
-
-              {/* Discount (if available) */}
-              {entry.discount && entry.discount > 0 && (
-                <View style={styles.modalCardRow}>
-                  <Text style={styles.modalCardLabel}>Discount</Text>
-                  <Text style={styles.modalCardValueDiscount}>
-                    - PKR {entry.discount}
-                  </Text>
-                </View>
-              )}
-
-              {/* Total Amount (for Advance Users) */}
-              {isAdvanceUser && entry.totalAmount && (
-                <View style={styles.modalCardRowTotal}>
-                  <Text style={styles.modalCardLabelTotal}>Total Amount</Text>
-                  <Text
-                    style={[
-                      styles.modalCardValue,
-                      isSale
-                        ? styles.modalCardValueSale
-                        : styles.modalCardValuePurchase,
-                    ]}
-                  >
-                    PKR {entry.totalAmount}
-                  </Text>
                 </View>
               )}
 
@@ -255,11 +229,41 @@ const LedgerCardModal = ({
                 </View>
               )}
 
-              {/* Record ID */}
-              <View style={styles.modalCardRow}>
-                <Text style={styles.modalCardLabel}>Record ID</Text>
-                <Text style={styles.modalCardValueSmall}>{entry._id}</Text>
-              </View>
+              {/* Subtotal (for Advance Users) */}
+              {isAdvanceUser && entry.subtotal && (
+                <View style={styles.modalCardRow}>
+                  <Text style={styles.modalCardLabel}>Grand Total</Text>
+                  <Text style={styles.modalCardValue}>
+                    PKR {entry.subtotal}
+                  </Text>
+                </View>
+              )}
+
+              {/* Discount (if available) */}
+              {entry.discount !== undefined && entry.discount > 0 && (
+                <View style={styles.modalCardRow}>
+                  <Text style={styles.modalCardLabel}>Discount</Text>
+                  <Text style={styles.modalCardValueDiscount}>
+                    - PKR {entry.discount}
+                  </Text>
+                </View>
+              )}
+              {/* Total Amount (for Advance Users) */}
+              {isAdvanceUser && entry.totalAmount && (
+                <View style={styles.modalCardRowTotal}>
+                  <Text style={styles.modalCardLabelTotal}>Final Total</Text>
+                  <Text
+                    style={[
+                      styles.modalCardValue,
+                      isSale
+                        ? styles.modalCardValueSale
+                        : styles.modalCardValuePurchase,
+                    ]}
+                  >
+                    PKR {entry.totalAmount}
+                  </Text>
+                </View>
+              )}
 
               {/* Action Buttons */}
               <View style={styles.modalCardActions}>
@@ -272,7 +276,10 @@ const LedgerCardModal = ({
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.modalCardActionButton, styles.modalCardActionDelete]}
+                  style={[
+                    styles.modalCardActionButton,
+                    styles.modalCardActionDelete,
+                  ]}
                   onPress={onDelete}
                 >
                   <Icon name="trash-outline" size={18} color="#FF3B30" />
@@ -281,13 +288,13 @@ const LedgerCardModal = ({
               </View>
 
               {/* Close Button */}
-              <View style={styles.modalSaveButtonWrapper}>
+              {/* <View style={styles.modalSaveButtonWrapper}>
                 <GradientButton
                   title="Close"
                   titleStyle={styles.buttonText}
                   onPress={onClose}
                 />
-              </View>
+              </View> */}
             </ScrollView>
           </View>
         </View>

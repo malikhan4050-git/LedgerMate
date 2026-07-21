@@ -146,7 +146,318 @@ export default StyleSheet.create({
     color: '#C62828',
   },
 
+  // =============================================
+  // FEATURE 1: Transaction Trends
+  // =============================================
+
+  sectionContainer: {
+    marginBottom: 16,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+    marginBottom: 10,
+  },
+
+  trendRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+
+  trendItem: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  trendLabel: {
+    fontSize: 11,
+    color: Colors.secondaryText,
+    fontWeight: '500',
+  },
+
+  trendValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+    marginTop: 4,
+  },
+
+  // =============================================
+  // FEATURE 2: Top Products
+  // =============================================
+
+  topProductItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    marginBottom: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  topProductRank: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+    width: 30,
+  },
+
+  topProductName: {
+    fontSize: 14,
+    color: Colors.primaryText,
+    flex: 1,
+    fontWeight: '500',
+  },
+
+  topProductCount: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1E90FF',
+  },
+
+  // =============================================
+  // FEATURE 3: Quick Stats
+  // =============================================
+
+  quickStatsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 16,
+  },
+
+  quickStatCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  quickStatValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+    marginTop: 4,
+  },
+
+  quickStatLabel: {
+    fontSize: 10,
+    color: Colors.secondaryText,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+
+  // =============================================
+  // FEATURE 4: Weekly Summary
+  // =============================================
+
+  weekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 4,
+    paddingVertical: 8,
+  },
+
+  weekDayItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  weekBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    height: 50,
+    gap: 2,
+  },
+
+  weekBar: {
+    width: 12,
+    borderRadius: 4,
+    minHeight: 4,
+  },
+
+  weekDayLabel: {
+    fontSize: 10,
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
+
+  // =============================================
+  // FEATURE 5: Top Customers
+  // =============================================
+
+  topCustomerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    marginBottom: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  topCustomerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  topCustomerRank: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+    width: 30,
+  },
+
+  topCustomerName: {
+    fontSize: 14,
+    color: Colors.primaryText,
+    fontWeight: '500',
+    flex: 1,
+  },
+
+  topCustomerRight: {
+    alignItems: 'flex-end',
+  },
+
+  topCustomerCount: {
+    fontSize: 10,
+    color: Colors.secondaryText,
+  },
+
+  topCustomerAmount: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
+
+  // =============================================
+  // Stats Row
+  // =============================================
+
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 16,
+  },
+
+  statCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  statNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
+
+  statLabel: {
+    fontSize: 10,
+    color: Colors.secondaryText,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+
+  // =============================================
+  // Profit/Loss Summary
+  // =============================================
+
+  profitLossContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  profitLossItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+
+  profitLossDivider: {
+    height: 1,
+    backgroundColor: '#F0F0F0',
+    marginVertical: 4,
+  },
+
+  profitLossTotal: {
+    borderTopWidth: 2,
+    borderTopColor: '#E8E8E8',
+    paddingTop: 10,
+    marginTop: 4,
+  },
+
+  profitLossLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.primaryText,
+  },
+
+  profitLossValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  profitLossSale: {
+    color: '#2E7D32',
+  },
+
+  profitLossPurchase: {
+    color: '#C62828',
+  },
+
+  profitLossTotalValue: {
+    fontSize: 16,
+  },
+
+  // =============================================
   // Recent Transactions
+  // =============================================
+
   recentSection: {
     marginBottom: 16,
   },
@@ -156,12 +467,6 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.primaryText,
   },
 
   seeAllText: {
@@ -246,50 +551,6 @@ export default StyleSheet.create({
     color: '#C62828',
   },
 
-  // Stats Row - Advance User Feature
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 20,
-  },
-
-  statCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: Sizes.borderRadius,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-
-  statNumber: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1E90FF',
-  },
-  statNumberTotalTransactions: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.secondaryText,
-  },
-  statNumberPurchaseRatio: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#ff1e1e',
-  },
-
-  statLabel: {
-    fontSize: 12,
-    color: Colors.secondaryText,
-    marginTop: 4,
-    fontWeight: '500',
-  },
-
   // Empty State
   emptyState: {
     alignItems: 'center',
@@ -323,9 +584,5 @@ export default StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-
-  footerSpacing: {
-    height: 20,
   },
 });

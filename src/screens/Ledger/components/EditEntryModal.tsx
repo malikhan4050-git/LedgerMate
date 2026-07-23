@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  Alert,
 } from 'react-native';
 import { EntryPayload } from '../../../services/entryApi';
+import { useAlert } from '../../../hooks/useAlert';
 
 interface EditEntryModalProps {
   visible: boolean;
@@ -24,6 +24,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { showAlert } = useAlert();
   const [formData, setFormData] = useState<Partial<EntryPayload>>({});
   const [isSaving, setIsSaving] = useState(false);
 
@@ -44,11 +45,11 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({
 
   const handleSave = async () => {
     if (!formData.itemsDescription?.trim()) {
-      Alert.alert('Error', 'Please enter items description.');
+      showAlert('Error', 'Please enter items description.', 'error');
       return;
     }
     if (!formData.manualTotalPrice || formData.manualTotalPrice <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount.');
+      showAlert('Error', 'Please enter a valid amount.', 'error');
       return;
     }
 
@@ -57,7 +58,7 @@ const EditEntryModal: React.FC<EditEntryModalProps> = ({
       await onSave(formData);
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'Failed to update entry. Please try again.');
+      showAlert('Error', 'Failed to update entry. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }

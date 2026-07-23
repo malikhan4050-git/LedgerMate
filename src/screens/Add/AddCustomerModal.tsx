@@ -11,11 +11,11 @@ import {
   Platform,
   ScrollView,
   Modal,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 
 import GradientButton from '../../components/Buttons/GradientButton';
+import { useAlert } from '../../hooks/useAlert';
 import { addCustomer } from '../../services/customerApi';
 import { addSupplier } from '../../services/supplierApi';
 import styles from './styles';
@@ -38,6 +38,7 @@ const AddCustomerModal = ({
   onClose,
   onSave,
 }: AddCustomerModalProps) => {
+  const { showAlert } = useAlert();
   const [newCustomer, setNewCustomer] = useState({
     name: '',
     email: '',
@@ -123,9 +124,10 @@ const AddCustomerModal = ({
 
       resetForm();
 
-      Alert.alert(
+      showAlert(
         'Success',
-        `${isSale ? 'Customer' : 'Supplier'} added successfully!`
+        `${isSale ? 'Customer' : 'Supplier'} added successfully!`,
+        'success',
       );
     } catch (error: any) {
       const message =
@@ -135,7 +137,7 @@ const AddCustomerModal = ({
       if (message.toLowerCase().includes('email')) {
         setModalErrors((prev) => ({ ...prev, email: message }));
       } else {
-        Alert.alert('Error', message);
+        showAlert('Error', message, 'error');
       }
     } finally {
       setLoading(false);

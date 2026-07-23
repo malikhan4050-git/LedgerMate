@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import GradientButton from '../../../components/Buttons/GradientButton';
+import { useAlert } from '../../../hooks/useAlert';
 import styles from './styles';
 
 interface AddProductModalProps {
@@ -34,6 +35,7 @@ const AddProductModal = ({
   onSave,
   showAlert,
 }: AddProductModalProps) => {
+  const { showAlert: showCustomAlert } = useAlert();
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
@@ -143,17 +145,21 @@ const AddProductModal = ({
         unit: newProduct.unit.trim(),
       });
       resetForm();
+      onClose();
 
-      if (showAlert) {
-        showAlert('Success', 'Product added successfully!', 'success');
-      }
+      const triggerAlert = showAlert ?? showCustomAlert;
+      setTimeout(() => {
+        triggerAlert('Success', 'Product added successfully!', 'success');
+      }, 120);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
         'Something went wrong. Please try again.';
-      if (showAlert) {
-        showAlert('Error', message, 'error');
-      }
+      const triggerAlert = showAlert ?? showCustomAlert;
+      onClose();
+      setTimeout(() => {
+        triggerAlert('Error', message, 'error');
+      }, 120);
     } finally {
       setLoading(false);
     }

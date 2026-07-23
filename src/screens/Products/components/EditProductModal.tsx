@@ -8,11 +8,11 @@ import {
   Platform,
   ScrollView,
   Modal,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 
 import GradientButton from '../../../components/Buttons/GradientButton';
+import { useAlert } from '../../../hooks/useAlert';
 import { updateProduct } from '../../../services/productsApi';
 import styles from './styles';
 
@@ -37,6 +37,7 @@ const EditProductModal = ({
   onClose,
   onSave,
 }: EditProductModalProps) => {
+  const { showAlert } = useAlert();
   const [editedProduct, setEditedProduct] = useState({
     name: '',
     price: '',
@@ -144,7 +145,7 @@ const EditProductModal = ({
     try {
       const productId = product._id || product.id;
       if (!productId) {
-        Alert.alert('Error', 'Product ID not found');
+        showAlert('Error', 'Product ID not found', 'error');
         return;
       }
 
@@ -159,11 +160,18 @@ const EditProductModal = ({
       await updateProduct(productId, payload);
       onSave();
       resetForm();
+      onClose();
+      setTimeout(() => {
+        showAlert('Success', 'Product updated successfully!', 'success');
+      }, 120);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
         'Something went wrong. Please try again.';
-      Alert.alert('Error', message);
+      onClose();
+      setTimeout(() => {
+        showAlert('Error', message, 'error');
+      }, 120);
     } finally {
       setLoading(false);
     }

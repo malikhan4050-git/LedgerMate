@@ -8,10 +8,11 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  Alert,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
@@ -19,6 +20,7 @@ import DateTimePicker, {
 import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddCustomerModal from './AddCustomerModal';
+import { useAlert } from '../../hooks/useAlert';
 import styles from './styles';
 import { searchCustomers, CustomerResult } from '../../services/customerApi';
 import { searchSuppliers, SupplierResult } from '../../services/supplierApi';
@@ -42,6 +44,8 @@ interface SelectedProduct {
 }
 
 const AdvanceUserAddScreen = () => {
+  const { showAlert } = useAlert();
+  const isFocused = useIsFocused();
   const [mode, setMode] = useState<'sale' | 'purchase'>('sale');
   const isSale = mode === 'sale';
 
@@ -67,6 +71,7 @@ const AdvanceUserAddScreen = () => {
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [allProducts, setAllProducts] = useState<ProductResult[]>([]);
   const [isProductSearching, setIsProductSearching] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -89,8 +94,10 @@ const AdvanceUserAddScreen = () => {
 
   // Fetch products on mount
   useEffect(() => {
-    fetchAllProducts();
-  }, []);
+    if (isFocused) {
+      fetchAllProducts();
+    }
+  }, [isFocused]);
 
   const fetchAllProducts = async () => {
     try {
@@ -337,17 +344,26 @@ const AdvanceUserAddScreen = () => {
 
       await createEntry(entryData);
 
-      Alert.alert('Success', 'Entry saved successfully!');
+      showAlert('Success', 'Entry saved successfully!', 'success');
       handleCancel();
     } catch (error: any) {
       console.log('Error response:', error?.response?.data);
       const message =
         error?.response?.data?.message || 'Failed to save entry. Try again.';
-      Alert.alert('Error', message);
+      showAlert('Error', message, 'error');
     } finally {
       setSaving(false);
     }
   };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchAllProducts();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handleCancel = () => {
     setSearchText('');
     setSelectedItem('');
@@ -400,6 +416,13 @@ const AdvanceUserAddScreen = () => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#1E90FF']}
+          />
+        }
       >
         <View style={styles.container}>
           <View style={styles.header}>

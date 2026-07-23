@@ -8,7 +8,6 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DateTimePicker, {
@@ -18,6 +17,7 @@ import DateTimePicker, {
 import ToggleSelector from '../../components/Toggle/ToggleSelector';
 import GradientButton from '../../components/Buttons/GradientButton';
 import AddCustomerModal from './AddCustomerModal';
+import { useAlert } from '../../hooks/useAlert';
 import styles from './styles';
 import { searchCustomers, CustomerResult } from '../../services/customerApi';
 import { searchSuppliers, SupplierResult } from '../../services/supplierApi';
@@ -32,6 +32,7 @@ interface Party {
 }
 
 const SimpleUserAddScreen = () => {
+  const { showAlert } = useAlert();
   const [mode, setMode] = useState<'sale' | 'purchase'>('sale');
   const isSale = mode === 'sale';
 
@@ -221,13 +222,13 @@ const SimpleUserAddScreen = () => {
 
       await createEntry(entryData);
 
-      Alert.alert('Success', 'Entry saved successfully!');
+      showAlert('Success', 'Entry saved successfully!', 'success');
       handleCancel();
     } catch (error: any) {
       console.log('Error response:', error?.response?.data);
       const message =
         error?.response?.data?.message || 'Failed to save entry. Try again.';
-      Alert.alert('Error', message);
+      showAlert('Error', message, 'error');
     } finally {
       setSaving(false);
     }

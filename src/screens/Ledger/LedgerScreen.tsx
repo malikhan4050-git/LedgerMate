@@ -6,12 +6,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Alert,
   TouchableOpacity,
   TextInput,
   RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native';
 
 import FilterModal from './components/FilterModal';
 import LedgerCardModal from './components/LedgerCardModal';
@@ -23,6 +23,7 @@ import {
 import { updateEntry, deleteEntry } from '../../services/entryApi';
 import EditEntryModal from './components/EditEntryModal';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
+import { useAlert } from '../../hooks/useAlert';
 import styles from './styles';
 
 interface Entry {
@@ -47,6 +48,8 @@ interface Entry {
 }
 
 const LedgerScreen = () => {
+  const { showAlert } = useAlert();
+  const isFocused = useIsFocused();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,8 +73,10 @@ const LedgerScreen = () => {
   >('all');
 
   useEffect(() => {
-    fetchEntries(1, false);
-  }, []);
+    if (isFocused) {
+      fetchEntries(1, false);
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     let filtered = entries;
@@ -174,7 +179,7 @@ const LedgerScreen = () => {
     } catch (error: any) {
       console.error('Error fetching entries:', error);
       setError(error?.response?.data?.message || 'Failed to load entries');
-      Alert.alert('Error', 'Failed to load entries. Please try again.');
+      showAlert('Error', 'Failed to load entries. Please try again.', 'error');
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -198,6 +203,7 @@ const LedgerScreen = () => {
       setFilteredEntries(prev =>
         prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
       );
+      showAlert('Success', 'Entry updated successfully!', 'success');
     } catch (error) {
       throw error;
     }
@@ -216,8 +222,9 @@ const LedgerScreen = () => {
       setFilteredEntries(prev => prev.filter(entry => entry._id !== id));
       setDeleteModalVisible(false);
       setSelectedEntry(null);
+      showAlert('Success', 'Entry deleted successfully!', 'success');
     } catch (error) {
-      Alert.alert('Error', 'Failed to delete entry. Please try again.');
+      showAlert('Error', 'Failed to delete entry. Please try again.', 'error');
     } finally {
       setIsDeleting(false);
     }

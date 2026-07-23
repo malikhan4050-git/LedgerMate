@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +19,7 @@ import AppLogo from '../../components/Logo/AppLogo';
 import Header from '../../components/Header/Header';
 import CustomInput from '../../components/Inputs/CustomInput';
 import GradientButton from '../../components/Buttons/GradientButton';
+import { useAlert } from '../../hooks/useAlert';
 
 import styles from './styles';
 import api from '../../api/axios';
@@ -28,6 +28,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 const SignupScreen = ({ navigation }: Props) => {
   const dispatch = useAppDispatch();
+  const { showAlert } = useAlert();
   const [data, setData] = useState({
     name: '',
     email: '',
@@ -100,9 +101,10 @@ const SignupScreen = ({ navigation }: Props) => {
       console.log('Data:', error.response?.data);
       console.log('Message:', error.message);
 
-      Alert.alert(
+      showAlert(
         'Signup Failed',
         error.response?.data?.message || 'Something went wrong.',
+        'error',
       );
     }
   };

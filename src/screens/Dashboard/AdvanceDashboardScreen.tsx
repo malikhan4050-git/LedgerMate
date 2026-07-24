@@ -414,7 +414,7 @@ const AdvanceDashboardScreen = () => {
             <Icon name="receipt-outline" size={40} color="#D1D1D6" />
             <Text style={styles.emptyStateText}>No transactions yet</Text>
             <Text style={styles.subtitle}>
-              Add your first entry from the Add tab
+              Add your first entry from the Add section
             </Text>
           </View>
         ) : (

@@ -2,7 +2,12 @@ import React, { createContext, useContext, useState } from 'react';
 import CustomAlert from './CustomAlert';
 
 interface AlertContextType {
-  showAlert: (title: string, message: string, type?: 'success' | 'error' | 'warning' | 'info') => void;
+  showAlert: (
+    title: string,
+    message: string,
+    type?: 'success' | 'error' | 'warning' | 'info',
+    onConfirm?: () => void  // Add this
+  ) => void;
 }
 
 const AlertContext = createContext<AlertContextType | undefined>(undefined);
@@ -13,18 +18,25 @@ export const AlertProvider = ({ children }: { children: React.ReactNode }) => {
     title: '',
     message: '',
     type: 'success' as 'success' | 'error' | 'warning' | 'info',
+    onConfirm: undefined as (() => void) | undefined,
   });
 
   const showAlert = (
     title: string,
     message: string,
-    type: 'success' | 'error' | 'warning' | 'info' = 'success'
+    type: 'success' | 'error' | 'warning' | 'info' = 'success',
+    onConfirm?: () => void
   ) => {
-    setConfig({ title, message, type });
+    setConfig({ title, message, type, onConfirm });
     setVisible(true);
   };
 
-  const hideAlert = () => setVisible(false);
+  const hideAlert = () => {
+    if (config.onConfirm) {
+      config.onConfirm();
+    }
+    setVisible(false);
+  };
 
   return (
     <AlertContext.Provider value={{ showAlert }}>

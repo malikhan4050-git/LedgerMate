@@ -9,6 +9,7 @@ interface ProfileMenuItemProps {
   subtitle: string;
   rightText?: string;
   isLogout?: boolean;
+  disabled?: boolean;  // Add this
   onPress: () => void;
 }
 

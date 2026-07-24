@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
@@ -109,11 +109,44 @@ const AdvanceUserAddScreen = () => {
     }
   };
 
+  // Fetch all customers
+  const fetchAllCustomers = async () => {
+    try {
+      const results = await searchCustomers(' ');
+      setSearchResults(results.map(mapCustomerResult));
+      if (results.length > 0) {
+        setShowDropdown(true); // Show dropdown only if results exist
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      setShowDropdown(false);
+    }
+  };
+
+  // Fetch all suppliers
+  const fetchAllSuppliers = async () => {
+    try {
+      const results = await searchSuppliers(' ');
+      setSearchResults(results.map(mapSupplierResult));
+      if (results.length > 0) {
+        setShowDropdown(true); // Show dropdown only if results exist
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      setShowDropdown(false);
+    }
+  };
+
   // Filter products based on search
   useEffect(() => {
     if (productSearchText.trim() === '') {
-      setProductSearchResults([]);
-      setShowProductDropdown(false);
+      // Don't clear results, keep showing all products when dropdown is open
+      // Only clear if dropdown is not shown
+      if (!showProductDropdown) {
+        setProductSearchResults([]);
+      } else {
+        setProductSearchResults(allProducts);
+      }
       return;
     }
 
@@ -127,7 +160,7 @@ const AdvanceUserAddScreen = () => {
     );
     setProductSearchResults(filtered);
     setShowProductDropdown(true);
-  }, [productSearchText, allProducts]);
+  }, [productSearchText, allProducts, showProductDropdown]);
 
   const mapCustomerResult = (item: CustomerResult): Party => ({
     id: item.id || item._id || item.name,
@@ -327,11 +360,11 @@ const AdvanceUserAddScreen = () => {
       const entryData: any = {
         entryType: mode,
         itemsDescription: itemsDescription,
-        manualTotalPrice: grandTotal - (parseFloat(discount) || 0), // Updated
+        manualTotalPrice: grandTotal - (parseFloat(discount) || 0),
         products: productsArray,
         transactionDate: selectedDate.toISOString(),
         notes: notes,
-        discount: parseFloat(discount) || 0, // Add this
+        discount: parseFloat(discount) || 0,
       };
 
       if (isSale) {
@@ -355,6 +388,7 @@ const AdvanceUserAddScreen = () => {
       setSaving(false);
     }
   };
+
   const onRefresh = async () => {
     setRefreshing(true);
     try {
@@ -371,7 +405,7 @@ const AdvanceUserAddScreen = () => {
     setSelectedProducts([]);
     setProductSearchText('');
     setNotes('');
-    setDiscount(''); // Add this
+    setDiscount('');
     setSearchResults([]);
     setErrors({
       customer: '',
@@ -412,7 +446,421 @@ const AdvanceUserAddScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 64}
     >
-      <ScrollView
+      <FlatList
+        data={[]}
+        keyExtractor={() => 'main'}
+        renderItem={null}
+        ListHeaderComponent={
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Add New Entries Here</Text>
+              <Text style={styles.headerSubtitle}>
+                Add a new {isSale ? 'sale' : 'purchase'} transaction
+              </Text>
+            </View>
+
+            <ToggleSelector
+              title="Transaction Type"
+              selectedValue={isSale ? 'simple' : 'advanced'}
+              leftTitle="Sale"
+              rightTitle="Purchase"
+              leftSubtitle="Selling Something"
+              rightSubtitle="Buying Something"
+              leftIcon="gift-outline"
+              rightIcon="cart-outline"
+              compact
+              onValueChange={value => {
+                setMode(value === 'simple' ? 'sale' : 'purchase');
+                setSearchText('');
+                setSelectedItem('');
+                setSelectedPartyId(null);
+                setSearchResults([]);
+              }}
+            />
+
+            <View style={styles.addRow}>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>
+                  {isSale ? 'Customer*' : 'Supplier*'}
+                </Text>
+
+                <View
+                  style={[
+                    styles.searchContainer,
+                    errors.customer && styles.inputError,
+                  ]}
+                >
+                  <TouchableOpacity activeOpacity={1} style={{ flex: 1 }}>
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder={
+                        isSale
+                          ? 'Search or select customer'
+                          : 'Search or select supplier'
+                      }
+                      placeholderTextColor="#8E8E93"
+                      value={searchText}
+                      onChangeText={text => {
+                        setSearchText(text);
+                        if (text === '') {
+                          setSelectedItem('');
+                          setSelectedPartyId(null);
+                          setShowDropdown(false); // Hide dropdown when empty
+                        } else {
+                          setShowDropdown(true); // Show dropdown when typing
+                        }
+                        if (errors.customer) {
+                          setErrors(prev => ({ ...prev, customer: '' }));
+                        }
+                      }}
+                      onFocus={() => {
+                        if (searchText.trim() === '') {
+                          if (isSale) {
+                            fetchAllCustomers();
+                          } else {
+                            fetchAllSuppliers();
+                          }
+                        }
+                      }}
+                      editable={true}
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.customer ? (
+                  <Text style={styles.errorText}>{errors.customer}</Text>
+                ) : null}
+
+                {showDropdown && searching && (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" />
+                    <Text style={styles.loadingText}>Searching...</Text>
+                  </View>
+                )}
+                {showDropdown && !searching && searchResults.length > 0 && (
+                  <View style={styles.dropdownListContainer}>
+                    <ScrollView
+                      nestedScrollEnabled={true}
+                      showsVerticalScrollIndicator={true}
+                    >
+                      {searchResults.map(item => (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={[
+                            styles.dropdownItem,
+                            selectedItem === item.name &&
+                              styles.dropdownItemSelected,
+                          ]}
+                          onPress={() => handleSelect(item)}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              selectedItem === item.name &&
+                                styles.dropdownItemTextSelected,
+                            ]}
+                          >
+                            {item.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+
+                {showDropdown &&
+                  !searching &&
+                  searchText !== '' &&
+                  searchResults.length === 0 && (
+                    <View style={styles.noResults}>
+                      <Text style={styles.noResultsText}>No results found</Text>
+                    </View>
+                  )}
+              </View>
+
+              <View style={styles.addButtonWrapper}>
+                <GradientButton
+                  title={isSale ? '+ Add New Customer' : '+ Add New Supplier'}
+                  titleStyle={styles.buttonText}
+                  onPress={handleAddNewCustomer}
+                />
+              </View>
+            </View>
+
+            {/* Products Selection Section */}
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionLabel}>Add Products *</Text>
+
+              {/* Product Search Input */}
+              <View style={styles.searchContainer}>
+                <Icon
+                  name="search-outline"
+                  size={20}
+                  color="#8E8E93"
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search products..."
+                  placeholderTextColor="#8E8E93"
+                  value={productSearchText}
+                  onChangeText={text => {
+                    setProductSearchText(text);
+                    if (text.trim() !== '') {
+                      setShowProductDropdown(true);
+                    } else {
+                      setShowProductDropdown(true);
+                      setProductSearchResults(allProducts);
+                    }
+                    if (errors.purchasedItems) {
+                      setErrors(prev => ({ ...prev, purchasedItems: '' }));
+                    }
+                  }}
+                onFocus={() => {
+  if (productSearchText.trim() === '') {
+    setProductSearchResults(allProducts);
+    if (allProducts.length > 0) {
+      setShowProductDropdown(true);
+    }
+  }
+}}
+                />
+                {productSearchText !== '' && (
+                  <TouchableOpacity onPress={() => setProductSearchText('')}>
+                    <Icon name="close-circle" size={20} color="#8E8E93" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {errors.purchasedItems ? (
+                <Text style={styles.errorText}>{errors.purchasedItems}</Text>
+              ) : null}
+
+              {/* Product Search Results Dropdown */}
+              {showProductDropdown && productSearchResults.length > 0 && (
+                <View style={styles.dropdownListContainer}>
+                  <ScrollView
+                    nestedScrollEnabled={true}
+                    showsVerticalScrollIndicator={true}
+                  >
+                    {productSearchResults.map(item => (
+                      <TouchableOpacity
+                        key={item._id || item.id || Math.random().toString()}
+                        style={styles.dropdownItem}
+                        onPress={() => handleSelectProduct(item)}
+                      >
+                        <View style={styles.productDropdownItem}>
+                          <Text style={styles.dropdownItemText}>
+                            {item.name}
+                          </Text>
+                          <Text style={styles.productDropdownPrice}>
+                            PKR {item.price} / {item.unit || 'unit'}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+              {showProductDropdown &&
+                productSearchText !== '' &&
+                productSearchResults.length === 0 && (
+                  <View style={styles.noResults}>
+                    <Text style={styles.noResultsText}>No products found</Text>
+                  </View>
+                )}
+
+              {/* Selected Products List */}
+              {selectedProducts.length > 0 && (
+                <View style={styles.selectedProductsContainer}>
+                  <Text style={styles.selectedProductsTitle}>
+                    Selected Products
+                  </Text>
+                  {selectedProducts.map((item, index) => (
+                    <View key={index} style={styles.selectedProductCard}>
+                      <View style={styles.selectedProductHeader}>
+                        <Text style={styles.selectedProductName}>
+                          {item.name}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => handleRemoveProduct(index)}
+                          style={styles.removeProductButton}
+                        >
+                          <Icon name="close-circle" size={20} color="#FF3B30" />
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.selectedProductBody}>
+                        <View style={styles.quantityContainer}>
+                          <TouchableOpacity
+                            style={styles.quantityButton}
+                            onPress={() => handleQuantityChange(index, -1)}
+                          >
+                            <Icon name="remove" size={18} color="#1E90FF" />
+                          </TouchableOpacity>
+                          <Text style={styles.quantityText}>
+                            {item.quantity}
+                          </Text>
+                          <TouchableOpacity
+                            style={styles.quantityButton}
+                            onPress={() => handleQuantityChange(index, 1)}
+                          >
+                            <Icon name="add" size={18} color="#1E90FF" />
+                          </TouchableOpacity>
+                          <Text style={styles.unitText}>{item.unit}</Text>
+                        </View>
+                        <View style={styles.priceContainer}>
+                          <Text style={styles.priceLabel}>Price:</Text>
+                          <Text style={styles.priceValue}>
+                            PKR {item.price * item.quantity}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Grand Total */}
+              <View style={styles.grandTotalContainer}>
+                <Text style={styles.grandTotalLabel}>Grand Total</Text>
+                <Text style={styles.grandTotalValue}>PKR {grandTotal}</Text>
+              </View>
+
+              {/* Discount */}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Discount (if any)</Text>
+                <View
+                  style={[
+                    styles.amountContainer,
+                    parseFloat(discount) < 0 && styles.inputError,
+                  ]}
+                >
+                  <Text style={styles.currencySymbol}>PKR</Text>
+                  <TextInput
+                    style={styles.amountInput}
+                    placeholder="0.00"
+                    placeholderTextColor="#8E8E93"
+                    keyboardType="numeric"
+                    value={discount}
+                    onChangeText={text => {
+                      setDiscount(text);
+                    }}
+                  />
+                </View>
+                {parseFloat(discount) < 0 && (
+                  <Text style={styles.errorText}>
+                    Discount cannot be negative
+                  </Text>
+                )}
+                {parseFloat(discount) > grandTotal && (
+                  <Text style={styles.errorText}>
+                    Discount cannot exceed Grand Total
+                  </Text>
+                )}
+              </View>
+
+              {/* Final Total */}
+              <View style={styles.finalTotalContainer}>
+                <Text style={styles.finalTotalLabel}>Final Total</Text>
+                <Text style={styles.finalTotalValue}>
+                  PKR {(grandTotal - (parseFloat(discount) || 0)).toFixed(2)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Date & Time *</Text>
+              <View style={styles.dateTimeRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.input,
+                    styles.dateTimeInput,
+                    styles.dateInput,
+                    { flex: 1, marginRight: 8 },
+                  ]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.dateTimeText}>
+                    {selectedDate.toLocaleDateString('en-US', {
+                      month: 'numeric',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.input,
+                    styles.dateTimeInput,
+                    styles.timeInput,
+                    { flex: 1, marginLeft: 8 },
+                  ]}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Text style={styles.dateTimeText}>
+                    {selectedDate.toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  onChange={onDateChange}
+                />
+              )}
+
+              {showTimePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="time"
+                  display="default"
+                  onChange={onTimeChange}
+                />
+              )}
+            </View>
+
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionLabel}>Notes (Optional)</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Add notes here..."
+                placeholderTextColor="#8E8E93"
+                multiline
+                numberOfLines={3}
+                value={notes}
+                onChangeText={setNotes}
+                textAlignVertical="top"
+              />
+            </View>
+
+            <View style={styles.saveButtonWrapper}>
+              {saving ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <GradientButton
+                  title="Save Entry"
+                  titleStyle={styles.buttonText}
+                  onPress={handleSave}
+                />
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancel}
+              disabled={saving}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        }
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -423,410 +871,7 @@ const AdvanceUserAddScreen = () => {
             colors={['#1E90FF']}
           />
         }
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Add New Entries Here</Text>
-            <Text style={styles.headerSubtitle}>
-              Add a new {isSale ? 'sale' : 'purchase'} transaction
-            </Text>
-          </View>
-
-          <ToggleSelector
-            title="Transaction Type"
-            selectedValue={isSale ? 'simple' : 'advanced'}
-            leftTitle="Sale"
-            rightTitle="Purchase"
-            leftSubtitle="Selling Something"
-            rightSubtitle="Buying Something"
-            leftIcon="gift-outline"
-            rightIcon="cart-outline"
-            compact
-            onValueChange={value => {
-              setMode(value === 'simple' ? 'sale' : 'purchase');
-              setSearchText('');
-              setSelectedItem('');
-              setSelectedPartyId(null);
-              setSearchResults([]);
-            }}
-          />
-
-          <View style={styles.addRow}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>
-                {isSale ? 'Customer*' : 'Supplier*'}
-              </Text>
-
-              <View
-                style={[
-                  styles.searchContainer,
-                  errors.customer && styles.inputError,
-                ]}
-              >
-                <TouchableOpacity
-                  activeOpacity={1}
-                  style={{ flex: 1 }}
-                  onPress={() => setShowDropdown(true)}
-                >
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder={
-                      isSale
-                        ? 'Search or select customer'
-                        : 'Search or select supplier'
-                    }
-                    placeholderTextColor="#8E8E93"
-                    value={searchText}
-                    onChangeText={text => {
-                      setSearchText(text);
-                      setShowDropdown(true);
-                      if (text === '') {
-                        setSelectedItem('');
-                        setSelectedPartyId(null);
-                      }
-                      if (errors.customer) {
-                        setErrors(prev => ({ ...prev, customer: '' }));
-                      }
-                    }}
-                    onFocus={() => setShowDropdown(true)}
-                    editable={true}
-                  />
-                </TouchableOpacity>
-              </View>
-              {errors.customer ? (
-                <Text style={styles.errorText}>{errors.customer}</Text>
-              ) : null}
-
-              {showDropdown && searching && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" />
-                  <Text style={styles.loadingText}>Searching...</Text>
-                </View>
-              )}
-
-              {showDropdown && !searching && searchResults.length > 0 && (
-                <View style={styles.dropdownList}>
-                  {searchResults.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[
-                        styles.dropdownItem,
-                        selectedItem === item.name &&
-                          styles.dropdownItemSelected,
-                      ]}
-                      onPress={() => handleSelect(item)}
-                    >
-                      <Text
-                        style={[
-                          styles.dropdownItemText,
-                          selectedItem === item.name &&
-                            styles.dropdownItemTextSelected,
-                        ]}
-                      >
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {showDropdown &&
-                !searching &&
-                searchText !== '' &&
-                searchResults.length === 0 && (
-                  <View style={styles.noResults}>
-                    <Text style={styles.noResultsText}>No results found</Text>
-                  </View>
-                )}
-            </View>
-
-            <View style={styles.addButtonWrapper}>
-              <GradientButton
-                title={isSale ? '+ Add New Customer' : '+ Add New Supplier'}
-                titleStyle={styles.buttonText}
-                onPress={handleAddNewCustomer}
-              />
-            </View>
-          </View>
-
-          {/* Products Selection Section */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionLabel}>Add Products *</Text>
-
-            {/* Product Search Input */}
-            <View style={styles.searchContainer}>
-              <Icon
-                name="search-outline"
-                size={20}
-                color="#8E8E93"
-                style={styles.searchIcon}
-              />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search products..."
-                placeholderTextColor="#8E8E93"
-                value={productSearchText}
-                onChangeText={text => {
-                  setProductSearchText(text);
-                  if (text.trim() !== '') {
-                    setShowProductDropdown(true);
-                  } else {
-                    setShowProductDropdown(false);
-                    setProductSearchResults([]);
-                  }
-                  if (errors.purchasedItems) {
-                    setErrors(prev => ({ ...prev, purchasedItems: '' }));
-                  }
-                }}
-                onFocus={() => {
-                  if (
-                    productSearchText.trim() !== '' &&
-                    allProducts.length > 0
-                  ) {
-                    setShowProductDropdown(true);
-                  }
-                }}
-              />
-              {productSearchText !== '' && (
-                <TouchableOpacity onPress={() => setProductSearchText('')}>
-                  <Icon name="close-circle" size={20} color="#8E8E93" />
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {errors.purchasedItems ? (
-              <Text style={styles.errorText}>{errors.purchasedItems}</Text>
-            ) : null}
-
-            {/* Product Search Results Dropdown */}
-            {showProductDropdown && productSearchResults.length > 0 && (
-              <View style={styles.dropdownList}>
-                {productSearchResults.map(product => (
-                  <TouchableOpacity
-                    key={product._id || product.id}
-                    style={styles.dropdownItem}
-                    onPress={() => handleSelectProduct(product)}
-                  >
-                    <View style={styles.productDropdownItem}>
-                      <Text style={styles.dropdownItemText}>
-                        {product.name}
-                      </Text>
-                      <Text style={styles.productDropdownPrice}>
-                        PKR {product.price} / {product.unit || 'unit'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {showProductDropdown &&
-              productSearchText !== '' &&
-              productSearchResults.length === 0 && (
-                <View style={styles.noResults}>
-                  <Text style={styles.noResultsText}>No products found</Text>
-                </View>
-              )}
-
-            {/* Selected Products List */}
-            {selectedProducts.length > 0 && (
-              <View style={styles.selectedProductsContainer}>
-                <Text style={styles.selectedProductsTitle}>
-                  Selected Products
-                </Text>
-                {selectedProducts.map((item, index) => (
-                  <View key={index} style={styles.selectedProductCard}>
-                    <View style={styles.selectedProductHeader}>
-                      <Text style={styles.selectedProductName}>
-                        {item.name} {/* Close Button */}
-              {/* <View style={styles.modalSaveButtonWrapper}>
-                <GradientButton
-                  title="Close"
-                  titleStyle={styles.buttonText}
-                  onPress={onClose}
-                />
-              </View> */}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => handleRemoveProduct(index)}
-                        style={styles.removeProductButton}
-                      >
-                        <Icon name="close-circle" size={20} color="#FF3B30" />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.selectedProductBody}>
-                      <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                          style={styles.quantityButton}
-                          onPress={() => handleQuantityChange(index, -1)}
-                        >
-                          <Icon name="remove" size={18} color="#1E90FF" />
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>{item.quantity}</Text>
-                        <TouchableOpacity
-                          style={styles.quantityButton}
-                          onPress={() => handleQuantityChange(index, 1)}
-                        >
-                          <Icon name="add" size={18} color="#1E90FF" />
-                        </TouchableOpacity>
-                        <Text style={styles.unitText}>{item.unit}</Text>
-                      </View>
-                      <View style={styles.priceContainer}>
-                        <Text style={styles.priceLabel}>Price:</Text>
-                        <Text style={styles.priceValue}>
-                          PKR {item.price * item.quantity}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {/* Grand Total */}
-            <View style={styles.grandTotalContainer}>
-              <Text style={styles.grandTotalLabel}>Grand Total</Text>
-              <Text style={styles.grandTotalValue}>PKR {grandTotal}</Text>
-            </View>
-             {/* Discount */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Discount (if any)</Text>
-              <View
-                style={[
-                  styles.amountContainer,
-                  parseFloat(discount) < 0 && styles.inputError,
-                ]}
-              >
-                <Text style={styles.currencySymbol}>PKR</Text>
-                <TextInput
-                  style={styles.amountInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#8E8E93"
-                  keyboardType="numeric"
-                  value={discount}
-                  onChangeText={text => {
-                    setDiscount(text);
-                    if (parseFloat(text) < 0) {
-                      // Show error if discount is negative
-                    }
-                  }}
-                />
-              </View>
-              {parseFloat(discount) < 0 && (
-                <Text style={styles.errorText}>
-                  Discount cannot be negative
-                </Text>
-              )}
-              {parseFloat(discount) > grandTotal && (
-                <Text style={styles.errorText}>
-                  Discount cannot exceed Grand Total
-                </Text>
-              )}
-            </View>
-
-            {/* Final Total */}
-            <View style={styles.finalTotalContainer}>
-              <Text style={styles.finalTotalLabel}>Final Total</Text>
-              <Text style={styles.finalTotalValue}>
-                PKR {(grandTotal - (parseFloat(discount) || 0)).toFixed(2)}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Date & Time *</Text>
-            <View style={styles.dateTimeRow}>
-              <TouchableOpacity
-                style={[
-                  styles.input,
-                  styles.dateTimeInput,
-                  styles.dateInput,
-                  { flex: 1, marginRight: 8 },
-                ]}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={styles.dateTimeText}>
-                  {selectedDate.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.input,
-                  styles.dateTimeInput,
-                  styles.timeInput,
-                  { flex: 1, marginLeft: 8 },
-                ]}
-                onPress={() => setShowTimePicker(true)}
-              >
-                <Text style={styles.dateTimeText}>
-                  {selectedDate.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display="default"
-                onChange={onDateChange}
-              />
-            )}
-
-            {showTimePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="time"
-                display="default"
-                onChange={onTimeChange}
-              />
-            )}
-          </View>
-
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionLabel}>Notes (Optional)</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="Add notes here..."
-              placeholderTextColor="#8E8E93"
-              multiline
-              numberOfLines={3}
-              value={notes}
-              onChangeText={setNotes}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.saveButtonWrapper}>
-            {saving ? (
-              <ActivityIndicator size="small" />
-            ) : (
-              <GradientButton
-                title="Save Entry"
-                titleStyle={styles.buttonText}
-                onPress={handleSave}
-              />
-            )}
-          </View>
-
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={handleCancel}
-            disabled={saving}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      />
 
       <AddCustomerModal
         visible={modalVisible}

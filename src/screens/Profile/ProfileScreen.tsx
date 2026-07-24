@@ -50,7 +50,7 @@ const ProfileScreen = () => {
       });
     } catch (error) {
       console.error('Logout error:', error);
-      Alert.alert('Error', 'Failed to logout. Please try again.');
+      showAlert('Logout', 'Failed to logout. Please try again later', 'error')
     } finally {
       setIsLoggingOut(false);
     }

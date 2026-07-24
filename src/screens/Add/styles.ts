@@ -96,9 +96,9 @@ export default StyleSheet.create({
     height: 48,
   },
 
-  searchIcon: {           // ✅ Add this
-  marginRight: 10,
-},
+  searchIcon: {
+    marginRight: 10,
+  },
 
   searchInput: {
     flex: 1,
@@ -111,6 +111,7 @@ export default StyleSheet.create({
     padding: 4,
   },
 
+  // Updated dropdown styles with scroll support
   dropdownList: {
     backgroundColor: '#FFFFFF',
     borderRadius: Sizes.borderRadius,
@@ -128,6 +129,26 @@ export default StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+
+  dropdownListContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginTop: 4,
+    maxHeight: 200,
+    position: 'absolute',
+    top: 70,
+    left: 0,
+    right: 0,
+    zIndex: 999,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
   },
 
   dropdownItem: {
@@ -371,11 +392,11 @@ export default StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // === NEW DATE/TIME STYLES (deduped) ===
+  // === DATE/TIME STYLES ===
   dateTimeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8, // use margin if gap isn't supported
+    gap: 8,
   },
 
   dateTimeInput: {
@@ -390,7 +411,7 @@ export default StyleSheet.create({
   },
 
   dateInput: {
-    flex: 1.2, // slightly more space for date
+    flex: 1.2,
   },
 
   timeInput: {
@@ -408,164 +429,166 @@ export default StyleSheet.create({
     backgroundColor: '#F0F4FF',
     borderRadius: 8,
   },
-  // Product Selection Styles
-selectedProductsContainer: {
-  marginTop: 12,
-},
 
-selectedProductsTitle: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.secondaryText,
-  marginBottom: 8,
-},
+  // === PRODUCT SELECTION STYLES ===
+  selectedProductsContainer: {
+    marginTop: 12,
+  },
 
-selectedProductCard: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: Sizes.borderRadius,
-  padding: 12,
-  marginBottom: 8,
-  borderWidth: 1,
-  borderColor: '#F0F0F0',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.04,
-  shadowRadius: 4,
-  elevation: 1,
-},
+  selectedProductsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.secondaryText,
+    marginBottom: 8,
+  },
 
-selectedProductHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 8,
-},
+  selectedProductCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
 
-selectedProductName: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.primaryText,
-  flex: 1,
-},
+  selectedProductHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
 
-removeProductButton: {
-  padding: 4,
-},
+  selectedProductName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    flex: 1,
+  },
 
-selectedProductBody: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
+  removeProductButton: {
+    padding: 4,
+  },
 
-quantityContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 8,
-},
+  selectedProductBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
-quantityButton: {
-  width: 28,
-  height: 28,
-  borderRadius: 14,
-  backgroundColor: '#F0F8FF',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
 
-quantityText: {
-  fontSize: 16,
-  fontWeight: '600',
-  color: Colors.primaryText,
-  minWidth: 20,
-  textAlign: 'center',
-},
+  quantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-unitText: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-  marginLeft: 4,
-},
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    minWidth: 20,
+    textAlign: 'center',
+  },
 
-priceContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-},
+  unitText: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginLeft: 4,
+  },
 
-priceLabel: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-},
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
 
-priceValue: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.primaryText,
-},
+  priceLabel: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+  },
 
-grandTotalContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#FFFFFF',
-  borderRadius: Sizes.borderRadius,
-  padding: 14,
-  marginTop: 12,
-  borderWidth: 1,
-  borderColor: '#E8E8E8',
-},
+  priceValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primaryText,
+  },
 
-grandTotalLabel: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: Colors.primaryText,
-},
+  grandTotalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 14,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
 
-grandTotalValue: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#1E90FF',
-},
+  grandTotalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
 
-productDropdownItem: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 8,
-},
+  grandTotalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
 
-productDropdownPrice: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-  fontWeight: '500',
-},
-// Final Total Styles
-finalTotalContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#E8F5E9',
-  borderRadius: Sizes.borderRadius,
-  padding: 12,
-  marginTop: 8,
-  borderWidth: 1,
-  borderColor: '#C8E6C9',
-},
+  productDropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
 
-finalTotalLabel: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: '#2E7D32',
-},
+  productDropdownPrice: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    fontWeight: '500',
+  },
 
-finalTotalValue: {
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: '#1B5E20',
-},
-// Optional: Add a container for the discount section
-discountContainer: {
-  marginTop: 4,
-},
+  // === DISCOUNT & FINAL TOTAL STYLES ===
+  finalTotalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
+  },
+
+  finalTotalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2E7D32',
+  },
+
+  finalTotalValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1B5E20',
+  },
+
+  discountContainer: {
+    marginTop: 4,
+  },
 });

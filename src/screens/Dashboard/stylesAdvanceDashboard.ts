@@ -527,6 +527,7 @@ export default StyleSheet.create({
   },
 
   recentItemName: {
+    flexShrink : 1,
     fontSize: 14,
     color: Colors.primaryText,
     fontWeight: '500',
@@ -539,7 +540,8 @@ export default StyleSheet.create({
   },
 
   recentItemAmount: {
-    fontSize: 16,
+    paddingTop : 18,
+    fontSize: 12,
     fontWeight: 'bold',
   },
 

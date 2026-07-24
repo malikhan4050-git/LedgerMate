@@ -6,6 +6,7 @@ import SplashScreen from '../screens/Splash/SplashScreen';
 import LoginScreen from '../screens/Login/LoginScreen';
 import SignupScreen from '../screens/Signup/SignupScreen';
 import BusinessDetailsScreen from '../screens/BusinessDetails/BusinessDetailsScreen';
+import EditPersonalInfoScreen from '../screens/Profile/stackScreens/EditPersonalInfoScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   Signup: undefined;
   BusinessDetails: undefined;
   App: undefined;
+  EditPersonalInfoScreen : undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,6 +32,7 @@ const RootNavigator = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="BusinessDetails" component={BusinessDetailsScreen} />
+        <Stack.Screen name="EditPersonalInfoScreen" component={EditPersonalInfoScreen} options={{headerShown : false}}/>
         <Stack.Screen name="App" component={MainAppNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

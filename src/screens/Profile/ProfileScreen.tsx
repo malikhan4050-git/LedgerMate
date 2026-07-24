@@ -42,7 +42,7 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('business');
-      
+
       dispatch(clearSession());
       navigation.reset({
         index: 0,
@@ -50,7 +50,7 @@ const ProfileScreen = () => {
       });
     } catch (error) {
       console.error('Logout error:', error);
-      showAlert('Logout', 'Failed to logout. Please try again later', 'error')
+      showAlert('Logout', 'Failed to logout. Please try again later', 'error');
     } finally {
       setIsLoggingOut(false);
     }
@@ -61,12 +61,13 @@ const ProfileScreen = () => {
       'Logout',
       'Are you sure you want to logout?',
       'warning',
-      performLogout
+      performLogout,
     );
   };
 
-  const handleMenuItemPress = (item: string) => {
-    console.log('Pressed:', item);
+  const handleMenuItemPress = (screenName: string) => {
+    // Navigate using the parent navigator (RootStack)
+    navigation.getParent()?.navigate(screenName as never);
   };
 
   return (
@@ -95,34 +96,36 @@ const ProfileScreen = () => {
         plan={isAdvanceUser ? 'Advance Plan' : 'Simple Plan'}
       />
 
+      {/* Account Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
         <ProfileMenuItem
           icon="person-outline"
           title="Personal Information"
           subtitle="Update your personal details"
-          onPress={() => handleMenuItemPress('Personal Information')}
+          onPress={() => handleMenuItemPress('EditPersonalInfoScreen')} // ✅ Use full name
         />
         <ProfileMenuItem
           icon="business-outline"
           title="Business Information"
           subtitle="View and update business details"
-          onPress={() => handleMenuItemPress('Business Information')}
+          onPress={() => handleMenuItemPress('EditBusinessInfo')}
         />
         <ProfileMenuItem
           icon="lock-closed-outline"
           title="Change Password"
           subtitle="Update your account password"
-          onPress={() => handleMenuItemPress('Change Password')}
+          onPress={() => handleMenuItemPress('ChangePassword')}
         />
         <ProfileMenuItem
           icon="notifications-outline"
           title="Notifications"
           subtitle="Manage your notification preferences"
-          onPress={() => handleMenuItemPress('Notifications')}
+          onPress={() => handleMenuItemPress('NotificationSettings')}
         />
       </View>
 
+      {/* Preferences Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
         <ProfileMenuItem
@@ -143,23 +146,24 @@ const ProfileScreen = () => {
           icon="settings-outline"
           title="Tax & Settings"
           subtitle="Manage tax and app preferences"
-          onPress={() => handleMenuItemPress('Tax & Settings')}
+          onPress={() => handleMenuItemPress('TaxSettings')}
         />
       </View>
 
+      {/* Support & More Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Support & More</Text>
         <ProfileMenuItem
           icon="help-circle-outline"
           title="Help & Support"
           subtitle="Get help and contact support"
-          onPress={() => handleMenuItemPress('Help & Support')}
+          onPress={() => handleMenuItemPress('HelpSupport')}
         />
         <ProfileMenuItem
           icon="document-text-outline"
           title="Terms & Privacy"
           subtitle="View terms of service and privacy policy"
-          onPress={() => handleMenuItemPress('Terms & Privacy')}
+          onPress={() => handleMenuItemPress('TermsPrivacy')}
         />
         <ProfileMenuItem
           icon="log-out-outline"

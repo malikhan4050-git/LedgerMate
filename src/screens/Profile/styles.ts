@@ -138,6 +138,10 @@ export default StyleSheet.create({
     borderColor: '#FFEBEE',
   },
 
+  disabledItem: {
+    opacity: 0.6,
+  },
+
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',

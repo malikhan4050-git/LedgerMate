@@ -5,10 +5,14 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearSession } from '../../redux/slices/sessionSlice';
 
 import { useAlert } from '../../hooks/useAlert';
 import ProfileMenuItem from './components/ProfileMenuItem';
@@ -18,6 +22,8 @@ import type { RootState } from '../../redux/store';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { showAlert } = useAlert();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -25,18 +31,37 @@ const ProfileScreen = () => {
   const business = useSelector((state: RootState) => state.session.business);
   const isAdvanceUser = business?.mode === 'advanced';
 
-  console.log('User data from Redux:', user); // Debug log
-
   const onRefresh = async () => {
     setRefreshing(true);
     setRefreshing(false);
+  };
+
+  const performLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('business');
+      
+      dispatch(clearSession());
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' as never }],
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Failed to logout. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const handleLogout = () => {
     showAlert(
       'Logout',
       'Are you sure you want to logout?',
-      'warning'
+      'warning',
+      performLogout
     );
   };
 
@@ -141,6 +166,7 @@ const ProfileScreen = () => {
           title="Logout"
           subtitle="Sign out from your account"
           isLogout={true}
+          disabled={isLoggingOut}
           onPress={handleLogout}
         />
       </View>

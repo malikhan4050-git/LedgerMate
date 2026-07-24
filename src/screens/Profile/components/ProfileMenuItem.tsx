@@ -9,7 +9,7 @@ interface ProfileMenuItemProps {
   subtitle: string;
   rightText?: string;
   isLogout?: boolean;
-  disabled?: boolean;  // Add this
+  disabled?: boolean;
   onPress: () => void;
 }
 
@@ -19,13 +19,15 @@ const ProfileMenuItem = ({
   subtitle,
   rightText,
   isLogout = false,
+  disabled = false,
   onPress,
 }: ProfileMenuItemProps) => {
   return (
     <TouchableOpacity
-      style={[styles.menuItem, isLogout && styles.logoutItem]}
+      style={[styles.menuItem, isLogout && styles.logoutItem, disabled && styles.disabledItem]}
       onPress={onPress}
       activeOpacity={0.7}
+      disabled={disabled}
     >
       <View style={styles.menuItemLeft}>
         <View style={[styles.menuIconContainer, isLogout && styles.logoutIconContainer]}>

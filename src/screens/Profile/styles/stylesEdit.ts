@@ -19,17 +19,38 @@ export default StyleSheet.create({
     padding: Sizes.screenPadding,
   },
 
-  // Header
+  // Header Row (for GradientHeader)
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 8,
+  },
+
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  backButton: {
+    padding: 8,
+    position: 'absolute',
+    left: 0,
+    zIndex: 1,
+  },
+
+  headerRight: {
+    width: 40,
+  },
+
+  // Old header styles (kept for compatibility)
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 10,
     marginBottom: 4,
-  },
-
-  backButton: {
-    padding: 4,
   },
 
   headerTitle: {
@@ -40,8 +61,12 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
 
-  headerRight: {
-    width: 32,
+  headerTitleWhite: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
   },
 
   headerSubtitle: {

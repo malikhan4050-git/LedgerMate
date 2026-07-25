@@ -16,7 +16,7 @@ export interface UserState {
   id: string;
   name: string;
   email: string;
-  phoneNo?: string; // Add this field
+  phoneNo?: string;
 }
 
 export interface SessionState {

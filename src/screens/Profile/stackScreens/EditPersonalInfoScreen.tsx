@@ -9,11 +9,13 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LinearGradient from 'react-native-linear-gradient';
 
 import { useAlert } from '../../../hooks/useAlert';
 import GradientButton from '../../../components/Buttons/GradientButton';
@@ -28,13 +30,12 @@ const EditPersonalInfoScreen = () => {
 
   const user = useSelector((state: RootState) => state.session.user);
 
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phoneNo || '');
+  const [name, setName] = useState(user?.name || 'Test');
+  const [email, setEmail] = useState(user?.email || 'test@gmail.com');
+  const [phone, setPhone] = useState(user?.phoneNo || '03225588996');
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Validation errors
   const [errors, setErrors] = useState({
     name: '',
     email: '',
@@ -90,14 +91,8 @@ const EditPersonalInfoScreen = () => {
         phoneNo: phone.trim(),
       };
 
-      // Update AsyncStorage
       await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
-
-      // Update Redux
       dispatch(updateUser(updatedUser));
-
-      // TODO: Call API to update user data
-      // const response = await updateUserAPI(updatedUser);
 
       showAlert('Success', 'Personal information updated successfully!', 'success');
       
@@ -121,133 +116,154 @@ const EditPersonalInfoScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={['#1E90FF']}
-          />
-        }
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+      
+      {/* Gradient Header */}
+      <LinearGradient
+        colors={['#4A90E2', '#4CCB8C']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{
+          height: Platform.OS === 'ios' ? 100 : 80,
+          paddingTop: Platform.OS === 'ios' ? 40 : 20,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+        }}
       >
-        <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={handleCancel}
-              disabled={loading}
-            >
-              <Icon name="arrow-back-outline" size={24} color="#333" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Personal Information</Text>
-            <View style={styles.headerRight} />
-          </View>
+        <TouchableOpacity
+          style={{ position: 'absolute', left: 16, bottom: 12 }}
+          onPress={handleCancel}
+          disabled={loading}
+        >
+          <Icon name="arrow-back-outline" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
+          Personal Information
+        </Text>
+      </LinearGradient>
 
-          <Text style={styles.headerSubtitle}>
-            Update your personal details below
-          </Text>
-
-          {/* Profile Picture */}
-          <TouchableOpacity style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Icon name="person" size={50} color="#FFFFFF" />
-            </View>
-            <Text style={styles.avatarChangeText}>Change Photo</Text>
-          </TouchableOpacity>
-
-          {/* Name Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Full Name *</Text>
-            <TextInput
-              style={[styles.input, errors.name && styles.inputError]}
-              placeholder="Enter your full name"
-              placeholderTextColor="#8E8E93"
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
-              }}
-              editable={!loading}
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#1E90FF']}
             />
-            {errors.name ? (
-              <Text style={styles.errorText}>{errors.name}</Text>
-            ) : null}
-          </View>
+          }
+        >
+          <View style={styles.container}>
+            <Text style={styles.headerSubtitle}>
+              Update your personal details below
+            </Text>
 
-          {/* Email Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Email Address *</Text>
-            <TextInput
-              style={[styles.input, errors.email && styles.inputError]}
-              placeholder="Enter your email address"
-              placeholderTextColor="#8E8E93"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
-              }}
-              editable={!loading}
-            />
-            {errors.email ? (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            ) : null}
-          </View>
-
-          {/* Phone Field */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Phone Number *</Text>
-            <TextInput
-              style={[styles.input, errors.phone && styles.inputError]}
-              placeholder="Enter your phone number"
-              placeholderTextColor="#8E8E93"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={(text) => {
-                setPhone(text);
-                if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
-              }}
-              editable={!loading}
-            />
-            {errors.phone ? (
-              <Text style={styles.errorText}>{errors.phone}</Text>
-            ) : null}
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleCancel}
-              disabled={loading}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+            {/* Avatar / Change Photo */}
+            <TouchableOpacity style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Icon name="person" size={50} color="#FFFFFF" />
+              </View>
+              <Text style={styles.avatarChangeText}>Change Photo</Text>
             </TouchableOpacity>
 
-            <View style={styles.saveButtonWrapper}>
-              {loading ? (
-                <ActivityIndicator size="small" color="#ffffff" />
-              ) : (
-                <GradientButton
-                  title="Save Changes"
-                  titleStyle={styles.saveButtonText}
-                  onPress={handleSave}
-                />
-              )}
+            {/* Full Name */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Full Name *</Text>
+              <TextInput
+                style={[styles.input, errors.name && styles.inputError]}
+                placeholder="Enter your full name"
+                placeholderTextColor="#8E8E93"
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
+                }}
+                editable={!loading}
+              />
+              {errors.name ? (
+                <Text style={styles.errorText}>{errors.name}</Text>
+              ) : null}
+            </View>
+
+            {/* Email Address */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Email Address *</Text>
+              <TextInput
+                style={[styles.input, errors.email && styles.inputError]}
+                placeholder="Enter your email address"
+                placeholderTextColor="#8E8E93"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
+                }}
+                editable={!loading}
+              />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
+            </View>
+
+            {/* Phone Number */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Phone Number *</Text>
+              <TextInput
+                style={[styles.input, errors.phone && styles.inputError]}
+                placeholder="Enter your phone number"
+                placeholderTextColor="#8E8E93"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={(text) => {
+                  setPhone(text);
+                  if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+                }}
+                editable={!loading}
+              />
+              {errors.phone ? (
+                <Text style={styles.errorText}>{errors.phone}</Text>
+              ) : null}
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleCancel}
+                disabled={loading}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <View style={styles.saveButtonWrapper}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <GradientButton
+                    title="Save Changes"
+                    titleStyle={styles.saveButtonText}
+                    onPress={handleSave}
+                  />
+                )}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
   );
 };
 

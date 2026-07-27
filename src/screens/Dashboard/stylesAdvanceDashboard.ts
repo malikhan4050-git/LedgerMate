@@ -425,7 +425,6 @@ export default StyleSheet.create({
   },
 
   profitLossTotal: {
-    borderTopWidth: 2,
     borderTopColor: '#E8E8E8',
     paddingTop: 10,
     marginTop: 4,

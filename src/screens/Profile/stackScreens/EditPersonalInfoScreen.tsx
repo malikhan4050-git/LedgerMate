@@ -12,7 +12,7 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,6 +22,7 @@ import GradientButton from '../../../components/Buttons/GradientButton';
 import { updateUser } from '../../../redux/slices/sessionSlice';
 import styles from '../styles/stylesEdit';
 import type { RootState } from '../../../redux/store';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 const EditPersonalInfoScreen = () => {
   const navigation = useNavigation();
@@ -129,29 +130,19 @@ const EditPersonalInfoScreen = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={{
-          height: Platform.OS === 'ios' ? 100 : 80,
-          paddingTop: Platform.OS === 'ios' ? 40 : 20,
+          height: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           paddingHorizontal: 16,
         }}
       >
-        <TouchableOpacity
-          style={{ position: 'absolute', left: 16, bottom: 12 }}
-          onPress={handleCancel}
-          disabled={loading}
-        >
-          <Icon name="arrow-back-outline" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
-          Personal Information
-        </Text>
       </LinearGradient>
 
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
         <ScrollView

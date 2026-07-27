@@ -19,61 +19,23 @@ export default StyleSheet.create({
     padding: Sizes.screenPadding,
   },
 
-  // Header Row (for GradientHeader)
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 8,
-  },
-
-  headerContent: {
-    flex: 1,
-    alignItems: 'center',
-  },
-
-  backButton: {
-    padding: 8,
-    position: 'absolute',
-    left: 0,
-    zIndex: 1,
-  },
-
-  headerRight: {
-    width: 40,
-  },
-
-  // Old header styles (kept for compatibility)
+  // Header - Same as Dashboard
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    marginBottom: 4,
+    marginTop: 35,
+    marginBottom: 16,
+    paddingHorizontal: Sizes.screenPadding,
   },
 
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: Colors.primaryText,
-    flex: 1,
-    textAlign: 'center',
-  },
-
-  headerTitleWhite: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    flex: 1,
-    textAlign: 'center',
   },
 
   headerSubtitle: {
     fontSize: 14,
     color: Colors.secondaryText,
-    marginBottom: 20,
-    textAlign: 'center',
+    marginTop: 2,
   },
 
   // Avatar

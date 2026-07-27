@@ -109,7 +109,7 @@ const ProfileScreen = () => {
           icon="business-outline"
           title="Business Information"
           subtitle="View and update business details"
-          onPress={() => handleMenuItemPress('EditBusinessInfo')}
+          onPress={() => handleMenuItemPress('EditBusinessInfoScreen')}
         />
         <ProfileMenuItem
           icon="lock-closed-outline"

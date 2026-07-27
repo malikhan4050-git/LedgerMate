@@ -35,7 +35,7 @@ export default StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: Colors.secondaryText,
-    marginTop: 2,
+    marginTop: 4,
   },
 
   // Avatar
@@ -96,16 +96,15 @@ export default StyleSheet.create({
     marginLeft: 4,
   },
 
-  // Buttons
+  // Buttons - Stacked Vertically
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
     marginTop: 20,
-    gap: 12,
+    gap: 10,
   },
 
   cancelButton: {
-    flex: 1,
+    width: '100%',
     height: 48,
     borderRadius: Sizes.borderRadius,
     borderWidth: 1,
@@ -122,7 +121,7 @@ export default StyleSheet.create({
   },
 
   saveButtonWrapper: {
-    flex: 2,
+    width: '100%',
   },
 
   saveButtonText: {

@@ -95,7 +95,11 @@ const EditPersonalInfoScreen = () => {
       await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
       dispatch(updateUser(updatedUser));
 
-      showAlert('Success', 'Personal information updated successfully!', 'success');
+      showAlert(
+        'Success',
+        'Personal information updated successfully!',
+        'success',
+      );
 
       setTimeout(() => {
         navigation.goBack();
@@ -104,8 +108,9 @@ const EditPersonalInfoScreen = () => {
       console.error('Update error:', error);
       showAlert(
         'Error',
-        error?.message || 'Failed to update personal information. Please try again.',
-        'error'
+        error?.message ||
+          'Failed to update personal information. Please try again.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -130,8 +135,10 @@ const EditPersonalInfoScreen = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={{
-          height: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
-          paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          height:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          paddingTop:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -169,7 +176,7 @@ const EditPersonalInfoScreen = () => {
               <View style={styles.avatar}>
                 <Icon name="person" size={50} color="#FFFFFF" />
               </View>
-              <Text style={styles.avatarChangeText}>Change Photo</Text>
+              <Text style={styles.avatarChangeText}>Your Profile</Text>
             </TouchableOpacity>
 
             {/* Full Name */}
@@ -180,9 +187,9 @@ const EditPersonalInfoScreen = () => {
                 placeholder="Enter your full name"
                 placeholderTextColor="#8E8E93"
                 value={name}
-                onChangeText={(text) => {
+                onChangeText={text => {
                   setName(text);
-                  if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
+                  if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
                 }}
                 editable={!loading}
               />
@@ -201,9 +208,9 @@ const EditPersonalInfoScreen = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
-                onChangeText={(text) => {
+                onChangeText={text => {
                   setEmail(text);
-                  if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
+                  if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
                 }}
                 editable={!loading}
               />
@@ -221,9 +228,9 @@ const EditPersonalInfoScreen = () => {
                 placeholderTextColor="#8E8E93"
                 keyboardType="phone-pad"
                 value={phone}
-                onChangeText={(text) => {
+                onChangeText={text => {
                   setPhone(text);
-                  if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+                  if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
                 }}
                 editable={!loading}
               />
@@ -232,16 +239,8 @@ const EditPersonalInfoScreen = () => {
               ) : null}
             </View>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Stacked Vertically */}
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={handleCancel}
-                disabled={loading}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
               <View style={styles.saveButtonWrapper}>
                 {loading ? (
                   <ActivityIndicator size="small" color="#ffffff" />
@@ -253,6 +252,14 @@ const EditPersonalInfoScreen = () => {
                   />
                 )}
               </View>
+
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleCancel}
+                disabled={loading}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>

@@ -7,6 +7,7 @@ import LoginScreen from '../screens/Login/LoginScreen';
 import SignupScreen from '../screens/Signup/SignupScreen';
 import BusinessDetailsScreen from '../screens/BusinessDetails/BusinessDetailsScreen';
 import EditPersonalInfoScreen from '../screens/Profile/stackScreens/EditPersonalInfoScreen';
+import EditBusinessInfoScreen from '../screens/Profile/stackScreens/EditBusinessInfoScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -15,7 +16,8 @@ export type RootStackParamList = {
   Signup: undefined;
   BusinessDetails: undefined;
   App: undefined;
-  EditPersonalInfoScreen : undefined;
+  EditPersonalInfoScreen: undefined;
+  EditBusinessInfoScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,12 +29,25 @@ const RootNavigator = () => {
         initialRouteName="Splash"
         screenOptions={{
           headerShown: false,
-        }}>
+        }}
+      >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="BusinessDetails" component={BusinessDetailsScreen} />
-        <Stack.Screen name="EditPersonalInfoScreen" component={EditPersonalInfoScreen} options={{headerShown : false}}/>
+        <Stack.Screen
+          name="BusinessDetails"
+          component={BusinessDetailsScreen}
+        />
+        <Stack.Screen
+          name="EditPersonalInfoScreen"
+          component={EditPersonalInfoScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EditBusinessInfoScreen"
+          component={EditBusinessInfoScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="App" component={MainAppNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

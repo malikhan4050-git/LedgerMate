@@ -12,17 +12,17 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getFocusedRouteNameFromRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { useAlert } from '../../../hooks/useAlert';
 import GradientButton from '../../../components/Buttons/GradientButton';
 import { updateUser } from '../../../redux/slices/sessionSlice';
 import styles from '../styles/stylesEdit';
 import type { RootState } from '../../../redux/store';
-import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 const EditPersonalInfoScreen = () => {
   const navigation = useNavigation();
@@ -96,7 +96,7 @@ const EditPersonalInfoScreen = () => {
       dispatch(updateUser(updatedUser));
 
       showAlert('Success', 'Personal information updated successfully!', 'success');
-      
+
       setTimeout(() => {
         navigation.goBack();
       }, 1500);
@@ -123,7 +123,7 @@ const EditPersonalInfoScreen = () => {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      
+
       {/* Gradient Header */}
       <LinearGradient
         colors={['#4A90E2', '#4CCB8C']}
@@ -137,8 +137,7 @@ const EditPersonalInfoScreen = () => {
           justifyContent: 'center',
           paddingHorizontal: 16,
         }}
-      >
-      </LinearGradient>
+      />
 
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
@@ -156,11 +155,15 @@ const EditPersonalInfoScreen = () => {
             />
           }
         >
-          <View style={styles.container}>
+          {/* Header - Same style as Dashboard */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Personal Information</Text>
             <Text style={styles.headerSubtitle}>
               Update your personal details below
             </Text>
+          </View>
 
+          <View style={styles.container}>
             {/* Avatar / Change Photo */}
             <TouchableOpacity style={styles.avatarContainer}>
               <View style={styles.avatar}>

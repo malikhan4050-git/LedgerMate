@@ -115,7 +115,7 @@ const ProfileScreen = () => {
           icon="lock-closed-outline"
           title="Change Password"
           subtitle="Update your account password"
-          onPress={() => handleMenuItemPress('ChangePassword')}
+          onPress={() => handleMenuItemPress('ChangePasswordScreen')}
         />
         <ProfileMenuItem
           icon="notifications-outline"

@@ -7,7 +7,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
+ 
 // ADD THIS INTERCEPTOR
 api.interceptors.request.use(
   async (config) => {

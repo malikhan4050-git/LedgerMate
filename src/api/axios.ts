@@ -8,7 +8,7 @@ const api = axios.create({
   },
 });
 
-// ADD THIS INTERCEPTOR
+// ADD THIS INTERCEP
 api.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem('token');

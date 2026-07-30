@@ -12,7 +12,7 @@ import ChangePasswordScreen from '../screens/Profile/stackScreens/ChangePassword
 import NotificationSettingsScreen from '../screens/Profile/stackScreens/NotificationSettingsScreen';
 import AppearanceScreen from '../screens/Profile/stackScreens/AppearanceScreen';
 import LanguageScreen from '../screens/Profile/stackScreens/LanguageScreen';
-// import TaxSettingsScreen from '../screens/Profile/stackScreens/TaxSettingsScreen';
+import TaxSettingsScreen from '../screens/Profile/stackScreens/TaxSettingsScreen';
 import HelpSupportScreen from '../screens/Profile/stackScreens/HelpSupportScreen';
 import TermsPrivacyScreen from '../screens/Profile/stackScreens/TermsPrivacyScreen';
 import MainAppNavigator from './MainAppNavigator';
@@ -82,11 +82,11 @@ const RootNavigator = () => {
           component={LanguageScreen}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="TaxSettingsScreen"
           component={TaxSettingsScreen}
           options={{ headerShown: false }}
-        /> */}
+        />
         <Stack.Screen
           name="HelpSupportScreen"
           component={HelpSupportScreen}

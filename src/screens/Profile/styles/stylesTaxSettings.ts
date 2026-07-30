@@ -1,107 +1,120 @@
-// import { StyleSheet } from 'react-native';
-// import Colors from '../../../theme/Colors';
-// import Sizes from '../../../theme/Sizes';
+import { StyleSheet } from 'react-native';
+import Colors from '../../../theme/Colors';
+import Sizes from '../../../theme/Sizes';
 
-// export default StyleSheet.create({
-//   keyboardContainer: {
-//     flex: 1,
-//     backgroundColor: '#F8F9FA',
-//   },
+export default StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
 
-//   scrollContainer: {
-//     flexGrow: 1,
-//     paddingBottom: 20,
-//   },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
 
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#F8F9FA',
-//     padding: Sizes.screenPadding,
-//   },
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    padding: Sizes.screenPadding,
+  },
 
-//   header: {
-//     marginTop: 35,
-//     marginBottom: 16,
-//     paddingHorizontal: Sizes.screenPadding,
-//   },
+  header: {
+    marginTop: 35,
+    marginBottom: 16,
+    paddingHorizontal: Sizes.screenPadding,
+  },
 
-//   headerTitle: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     color: Colors.primaryText,
-//   },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
 
-//   subtitle: {
-//     fontSize: 14,
-//     color: Colors.secondaryText,
-//     marginTop: 4,
-//   },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
 
-//   fieldContainer: {
-//     marginBottom: 16,
-//   },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 14,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
+  },
 
-//   label: {
-//     fontSize: 14,
-//     fontWeight: '600',
-//     color: Colors.primaryText,
-//     marginBottom: 6,
-//   },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 12,
+  },
 
-//   input: {
-//     width: '100%',
-//     borderWidth: 1,
-//     borderColor: Colors.border,
-//     borderRadius: Sizes.borderRadius,
-//     paddingVertical: 12,
-//     paddingHorizontal: 14,
-//     fontSize: 14,
-//     color: Colors.primaryText,
-//     backgroundColor: Colors.white,
-//   },
+  settingIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
 
-//   inputError: {
-//     borderColor: '#FF3B30',
-//     borderWidth: 1.5,
-//   },
+  settingTextContainer: {
+    flex: 1,
+  },
 
-//   errorText: {
-//     fontSize: 12,
-//     color: '#FF3B30',
-//     marginTop: 4,
-//     marginLeft: 4,
-//   },
+  settingTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: Colors.primaryText,
+  },
 
-//   buttonContainer: {
-//     flexDirection: 'column',
-//     marginTop: 20,
-//     gap: 10,
-//   },
+  settingDescription: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 1,
+  },
 
-//   cancelButton: {
-//     width: '100%',
-//     height: 48,
-//     borderRadius: Sizes.borderRadius,
-//     borderWidth: 1,
-//     borderColor: Colors.border,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: Colors.white,
-//   },
+  buttonContainer: {
+    flexDirection: 'column',
+    marginTop: 20,
+    gap: 10,
+  },
 
-//   cancelButtonText: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     color: Colors.secondaryText,
-//   },
+  cancelButton: {
+    width: '100%',
+    height: 48,
+    borderRadius: Sizes.borderRadius,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+  },
 
-//   saveButtonWrapper: {
-//     width: '100%',
-//   },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.secondaryText,
+  },
 
-//   saveButtonText: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     color: '#FFFFFF',
-//   },
-// });
+  saveButtonWrapper: {
+    width: '100%',
+  },
+
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+});

@@ -1,189 +1,210 @@
-// import React, { useState, useEffect } from 'react';
-// import {
-//   View,
-//   Text,
-//   ScrollView,
-//   TouchableOpacity,
-//   TextInput,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ActivityIndicator,
-//   RefreshControl,
-//   StatusBar,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/Ionicons';
-// import { useNavigation } from '@react-navigation/native';
-// import { useSelector, useDispatch } from 'react-redux';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import LinearGradient from 'react-native-linear-gradient';
-// import { getStatusBarHeight } from 'react-native-status-bar-height';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  RefreshControl,
+  StatusBar,
+  Switch,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LinearGradient from 'react-native-linear-gradient';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
-// import { useAlert } from '../../../hooks/useAlert';
-// import GradientButton from '../../../components/Buttons/GradientButton';
-// import { updateBusiness } from '../../../redux/slices/sessionSlice';
-// import styles from '../styles/stylesTaxSettings';
-// import type { RootState } from '../../../redux/store';
+import { useAlert } from '../../../hooks/useAlert';
+import GradientButton from '../../../components/Buttons/GradientButton';
+import styles from '../styles/stylesTaxSettings';
 
-// const TaxSettingsScreen = () => {
-//   const navigation = useNavigation();
-//   const dispatch = useDispatch();
-//   const { showAlert } = useAlert();
+const TaxSettingsScreen = () => {
+  const navigation = useNavigation();
+  const { showAlert } = useAlert();
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // Settings preferences
+  const [autoSave, setAutoSave] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [receipts, setReceipts] = useState(true);
 
-//   const business = useSelector((state: RootState) => state.session.business);
+  useEffect(() => {
+    loadSettings();
+  }, []);
 
-//   const [taxRate, setTaxRate] = useState(business?.taxRate?.toString() || '');
-//   const [loading, setLoading] = useState(false);
-//   const [refreshing, setRefreshing] = useState(false);
+  const loadSettings = async () => {
+    try {
+      const savedSettings = await AsyncStorage.getItem('appSettings');
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        setAutoSave(parsed.autoSave !== undefined ? parsed.autoSave : true);
+        setDarkMode(parsed.darkMode !== undefined ? parsed.darkMode : false);
+        setReceipts(parsed.receipts !== undefined ? parsed.receipts : true);
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
 
-//   const [errors, setErrors] = useState({
-//     taxRate: '',
-//   });
+  const saveSettings = async () => {
+    setLoading(true);
+    try {
+      const settings = { autoSave, darkMode, receipts };
+      await AsyncStorage.setItem('appSettings', JSON.stringify(settings));
+      showAlert('Success', 'Settings saved successfully!', 'success');
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1500);
+    } catch (error) {
+      showAlert('Error', 'Failed to save settings. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   const onRefresh = async () => {
-//     setRefreshing(true);
-//     setRefreshing(false);
-//   };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadSettings();
+    setRefreshing(false);
+  };
 
-//   const validateForm = () => {
-//     let isValid = true;
-//     const newErrors = {
-//       taxRate: '',
-//     };
+  const handleCancel = () => {
+    navigation.goBack();
+  };
 
-//     if (!taxRate || taxRate.trim() === '') {
-//       newErrors.taxRate = 'Please enter tax rate';
-//       isValid = false;
-//     } else if (isNaN(Number(taxRate)) || Number(taxRate) < 0) {
-//       newErrors.taxRate = 'Please enter a valid tax rate';
-//       isValid = false;
-//     }
+  const SettingItem = ({
+    icon,
+    title,
+    description,
+    value,
+    onValueChange,
+  }: {
+    icon: string;
+    title: string;
+    description: string;
+    value: boolean;
+    onValueChange: () => void;
+  }) => (
+    <View style={styles.settingItem}>
+      <View style={styles.settingLeft}>
+        <View style={styles.settingIconContainer}>
+          <Icon name={icon} size={22} color="#1E90FF" />
+        </View>
+        <View style={styles.settingTextContainer}>
+          <Text style={styles.settingTitle}>{title}</Text>
+          <Text style={styles.settingDescription}>{description}</Text>
+        </View>
+      </View>
+      <Switch
+        trackColor={{ false: '#D1D1D6', true: '#4A90E2' }}
+        thumbColor={value ? '#FFFFFF' : '#FFFFFF'}
+        ios_backgroundColor="#D1D1D6"
+        onValueChange={onValueChange}
+        value={value}
+      />
+    </View>
+  );
 
-//     setErrors(newErrors);
-//     return isValid;
-//   };
+  return (
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
 
-//   const handleSave = async () => {
-//     if (!validateForm()) {
-//       return;
-//     }
+      <LinearGradient
+        colors={['#4A90E2', '#4CCB8C']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{
+          height: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+        }}
+      />
 
-//     setLoading(true);
-//     try {
-//       const updatedBusiness = {
-//         ...business,
-//         taxRate: parseFloat(taxRate),
-//       };
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#1E90FF']}
+            />
+          }
+        >
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Settings</Text>
+            <Text style={styles.subtitle}>
+              Manage your app preferences
+            </Text>
+          </View>
 
-//       await AsyncStorage.setItem('business', JSON.stringify(updatedBusiness));
-//       dispatch(updateBusiness(updatedBusiness));
+          <View style={styles.container}>
+            <SettingItem
+              icon="save-outline"
+              title="Auto-Save"
+              description="Automatically save your entries"
+              value={autoSave}
+              onValueChange={() => setAutoSave(!autoSave)}
+            />
 
-//       showAlert('Success', 'Tax settings updated successfully!', 'success');
+            <SettingItem
+              icon="moon-outline"
+              title="Dark Mode"
+              description="Enable dark theme"
+              value={darkMode}
+              onValueChange={() => setDarkMode(!darkMode)}
+            />
 
-//       setTimeout(() => {
-//         navigation.goBack();
-//       }, 1500);
-//     } catch (error: any) {
-//       showAlert('Error', 'Failed to update tax settings. Please try again.', 'error');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+            <SettingItem
+              icon="receipt-outline"
+              title="Digital Receipts"
+              description="Generate receipts for transactions"
+              value={receipts}
+              onValueChange={() => setReceipts(!receipts)}
+            />
 
-//   const handleCancel = () => {
-//     navigation.goBack();
-//   };
+            <View style={styles.buttonContainer}>
+              <View style={styles.saveButtonWrapper}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <GradientButton
+                    title="Save Settings"
+                    titleStyle={styles.saveButtonText}
+                    onPress={saveSettings}
+                  />
+                )}
+              </View>
 
-//   return (
-//     <>
-//       <StatusBar
-//         translucent={true}
-//         backgroundColor="transparent"
-//         barStyle="light-content"
-//       />
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleCancel}
+                disabled={loading}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
+  );
+};
 
-//       <LinearGradient
-//         colors={['#4A90E2', '#4CCB8C']}
-//         start={{ x: 0, y: 0 }}
-//         end={{ x: 1, y: 0 }}
-//         style={{
-//           height: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
-//           paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
-//           flexDirection: 'row',
-//           alignItems: 'center',
-//           justifyContent: 'center',
-//           paddingHorizontal: 16,
-//         }}
-//       />
-
-//       <KeyboardAvoidingView
-//         style={styles.keyboardContainer}
-//         behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-//         keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-//       >
-//         <ScrollView
-//           contentContainerStyle={styles.scrollContainer}
-//           showsVerticalScrollIndicator={false}
-//           refreshControl={
-//             <RefreshControl
-//               refreshing={refreshing}
-//               onRefresh={onRefresh}
-//               colors={['#1E90FF']}
-//             />
-//           }
-//         >
-//           <View style={styles.header}>
-//             <Text style={styles.headerTitle}>Tax & Settings</Text>
-//             <Text style={styles.subtitle}>
-//               Manage tax and app preferences
-//             </Text>
-//           </View>
-
-//           <View style={styles.container}>
-//             <View style={styles.fieldContainer}>
-//               <Text style={styles.label}>Tax Rate (%)</Text>
-//               <TextInput
-//                 style={[styles.input, errors.taxRate && styles.inputError]}
-//                 placeholder="Enter tax rate"
-//                 placeholderTextColor="#8E8E93"
-//                 keyboardType="numeric"
-//                 value={taxRate}
-//                 onChangeText={(text) => {
-//                   setTaxRate(text);
-//                   if (errors.taxRate) setErrors((prev) => ({ ...prev, taxRate: '' }));
-//                 }}
-//                 editable={!loading}
-//               />
-//               {errors.taxRate ? (
-//                 <Text style={styles.errorText}>{errors.taxRate}</Text>
-//               ) : null}
-//             </View>
-
-//             <View style={styles.buttonContainer}>
-//               <View style={styles.saveButtonWrapper}>
-//                 {loading ? (
-//                   <ActivityIndicator size="small" color="#ffffff" />
-//                 ) : (
-//                   <GradientButton
-//                     title="Save Settings"
-//                     titleStyle={styles.saveButtonText}
-//                     onPress={handleSave}
-//                   />
-//                 )}
-//               </View>
-
-//               <TouchableOpacity
-//                 style={styles.cancelButton}
-//                 onPress={handleCancel}
-//                 disabled={loading}
-//               >
-//                 <Text style={styles.cancelButtonText}>Cancel</Text>
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-//         </ScrollView>
-//       </KeyboardAvoidingView>
-//     </>
-//   );
-// };
-
-// export default TaxSettingsScreen;
+export default TaxSettingsScreen;

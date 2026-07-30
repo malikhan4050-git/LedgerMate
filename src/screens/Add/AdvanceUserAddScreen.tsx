@@ -472,8 +472,8 @@ const AdvanceUserAddScreen = () => {
                     style={styles.searchInput}
                     placeholder={
                       isSale
-                        ? 'Search or select customer'
-                        : 'Search or select supplier'
+                        ? 'Select or Add a new Customer'
+                        : 'Select or Add a new Supplier'
                     }
                     placeholderTextColor="#8E8E93"
                     value={searchText}

@@ -10,6 +10,11 @@ import EditPersonalInfoScreen from '../screens/Profile/stackScreens/EditPersonal
 import EditBusinessInfoScreen from '../screens/Profile/stackScreens/EditBusinessInfoScreen';
 import ChangePasswordScreen from '../screens/Profile/stackScreens/ChangePasswordScreen';
 import NotificationSettingsScreen from '../screens/Profile/stackScreens/NotificationSettingsScreen';
+import AppearanceScreen from '../screens/Profile/stackScreens/AppearanceScreen';
+import LanguageScreen from '../screens/Profile/stackScreens/LanguageScreen';
+// import TaxSettingsScreen from '../screens/Profile/stackScreens/TaxSettingsScreen';
+import HelpSupportScreen from '../screens/Profile/stackScreens/HelpSupportScreen';
+import TermsPrivacyScreen from '../screens/Profile/stackScreens/TermsPrivacyScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -22,6 +27,11 @@ export type RootStackParamList = {
   EditBusinessInfoScreen: undefined;
   ChangePasswordScreen: undefined;
   NotificationSettingsScreen : undefined;
+  AppearanceScreen : undefined;
+  LanguageScreen : undefined;
+  TaxSettingsScreen : undefined;
+  HelpSupportScreen : undefined;
+  TermsPrivacyScreen : undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -60,6 +70,31 @@ const RootNavigator = () => {
         <Stack.Screen
           name="NotificationSettingsScreen"
           component={NotificationSettingsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AppearanceScreen"
+          component={AppearanceScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="LanguageScreen"
+          component={LanguageScreen}
+          options={{ headerShown: false }}
+        />
+        {/* <Stack.Screen
+          name="TaxSettingsScreen"
+          component={TaxSettingsScreen}
+          options={{ headerShown: false }}
+        /> */}
+        <Stack.Screen
+          name="HelpSupportScreen"
+          component={HelpSupportScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TermsPrivacyScreen"
+          component={TermsPrivacyScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen name="App" component={MainAppNavigator} />

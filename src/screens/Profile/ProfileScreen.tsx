@@ -121,7 +121,7 @@ const ProfileScreen = () => {
           icon="notifications-outline"
           title="Notifications"
           subtitle="Manage your notification preferences"
-          onPress={() => handleMenuItemPress('NotificationSettings')}
+          onPress={() => handleMenuItemPress('NotificationSettingsScreen')}
         />
       </View>
 

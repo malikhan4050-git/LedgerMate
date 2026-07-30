@@ -9,6 +9,7 @@ import BusinessDetailsScreen from '../screens/BusinessDetails/BusinessDetailsScr
 import EditPersonalInfoScreen from '../screens/Profile/stackScreens/EditPersonalInfoScreen';
 import EditBusinessInfoScreen from '../screens/Profile/stackScreens/EditBusinessInfoScreen';
 import ChangePasswordScreen from '../screens/Profile/stackScreens/ChangePasswordScreen';
+import NotificationSettingsScreen from '../screens/Profile/stackScreens/NotificationSettingsScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   EditPersonalInfoScreen: undefined;
   EditBusinessInfoScreen: undefined;
   ChangePasswordScreen: undefined;
+  NotificationSettingsScreen : undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -53,6 +55,11 @@ const RootNavigator = () => {
         <Stack.Screen
           name="ChangePasswordScreen"
           component={ChangePasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="NotificationSettingsScreen"
+          component={NotificationSettingsScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen name="App" component={MainAppNavigator} />

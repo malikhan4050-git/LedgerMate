@@ -133,20 +133,20 @@ const ProfileScreen = () => {
           title="Appearance"
           subtitle="Choose app theme"
           rightText="Light"
-          onPress={() => handleMenuItemPress('Appearance')}
+          onPress={() => handleMenuItemPress('AppearanceScreen')}
         />
         <ProfileMenuItem
           icon="globe-outline"
           title="Language"
           subtitle="Select your preferred language"
           rightText="English"
-          onPress={() => handleMenuItemPress('Language')}
+          onPress={() => handleMenuItemPress('LanguageScreen')}
         />
         <ProfileMenuItem
           icon="settings-outline"
           title="Tax & Settings"
           subtitle="Manage tax and app preferences"
-          onPress={() => handleMenuItemPress('TaxSettings')}
+          onPress={() => handleMenuItemPress('TaxSettingsScreen')}
         />
       </View>
 
@@ -157,13 +157,13 @@ const ProfileScreen = () => {
           icon="help-circle-outline"
           title="Help & Support"
           subtitle="Get help and contact support"
-          onPress={() => handleMenuItemPress('HelpSupport')}
+          onPress={() => handleMenuItemPress('HelpSupportScreen')}
         />
         <ProfileMenuItem
           icon="document-text-outline"
           title="Terms & Privacy"
           subtitle="View terms of service and privacy policy"
-          onPress={() => handleMenuItemPress('TermsPrivacy')}
+          onPress={() => handleMenuItemPress('TermsPrivacyScreen')}
         />
         <ProfileMenuItem
           icon="log-out-outline"

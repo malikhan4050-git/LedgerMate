@@ -12,7 +12,7 @@ import ChangePasswordScreen from '../screens/Profile/stackScreens/ChangePassword
 import NotificationSettingsScreen from '../screens/Profile/stackScreens/NotificationSettingsScreen';
 import AppearanceScreen from '../screens/Profile/stackScreens/AppearanceScreen';
 import LanguageScreen from '../screens/Profile/stackScreens/LanguageScreen';
-import TaxSettingsScreen from '../screens/Profile/stackScreens/TaxSettingsScreen';
+import SettingsScreen from '../screens/Profile/stackScreens/SettingsScreen';
 import HelpSupportScreen from '../screens/Profile/stackScreens/HelpSupportScreen';
 import TermsPrivacyScreen from '../screens/Profile/stackScreens/TermsPrivacyScreen';
 import MainAppNavigator from './MainAppNavigator';
@@ -29,7 +29,7 @@ export type RootStackParamList = {
   NotificationSettingsScreen : undefined;
   AppearanceScreen : undefined;
   LanguageScreen : undefined;
-  TaxSettingsScreen : undefined;
+  SettingsScreen : undefined;
   HelpSupportScreen : undefined;
   TermsPrivacyScreen : undefined;
 };
@@ -83,8 +83,8 @@ const RootNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="TaxSettingsScreen"
-          component={TaxSettingsScreen}
+          name="SettingsScreen"
+          component={SettingsScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen

@@ -144,9 +144,9 @@ const ProfileScreen = () => {
         />
         <ProfileMenuItem
           icon="settings-outline"
-          title="Tax & Settings"
-          subtitle="Manage tax and app preferences"
-          onPress={() => handleMenuItemPress('TaxSettingsScreen')}
+          title="Settings"
+          subtitle="Manage your app preferences"
+          onPress={() => handleMenuItemPress('SettingsScreen')}
         />
       </View>
 

@@ -19,7 +19,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import { useAlert } from '../../../hooks/useAlert';
 import GradientButton from '../../../components/Buttons/GradientButton';
-import styles from '../styles/stylesTaxSettings';
+import styles from '../styles/stylesSettings';
 
 const TaxSettingsScreen = () => {
   const navigation = useNavigation();
@@ -29,7 +29,6 @@ const TaxSettingsScreen = () => {
   
   // Settings preferences
   const [autoSave, setAutoSave] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [receipts, setReceipts] = useState(true);
 
   useEffect(() => {
@@ -42,7 +41,6 @@ const TaxSettingsScreen = () => {
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings);
         setAutoSave(parsed.autoSave !== undefined ? parsed.autoSave : true);
-        setDarkMode(parsed.darkMode !== undefined ? parsed.darkMode : false);
         setReceipts(parsed.receipts !== undefined ? parsed.receipts : true);
       }
     } catch (error) {
@@ -53,7 +51,7 @@ const TaxSettingsScreen = () => {
   const saveSettings = async () => {
     setLoading(true);
     try {
-      const settings = { autoSave, darkMode, receipts };
+      const settings = { autoSave, receipts };
       await AsyncStorage.setItem('appSettings', JSON.stringify(settings));
       showAlert('Success', 'Settings saved successfully!', 'success');
       setTimeout(() => {
@@ -161,14 +159,6 @@ const TaxSettingsScreen = () => {
               description="Automatically save your entries"
               value={autoSave}
               onValueChange={() => setAutoSave(!autoSave)}
-            />
-
-            <SettingItem
-              icon="moon-outline"
-              title="Dark Mode"
-              description="Enable dark theme"
-              value={darkMode}
-              onValueChange={() => setDarkMode(!darkMode)}
             />
 
             <SettingItem

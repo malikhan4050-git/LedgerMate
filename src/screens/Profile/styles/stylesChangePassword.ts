@@ -21,7 +21,7 @@ export default StyleSheet.create({
 
   // Header
   header: {
-    marginTop: 10,
+    marginTop: 35,
     marginBottom: 16,
     paddingHorizontal: Sizes.screenPadding,
   },

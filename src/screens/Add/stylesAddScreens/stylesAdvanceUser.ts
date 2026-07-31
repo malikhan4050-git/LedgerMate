@@ -502,4 +502,23 @@ export default StyleSheet.create({
     minWidth: 40,
     maxWidth: 70,
   },
+  // Product Entry Container
+  productEntryContainer: {
+    marginBottom: 8,
+  },
+
+  // Remove Product Entry Button
+  removeProductEntryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginTop: 4,
+    padding: 4,
+  },
+
+  removeProductEntryText: {
+    fontSize: 12,
+    color: '#FF3B30',
+    marginLeft: 4,
+  },
 });

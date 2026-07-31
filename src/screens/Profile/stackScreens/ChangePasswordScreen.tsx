@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
@@ -22,24 +21,22 @@ import { useAlert } from '../../../hooks/useAlert';
 import GradientButton from '../../../components/Buttons/GradientButton';
 import api from '../../../api/axios';
 import styles from '../styles/stylesChangePassword';
-import type { RootState } from '../../../redux/store';
 
 const ChangePasswordScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const { showAlert } = useAlert();
 
-  const [currentPassword, setCurrentPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const [errors, setErrors] = useState({
-    currentPassword: '',
+    oldPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
@@ -59,13 +56,13 @@ const ChangePasswordScreen = () => {
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
-      currentPassword: '',
+      oldPassword: '',
       newPassword: '',
       confirmPassword: '',
     };
 
-    if (!currentPassword || currentPassword.trim() === '') {
-      newErrors.currentPassword = 'Please enter your current password';
+    if (!oldPassword || oldPassword.trim() === '') {
+      newErrors.oldPassword = 'Please enter your current password';
       isValid = false;
     }
 
@@ -99,11 +96,11 @@ const ChangePasswordScreen = () => {
       const token = await AsyncStorage.getItem('token');
       
       // Call API to change password
-      const response = await api.put(
+      const response = await api.post(
         '/auth/change-password',
         {
-          currentPassword,
-          newPassword,
+          oldPassword: oldPassword.trim(),
+          newPassword: newPassword.trim(),
         },
         {
           headers: {
@@ -112,14 +109,16 @@ const ChangePasswordScreen = () => {
         }
       );
 
+      console.log('Password change response:', response.data);
+
       showAlert('Success', 'Password changed successfully!', 'success');
 
       // Clear fields
-      setCurrentPassword('');
+      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setErrors({
-        currentPassword: '',
+        oldPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
@@ -129,15 +128,25 @@ const ChangePasswordScreen = () => {
       }, 1500);
     } catch (error: any) {
       console.error('Change password error:', error);
-      const message =
-        error?.response?.data?.message ||
-        'Failed to change password. Please try again.';
       
-      // Handle specific error: incorrect current password
-      if (message.toLowerCase().includes('current password')) {
-        setErrors((prev) => ({ ...prev, currentPassword: message }));
+      // Get error message from response
+      const errorMessage = error?.response?.data?.message || 'Failed to change password. Please try again.';
+      
+      // Handle specific error messages from backend
+      if (errorMessage.toLowerCase().includes('current password is incorrect') || 
+          errorMessage.toLowerCase().includes('old password is incorrect')) {
+        setErrors((prev) => ({ ...prev, oldPassword: 'Current password is incorrect' }));
+      } else if (errorMessage.toLowerCase().includes('new password must be different')) {
+        setErrors((prev) => ({ ...prev, newPassword: 'New password must be different from current password' }));
+      } else if (errorMessage.toLowerCase().includes('authentication required')) {
+        showAlert('Session Expired', 'Please login again', 'error');
+        // Navigate to login
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' as never }],
+        });
       } else {
-        showAlert('Error', message, 'error');
+        showAlert('Error', errorMessage, 'error');
       }
     } finally {
       setLoading(false);
@@ -197,32 +206,32 @@ const ChangePasswordScreen = () => {
             {/* Current Password */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Current Password *</Text>
-              <View style={[styles.inputContainer, errors.currentPassword && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.oldPassword && styles.inputError]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Enter current password"
                   placeholderTextColor="#8E8E93"
-                  secureTextEntry={!showCurrentPassword}
-                  value={currentPassword}
+                  secureTextEntry={!showOldPassword}
+                  value={oldPassword}
                   onChangeText={(text) => {
-                    setCurrentPassword(text);
-                    if (errors.currentPassword) setErrors((prev) => ({ ...prev, currentPassword: '' }));
+                    setOldPassword(text);
+                    if (errors.oldPassword) setErrors((prev) => ({ ...prev, oldPassword: '' }));
                   }}
                   editable={!loading}
                 />
                 <TouchableOpacity
-                  onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                  onPress={() => setShowOldPassword(!showOldPassword)}
                   style={styles.eyeIcon}
                 >
                   <Icon
-                    name={showCurrentPassword ? 'eye-outline' : 'eye-off-outline'}
+                    name={showOldPassword ? 'eye-outline' : 'eye-off-outline'}
                     size={22}
                     color="#8E8E93"
                   />
                 </TouchableOpacity>
               </View>
-              {errors.currentPassword ? (
-                <Text style={styles.errorText}>{errors.currentPassword}</Text>
+              {errors.oldPassword ? (
+                <Text style={styles.errorText}>{errors.oldPassword}</Text>
               ) : null}
             </View>
 

@@ -1,6 +1,3 @@
-// To do
-// Add this kind of popup for alerts in the app especially in the AddScreens's Code.
-
 import React, { useState } from 'react';
 import {
   View,

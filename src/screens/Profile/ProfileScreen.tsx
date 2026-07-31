@@ -125,23 +125,23 @@ const ProfileScreen = () => {
         />
       </View>
 
-      {/* Preferences Section */}
+      {/* Settings Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
-        <ProfileMenuItem
+        <Text style={styles.sectionTitle}>Settings</Text>
+        {/* <ProfileMenuItem
           icon="color-palette-outline"
           title="Appearance"
           subtitle="Choose app theme"
           rightText="Light"
           onPress={() => handleMenuItemPress('AppearanceScreen')}
-        />
-        <ProfileMenuItem
+        /> */}
+        {/* <ProfileMenuItem
           icon="globe-outline"
           title="Language"
           subtitle="Select your preferred language"
           rightText="English"
           onPress={() => handleMenuItemPress('LanguageScreen')}
-        />
+        /> */}
         <ProfileMenuItem
           icon="settings-outline"
           title="Settings"

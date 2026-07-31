@@ -8,8 +8,8 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  FlatList,
   RefreshControl,
+  FlatList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
@@ -70,7 +70,9 @@ const AdvanceUserAddScreen = () => {
   >([]);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [allProducts, setAllProducts] = useState<ProductResult[]>([]);
-  const [isProductSearching, setIsProductSearching] = useState(false);
+  const [currentQuantity, setCurrentQuantity] = useState(1);
+  const [selectedProductForAdd, setSelectedProductForAdd] =
+    useState<ProductResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -114,6 +116,7 @@ const AdvanceUserAddScreen = () => {
     if (productSearchText.trim() === '') {
       setProductSearchResults([]);
       setShowProductDropdown(false);
+      setSelectedProductForAdd(null);
       return;
     }
 
@@ -230,37 +233,51 @@ const AdvanceUserAddScreen = () => {
 
   // Product selection handlers
   const handleSelectProduct = (product: ProductResult) => {
-    const existingIndex = selectedProducts.findIndex(p => p.id === product.id);
+    setSelectedProductForAdd(product);
+    setProductSearchText(product.name);
+    setShowProductDropdown(false);
+  };
+
+  const handleAddProductToList = () => {
+    if (!selectedProductForAdd) {
+      showAlert('Warning', 'Please select a product first', 'warning');
+      return;
+    }
+
+    const existingIndex = selectedProducts.findIndex(
+      p => p.id === selectedProductForAdd.id,
+    );
 
     if (existingIndex !== -1) {
-      // Product already added, increase quantity
+      // Update quantity of existing product
       const updated = [...selectedProducts];
-      updated[existingIndex].quantity += 1;
+      updated[existingIndex].quantity += currentQuantity;
       setSelectedProducts(updated);
     } else {
-      // Add new product with quantity 1
+      // Add new product with selected quantity
       setSelectedProducts([
         ...selectedProducts,
         {
-          id: product.id || product._id || '',
-          name: product.name,
-          price: product.price,
-          quantity: 1,
-          unit: product.unit || 'units',
+          id: selectedProductForAdd.id || selectedProductForAdd._id || '',
+          name: selectedProductForAdd.name,
+          price: selectedProductForAdd.price,
+          quantity: currentQuantity,
+          unit: selectedProductForAdd.unit || 'units',
         },
       ]);
     }
 
+    // Reset selection
+    setSelectedProductForAdd(null);
     setProductSearchText('');
+    setCurrentQuantity(1);
     setShowProductDropdown(false);
   };
 
-  const handleQuantityChange = (index: number, change: number) => {
-    const updated = [...selectedProducts];
-    const newQuantity = updated[index].quantity + change;
+  const handleQuantityChange = (change: number) => {
+    const newQuantity = currentQuantity + change;
     if (newQuantity >= 1) {
-      updated[index].quantity = newQuantity;
-      setSelectedProducts(updated);
+      setCurrentQuantity(newQuantity);
     }
   };
 
@@ -310,7 +327,6 @@ const AdvanceUserAddScreen = () => {
 
     setSaving(true);
     try {
-      // Build products array for backend
       const productsArray = selectedProducts.map(p => ({
         product: p.id,
         name: p.name,
@@ -319,7 +335,6 @@ const AdvanceUserAddScreen = () => {
         total: p.price * p.quantity,
       }));
 
-      // Build itemsDescription for backward compatibility / display
       const itemsDescription = selectedProducts
         .map(p => `${p.name} x${p.quantity}`)
         .join(', ');
@@ -327,11 +342,11 @@ const AdvanceUserAddScreen = () => {
       const entryData: any = {
         entryType: mode,
         itemsDescription: itemsDescription,
-        manualTotalPrice: grandTotal - (parseFloat(discount) || 0), // Updated
+        manualTotalPrice: grandTotal - (parseFloat(discount) || 0),
         products: productsArray,
         transactionDate: selectedDate.toISOString(),
         notes: notes,
-        discount: parseFloat(discount) || 0, // Add this
+        discount: parseFloat(discount) || 0,
       };
 
       if (isSale) {
@@ -355,6 +370,7 @@ const AdvanceUserAddScreen = () => {
       setSaving(false);
     }
   };
+
   const onRefresh = async () => {
     setRefreshing(true);
     try {
@@ -370,8 +386,10 @@ const AdvanceUserAddScreen = () => {
     setSelectedPartyId(null);
     setSelectedProducts([]);
     setProductSearchText('');
+    setSelectedProductForAdd(null);
+    setCurrentQuantity(1);
     setNotes('');
-    setDiscount(''); // Add this
+    setDiscount('');
     setSearchResults([]);
     setErrors({
       customer: '',
@@ -405,6 +423,34 @@ const AdvanceUserAddScreen = () => {
   const handleModalClose = () => {
     setModalVisible(false);
   };
+
+  const renderProductRow = ({
+    item,
+    index,
+  }: {
+    item: SelectedProduct;
+    index: number;
+  }) => (
+    <View style={styles.productRow}>
+      <View style={styles.productRowLeft}>
+        <Text style={styles.productRowName} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.productRowQty}>x{item.quantity}</Text>
+      </View>
+      <View style={styles.productRowRight}>
+        <Text style={styles.productRowPrice}>
+          PKR {item.price * item.quantity}
+        </Text>
+        <TouchableOpacity
+          onPress={() => handleRemoveProduct(index)}
+          style={styles.productRowRemove}
+        >
+          <Icon name="close-circle" size={20} color="#FF3B30" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
@@ -549,49 +595,68 @@ const AdvanceUserAddScreen = () => {
             </View>
           </View>
 
-          {/* Products Selection Section */}
+          {/* Products Selection Section - NEW LAYOUT */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionLabel}>Add Products *</Text>
 
-            {/* Product Search Input */}
-            <View style={styles.searchContainer}>
-              <Icon
-                name="search-outline"
-                size={20}
-                color="#8E8E93"
-                style={styles.searchIcon}
-              />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search products..."
-                placeholderTextColor="#8E8E93"
-                value={productSearchText}
-                onChangeText={text => {
-                  setProductSearchText(text);
-                  if (text.trim() !== '') {
-                    setShowProductDropdown(true);
-                  } else {
-                    setShowProductDropdown(false);
-                    setProductSearchResults([]);
-                  }
-                  if (errors.purchasedItems) {
-                    setErrors(prev => ({ ...prev, purchasedItems: '' }));
-                  }
-                }}
-                onFocus={() => {
-                  if (
-                    productSearchText.trim() !== '' &&
-                    allProducts.length > 0
-                  ) {
-                    setShowProductDropdown(true);
-                  }
-                }}
-              />
-              {productSearchText !== '' && (
-                <TouchableOpacity onPress={() => setProductSearchText('')}>
-                  <Icon name="close-circle" size={20} color="#8E8E93" />
+            {/* Search Bar with Quantity Selector */}
+            <View style={styles.productSearchRow}>
+              <View style={styles.productSearchContainer}>
+                <Icon
+                  name="search-outline"
+                  size={20}
+                  color="#8E8E93"
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  style={styles.productSearchInput}
+                  placeholder="Search products..."
+                  placeholderTextColor="#8E8E93"
+                  value={productSearchText}
+                  onChangeText={text => {
+                    setProductSearchText(text);
+                    if (text.trim() !== '') {
+                      setShowProductDropdown(true);
+                    } else {
+                      setShowProductDropdown(false);
+                      setSelectedProductForAdd(null);
+                    }
+                    if (errors.purchasedItems) {
+                      setErrors(prev => ({ ...prev, purchasedItems: '' }));
+                    }
+                  }}
+                  onFocus={() => {
+                    if (
+                      productSearchText.trim() !== '' &&
+                      allProducts.length > 0
+                    ) {
+                      setShowProductDropdown(true);
+                    }
+                  }}
+                />
+                {productSearchText !== '' && (
+                  <TouchableOpacity onPress={() => setProductSearchText('')}>
+                    <Icon name="close-circle" size={20} color="#8E8E93" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Quantity Selector */}
+              <View style={styles.quantitySelector}>
+                <TouchableOpacity
+                  style={styles.quantityBtn}
+                  onPress={() => handleQuantityChange(-1)}
+                >
+                  <Icon name="remove" size={18} color="#1E90FF" />
                 </TouchableOpacity>
-              )}
+                <Text style={styles.quantityValue}>{currentQuantity}</Text>
+                <TouchableOpacity
+                  style={styles.quantityBtn}
+                  onPress={() => handleQuantityChange(1)}
+                >
+                  <Icon name="add" size={18} color="#1E90FF" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {errors.purchasedItems ? (
@@ -604,7 +669,11 @@ const AdvanceUserAddScreen = () => {
                 {productSearchResults.map(product => (
                   <TouchableOpacity
                     key={product._id || product.id}
-                    style={styles.dropdownItem}
+                    style={[
+                      styles.dropdownItem,
+                      selectedProductForAdd?.id === product.id &&
+                        styles.dropdownItemSelected,
+                    ]}
                     onPress={() => handleSelectProduct(product)}
                   >
                     <View style={styles.productDropdownItem}>
@@ -628,111 +697,69 @@ const AdvanceUserAddScreen = () => {
                 </View>
               )}
 
+            {/* Add Product Button - Simple Button */}
+            <TouchableOpacity
+              style={styles.addProductButton}
+              onPress={handleAddProductToList}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.addProductButtonText}>+ Add New Product</Text>
+            </TouchableOpacity>
+
             {/* Selected Products List */}
             {selectedProducts.length > 0 && (
-              <View style={styles.selectedProductsContainer}>
+              <View style={styles.selectedProductsList}>
                 <Text style={styles.selectedProductsTitle}>
                   Selected Products
                 </Text>
-                {selectedProducts.map((item, index) => (
-                  <View key={index} style={styles.selectedProductCard}>
-                    <View style={styles.selectedProductHeader}>
-                      <Text style={styles.selectedProductName}>
-                        {item.name} {/* Close Button */}
-              {/* <View style={styles.modalSaveButtonWrapper}>
-                <GradientButton
-                  title="Close"
-                  titleStyle={styles.buttonText}
-                  onPress={onClose}
+                <FlatList
+                  data={selectedProducts}
+                  keyExtractor={(item, index) => `${item.id}-${index}`}
+                  renderItem={renderProductRow}
+                  scrollEnabled={false}
                 />
-              </View> */}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => handleRemoveProduct(index)}
-                        style={styles.removeProductButton}
-                      >
-                        <Icon name="close-circle" size={20} color="#FF3B30" />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.selectedProductBody}>
-                      <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                          style={styles.quantityButton}
-                          onPress={() => handleQuantityChange(index, -1)}
-                        >
-                          <Icon name="remove" size={18} color="#1E90FF" />
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>{item.quantity}</Text>
-                        <TouchableOpacity
-                          style={styles.quantityButton}
-                          onPress={() => handleQuantityChange(index, 1)}
-                        >
-                          <Icon name="add" size={18} color="#1E90FF" />
-                        </TouchableOpacity>
-                        <Text style={styles.unitText}>{item.unit}</Text>
-                      </View>
-                      <View style={styles.priceContainer}>
-                        <Text style={styles.priceLabel}>Price:</Text>
-                        <Text style={styles.priceValue}>
-                          PKR {item.price * item.quantity}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))}
               </View>
             )}
 
-            {/* Grand Total */}
-            <View style={styles.grandTotalContainer}>
-              <Text style={styles.grandTotalLabel}>Grand Total</Text>
-              <Text style={styles.grandTotalValue}>PKR {grandTotal}</Text>
-            </View>
-             {/* Discount */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Discount (if any)</Text>
-              <View
-                style={[
-                  styles.amountContainer,
-                  parseFloat(discount) < 0 && styles.inputError,
-                ]}
-              >
-                <Text style={styles.currencySymbol}>PKR</Text>
-                <TextInput
-                  style={styles.amountInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#8E8E93"
-                  keyboardType="numeric"
-                  value={discount}
-                  onChangeText={text => {
-                    setDiscount(text);
-                    if (parseFloat(text) < 0) {
-                      // Show error if discount is negative
-                    }
-                  }}
-                />
-              </View>
-              {parseFloat(discount) < 0 && (
-                <Text style={styles.errorText}>
-                  Discount cannot be negative
-                </Text>
-              )}
-              {parseFloat(discount) > grandTotal && (
-                <Text style={styles.errorText}>
-                  Discount cannot exceed Grand Total
-                </Text>
-              )}
-            </View>
+            {/* Totals Row - Discount and Final Total */}
+<View style={styles.totalsRow}>
+  {/* Discount Box - First */}
+  <View style={styles.totalFieldContainer}>
+    <Text style={styles.totalLabel}>Discount</Text>
+    <View style={styles.totalBox}>
+      <View style={styles.discountInputContainer}>
+        <Text style={styles.discountCurrency}>PKR</Text>
+        <TextInput
+          style={styles.discountInput}
+          placeholder="0"
+          placeholderTextColor="#8E8E93"
+          keyboardType="numeric"
+          value={discount}
+          onChangeText={text => {
+            setDiscount(text);
+          }}
+        />
+      </View>
+    </View>
+    {parseFloat(discount) < 0 && (
+      <Text style={styles.errorText}>Cannot be negative</Text>
+    )}
+    {parseFloat(discount) > grandTotal && (
+      <Text style={styles.errorText}>Exceeds total</Text>
+    )}
+  </View>
 
-            {/* Final Total */}
-            <View style={styles.finalTotalContainer}>
-              <Text style={styles.finalTotalLabel}>Final Total</Text>
-              <Text style={styles.finalTotalValue}>
-                PKR {(grandTotal - (parseFloat(discount) || 0)).toFixed(2)}
-              </Text>
-            </View>
+  {/* Final Total Box - Second */}
+  <View style={styles.totalFieldContainer}>
+    <Text style={styles.totalLabel}>Final Total</Text>
+    <View style={[styles.totalBox, styles.finalTotalBox]}>
+      <Text style={styles.finalTotalBoxValue}>
+        PKR {(grandTotal - (parseFloat(discount) || 0)).toFixed(0)}
+      </Text>
+    </View>
+  </View>
+</View>
           </View>
-
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Date & Time *</Text>
             <View style={styles.dateTimeRow}>

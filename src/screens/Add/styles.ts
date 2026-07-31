@@ -96,9 +96,10 @@ export default StyleSheet.create({
     height: 48,
   },
 
-  searchIcon: {           // ✅ Add this
-  marginRight: 10,
-},
+  searchIcon: {
+    // ✅ Add this
+    marginRight: 10,
+  },
 
   searchInput: {
     flex: 1,
@@ -409,163 +410,344 @@ export default StyleSheet.create({
     borderRadius: 8,
   },
   // Product Selection Styles
-selectedProductsContainer: {
-  marginTop: 12,
-},
+  selectedProductsContainer: {
+    marginTop: 12,
+  },
 
-selectedProductsTitle: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.secondaryText,
-  marginBottom: 8,
-},
+  selectedProductsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.secondaryText,
+    marginBottom: 8,
+  },
 
-selectedProductCard: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: Sizes.borderRadius,
-  padding: 12,
-  marginBottom: 8,
-  borderWidth: 1,
-  borderColor: '#F0F0F0',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.04,
-  shadowRadius: 4,
-  elevation: 1,
-},
+  selectedProductCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
 
-selectedProductHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 8,
-},
+  selectedProductHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
 
-selectedProductName: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.primaryText,
-  flex: 1,
-},
+  selectedProductName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    flex: 1,
+  },
 
-removeProductButton: {
-  padding: 4,
-},
+  removeProductButton: {
+    padding: 4,
+  },
 
-selectedProductBody: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
+  selectedProductBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
-quantityContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 8,
-},
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
 
-quantityButton: {
-  width: 28,
-  height: 28,
-  borderRadius: 14,
-  backgroundColor: '#F0F8FF',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
+  quantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-quantityText: {
-  fontSize: 16,
-  fontWeight: '600',
-  color: Colors.primaryText,
-  minWidth: 20,
-  textAlign: 'center',
-},
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    minWidth: 20,
+    textAlign: 'center',
+  },
 
-unitText: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-  marginLeft: 4,
-},
+  unitText: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginLeft: 4,
+  },
 
-priceContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 4,
-},
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
 
-priceLabel: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-},
+  priceLabel: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+  },
 
-priceValue: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: Colors.primaryText,
-},
+  priceValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primaryText,
+  },
 
-grandTotalContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#FFFFFF',
-  borderRadius: Sizes.borderRadius,
-  padding: 14,
-  marginTop: 12,
-  borderWidth: 1,
-  borderColor: '#E8E8E8',
-},
+  grandTotalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 14,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
 
-grandTotalLabel: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: Colors.primaryText,
-},
+  grandTotalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.primaryText,
+  },
 
-grandTotalValue: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#1E90FF',
-},
+  grandTotalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
 
-productDropdownItem: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 8,
-},
+  productDropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
 
-productDropdownPrice: {
-  fontSize: 12,
-  color: Colors.secondaryText,
-  fontWeight: '500',
-},
-// Final Total Styles
-finalTotalContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#E8F5E9',
-  borderRadius: Sizes.borderRadius,
-  padding: 12,
-  marginTop: 8,
-  borderWidth: 1,
-  borderColor: '#C8E6C9',
-},
+  productDropdownPrice: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    fontWeight: '500',
+  },
+  finalTotalBox: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#C8E6C9',
+  },
 
-finalTotalLabel: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: '#2E7D32',
-},
+  finalTotalBoxValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1B5E20',
+  },
+  // Optional: Add a container for the discount section
+  discountContainer: {
+    marginTop: 4,
+  },
+  // Product Search Row Styles
+  productSearchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
 
-finalTotalValue: {
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: '#1B5E20',
-},
-// Optional: Add a container for the discount section
-discountContainer: {
-  marginTop: 4,
-},
+  productSearchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 12,
+    height: 48,
+  },
+
+  productSearchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.primaryText,
+    padding: 0,
+  },
+
+  // Quantity Selector
+  quantitySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 8,
+    height: 48,
+    minWidth: 100,
+    justifyContent: 'center',
+  },
+
+  quantityBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F0F8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  quantityValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    minWidth: 30,
+    textAlign: 'center',
+  },
+
+  // Add Product Button
+  addProductButtonWrapper: {
+    marginTop: 4,
+    marginBottom: 12,
+  },
+
+  addProductButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // Selected Products List
+  selectedProductsList: {
+    marginTop: 8,
+  },
+
+  productRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: Sizes.borderRadius,
+    padding: 10,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+
+  productRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  productRowName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.primaryText,
+    flex: 1,
+  },
+
+  productRowQty: {
+    fontSize: 13,
+    color: Colors.secondaryText,
+    marginLeft: 8,
+  },
+
+  productRowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  productRowPrice: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1E90FF',
+    marginRight: 8,
+  },
+
+  productRowRemove: {
+    padding: 4,
+  },
+  // Add Product Button - Simple Button
+  addProductButton: {
+    width: '100%',
+    height: 44,
+    borderRadius: Sizes.borderRadius,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F6FA',
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  // Totals Row
+  totalsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 12,
+  },
+
+  totalFieldContainer: {
+    flex: 1,
+  },
+
+  totalLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.secondaryText,
+    marginBottom: 4,
+  },
+
+  totalBox: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Sizes.borderRadius,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 40,
+  },
+
+  totalBoxValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+  },
+
+  // Discount Input inside box
+  discountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
+  discountCurrency: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.secondaryText,
+    marginRight: 2,
+  },
+
+  discountInput: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1E90FF',
+    textAlign: 'center',
+    padding: 0,
+    minWidth: 40,
+    maxWidth: 70,
+  },
 });

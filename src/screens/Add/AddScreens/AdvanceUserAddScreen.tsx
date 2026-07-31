@@ -9,7 +9,6 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  FlatList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useIsFocused } from '@react-navigation/native';
@@ -35,7 +34,7 @@ interface Party {
   address?: string;
 }
 
-interface SelectedProduct {
+interface ProductEntry {
   id: string;
   name: string;
   price: number;
@@ -60,19 +59,14 @@ const AdvanceUserAddScreen = () => {
   const [notes, setNotes] = useState('');
   const [discount, setDiscount] = useState('');
 
-  // Product selection states
-  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>(
-    [],
-  );
-  const [productSearchText, setProductSearchText] = useState('');
-  const [productSearchResults, setProductSearchResults] = useState<
-    ProductResult[]
-  >([]);
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
+  // Product selection states - Each product has its own search and quantity
+  const [productEntries, setProductEntries] = useState<ProductEntry[]>([
+    { id: '', name: '', price: 0, quantity: 1, unit: 'units' },
+  ]);
+  const [productSearchTexts, setProductSearchTexts] = useState<string[]>(['']);
+  const [productSearchResults, setProductSearchResults] = useState<ProductResult[]>([]);
+  const [showProductDropdown, setShowProductDropdown] = useState<boolean[]>([false]);
   const [allProducts, setAllProducts] = useState<ProductResult[]>([]);
-  const [currentQuantity, setCurrentQuantity] = useState(1);
-  const [selectedProductForAdd, setSelectedProductForAdd] =
-    useState<ProductResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -88,8 +82,8 @@ const AdvanceUserAddScreen = () => {
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Calculate grand total
-  const grandTotal = selectedProducts.reduce(
+  // Calculate grand total from all products
+  const grandTotal = productEntries.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
@@ -111,26 +105,81 @@ const AdvanceUserAddScreen = () => {
     }
   };
 
-  // Filter products based on search
-  useEffect(() => {
-    if (productSearchText.trim() === '') {
-      setProductSearchResults([]);
-      setShowProductDropdown(false);
-      setSelectedProductForAdd(null);
+  // Filter products based on search for each entry
+  const handleSearchTextChange = (text: string, index: number) => {
+    const newSearchTexts = [...productSearchTexts];
+    newSearchTexts[index] = text;
+    setProductSearchTexts(newSearchTexts);
+
+    const newShowDropdown = [...showProductDropdown];
+    if (text.trim() !== '') {
+      newShowDropdown[index] = true;
+    } else {
+      newShowDropdown[index] = false;
+      const newEntries = [...productEntries];
+      newEntries[index] = { ...newEntries[index], id: '', name: '', price: 0 };
+      setProductEntries(newEntries);
+    }
+    setShowProductDropdown(newShowDropdown);
+
+    if (errors.purchasedItems) {
+      setErrors(prev => ({ ...prev, purchasedItems: '' }));
+    }
+  };
+
+  const handleSelectProduct = (product: ProductResult, index: number) => {
+    const newEntries = [...productEntries];
+    newEntries[index] = {
+      ...newEntries[index],
+      id: product.id || product._id || '',
+      name: product.name,
+      price: product.price,
+      unit: product.unit || 'units',
+    };
+    setProductEntries(newEntries);
+
+    const newSearchTexts = [...productSearchTexts];
+    newSearchTexts[index] = product.name;
+    setProductSearchTexts(newSearchTexts);
+
+    const newShowDropdown = [...showProductDropdown];
+    newShowDropdown[index] = false;
+    setShowProductDropdown(newShowDropdown);
+  };
+
+  const handleQuantityChange = (index: number, change: number) => {
+    const newEntries = [...productEntries];
+    const newQuantity = (newEntries[index].quantity || 1) + change;
+    if (newQuantity >= 1) {
+      newEntries[index].quantity = newQuantity;
+      setProductEntries(newEntries);
+    }
+  };
+
+  const handleAddProductToList = () => {
+    // Add a new empty product entry
+    setProductEntries(prev => [...prev, { id: '', name: '', price: 0, quantity: 1, unit: 'units' }]);
+    setProductSearchTexts(prev => [...prev, '']);
+    setShowProductDropdown(prev => [...prev, false]);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    if (productEntries.length <= 1) {
+      showAlert('Warning', 'You must have at least one product entry', 'warning');
       return;
     }
+    const newEntries = [...productEntries];
+    newEntries.splice(index, 1);
+    setProductEntries(newEntries);
 
-    const filtered = allProducts.filter(
-      product =>
-        product.name.toLowerCase().includes(productSearchText.toLowerCase()) ||
-        (product.category &&
-          product.category
-            .toLowerCase()
-            .includes(productSearchText.toLowerCase())),
-    );
-    setProductSearchResults(filtered);
-    setShowProductDropdown(true);
-  }, [productSearchText, allProducts]);
+    const newSearchTexts = [...productSearchTexts];
+    newSearchTexts.splice(index, 1);
+    setProductSearchTexts(newSearchTexts);
+
+    const newShowDropdown = [...showProductDropdown];
+    newShowDropdown.splice(index, 1);
+    setShowProductDropdown(newShowDropdown);
+  };
 
   const mapCustomerResult = (item: CustomerResult): Party => ({
     id: item.id || item._id || item.name,
@@ -231,62 +280,6 @@ const AdvanceUserAddScreen = () => {
     setErrors(prev => ({ ...prev, customer: '' }));
   };
 
-  // Product selection handlers
-  const handleSelectProduct = (product: ProductResult) => {
-    setSelectedProductForAdd(product);
-    setProductSearchText(product.name);
-    setShowProductDropdown(false);
-  };
-
-  const handleAddProductToList = () => {
-    if (!selectedProductForAdd) {
-      showAlert('Warning', 'Please select a product first', 'warning');
-      return;
-    }
-
-    const existingIndex = selectedProducts.findIndex(
-      p => p.id === selectedProductForAdd.id,
-    );
-
-    if (existingIndex !== -1) {
-      // Update quantity of existing product
-      const updated = [...selectedProducts];
-      updated[existingIndex].quantity += currentQuantity;
-      setSelectedProducts(updated);
-    } else {
-      // Add new product with selected quantity
-      setSelectedProducts([
-        ...selectedProducts,
-        {
-          id: selectedProductForAdd.id || selectedProductForAdd._id || '',
-          name: selectedProductForAdd.name,
-          price: selectedProductForAdd.price,
-          quantity: currentQuantity,
-          unit: selectedProductForAdd.unit || 'units',
-        },
-      ]);
-    }
-
-    // Reset selection
-    setSelectedProductForAdd(null);
-    setProductSearchText('');
-    setCurrentQuantity(1);
-    setShowProductDropdown(false);
-  };
-
-  const handleQuantityChange = (change: number) => {
-    const newQuantity = currentQuantity + change;
-    if (newQuantity >= 1) {
-      setCurrentQuantity(newQuantity);
-    }
-  };
-
-  const handleRemoveProduct = (index: number) => {
-    const updated = [...selectedProducts];
-    updated.splice(index, 1);
-    setSelectedProducts(updated);
-  };
-
   const handleSave = async () => {
     let isValid = true;
     const newErrors = {
@@ -309,7 +302,8 @@ const AdvanceUserAddScreen = () => {
       isValid = false;
     }
 
-    if (selectedProducts.length === 0) {
+    const validProducts = productEntries.filter(p => p.id && p.name);
+    if (validProducts.length === 0) {
       newErrors.purchasedItems = 'Please add at least one product';
       isValid = false;
     }
@@ -327,7 +321,8 @@ const AdvanceUserAddScreen = () => {
 
     setSaving(true);
     try {
-      const productsArray = selectedProducts.map(p => ({
+      const validProductsArray = productEntries.filter(p => p.id && p.name);
+      const productsArray = validProductsArray.map(p => ({
         product: p.id,
         name: p.name,
         price: p.price,
@@ -335,7 +330,7 @@ const AdvanceUserAddScreen = () => {
         total: p.price * p.quantity,
       }));
 
-      const itemsDescription = selectedProducts
+      const itemsDescription = validProductsArray
         .map(p => `${p.name} x${p.quantity}`)
         .join(', ');
 
@@ -384,10 +379,9 @@ const AdvanceUserAddScreen = () => {
     setSearchText('');
     setSelectedItem('');
     setSelectedPartyId(null);
-    setSelectedProducts([]);
-    setProductSearchText('');
-    setSelectedProductForAdd(null);
-    setCurrentQuantity(1);
+    setProductEntries([{ id: '', name: '', price: 0, quantity: 1, unit: 'units' }]);
+    setProductSearchTexts(['']);
+    setShowProductDropdown([false]);
     setNotes('');
     setDiscount('');
     setSearchResults([]);
@@ -424,33 +418,17 @@ const AdvanceUserAddScreen = () => {
     setModalVisible(false);
   };
 
-  const renderProductRow = ({
-    item,
-    index,
-  }: {
-    item: SelectedProduct;
-    index: number;
-  }) => (
-    <View style={styles.productRow}>
-      <View style={styles.productRowLeft}>
-        <Text style={styles.productRowName} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.productRowQty}>x{item.quantity}</Text>
-      </View>
-      <View style={styles.productRowRight}>
-        <Text style={styles.productRowPrice}>
-          PKR {item.price * item.quantity}
-        </Text>
-        <TouchableOpacity
-          onPress={() => handleRemoveProduct(index)}
-          style={styles.productRowRemove}
-        >
-          <Icon name="close-circle" size={20} color="#FF3B30" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  // Filter products for dropdown based on search text at index
+  const getFilteredProducts = (index: number) => {
+    const searchText = productSearchTexts[index] || '';
+    if (searchText.trim() === '') return [];
+    return allProducts.filter(
+      product =>
+        product.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        (product.category &&
+          product.category.toLowerCase().includes(searchText.toLowerCase())),
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -595,109 +573,115 @@ const AdvanceUserAddScreen = () => {
             </View>
           </View>
 
-          {/* Products Selection Section - NEW LAYOUT */}
+          {/* Products Selection Section */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionLabel}>Add Products *</Text>
 
-            {/* Search Bar with Quantity Selector */}
-            <View style={styles.productSearchRow}>
-              <View style={styles.productSearchContainer}>
-                <Icon
-                  name="search-outline"
-                  size={20}
-                  color="#8E8E93"
-                  style={styles.searchIcon}
-                />
-                <TextInput
-                  style={styles.productSearchInput}
-                  placeholder="Search products..."
-                  placeholderTextColor="#8E8E93"
-                  value={productSearchText}
-                  onChangeText={text => {
-                    setProductSearchText(text);
-                    if (text.trim() !== '') {
-                      setShowProductDropdown(true);
-                    } else {
-                      setShowProductDropdown(false);
-                      setSelectedProductForAdd(null);
-                    }
-                    if (errors.purchasedItems) {
-                      setErrors(prev => ({ ...prev, purchasedItems: '' }));
-                    }
-                  }}
-                  onFocus={() => {
-                    if (
-                      productSearchText.trim() !== '' &&
-                      allProducts.length > 0
-                    ) {
-                      setShowProductDropdown(true);
-                    }
-                  }}
-                />
-                {productSearchText !== '' && (
-                  <TouchableOpacity onPress={() => setProductSearchText('')}>
-                    <Icon name="close-circle" size={20} color="#8E8E93" />
-                  </TouchableOpacity>
-                )}
-              </View>
+            {/* Product Entries */}
+            {productEntries.map((entry, index) => {
+              const filteredProducts = getFilteredProducts(index);
+              const showDropdownForIndex = showProductDropdown[index] || false;
 
-              {/* Quantity Selector */}
-              <View style={styles.quantitySelector}>
-                <TouchableOpacity
-                  style={styles.quantityBtn}
-                  onPress={() => handleQuantityChange(-1)}
-                >
-                  <Icon name="remove" size={18} color="#1E90FF" />
-                </TouchableOpacity>
-                <Text style={styles.quantityValue}>{currentQuantity}</Text>
-                <TouchableOpacity
-                  style={styles.quantityBtn}
-                  onPress={() => handleQuantityChange(1)}
-                >
-                  <Icon name="add" size={18} color="#1E90FF" />
-                </TouchableOpacity>
-              </View>
-            </View>
+              return (
+                <View key={index} style={styles.productEntryContainer}>
+                  {/* Search Bar with Quantity Selector in Row */}
+                  <View style={styles.productSearchRow}>
+                    <View style={styles.productSearchContainer}>
+                      <Icon
+                        name="search-outline"
+                        size={20}
+                        color="#8E8E93"
+                        style={styles.searchIcon}
+                      />
+                      <TextInput
+                        style={styles.productSearchInput}
+                        placeholder="Search products..."
+                        placeholderTextColor="#8E8E93"
+                        value={productSearchTexts[index] || ''}
+                        onChangeText={text => handleSearchTextChange(text, index)}
+                        onFocus={() => {
+                          if ((productSearchTexts[index] || '').trim() !== '' && allProducts.length > 0) {
+                            const newShowDropdown = [...showProductDropdown];
+                            newShowDropdown[index] = true;
+                            setShowProductDropdown(newShowDropdown);
+                          }
+                        }}
+                      />
+                      {productSearchTexts[index] && productSearchTexts[index] !== '' && (
+                        <TouchableOpacity onPress={() => handleSearchTextChange('', index)}>
+                          <Icon name="close-circle" size={20} color="#8E8E93" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+
+                    {/* Quantity Selector */}
+                    <View style={styles.quantitySelector}>
+                      <TouchableOpacity
+                        style={styles.quantityBtn}
+                        onPress={() => handleQuantityChange(index, -1)}
+                      >
+                        <Icon name="remove" size={18} color="#1E90FF" />
+                      </TouchableOpacity>
+                      <Text style={styles.quantityValue}>{entry.quantity || 1}</Text>
+                      <TouchableOpacity
+                        style={styles.quantityBtn}
+                        onPress={() => handleQuantityChange(index, 1)}
+                      >
+                        <Icon name="add" size={18} color="#1E90FF" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {/* Product Search Results Dropdown */}
+                  {showDropdownForIndex && filteredProducts.length > 0 && (
+                    <View style={styles.dropdownList}>
+                      {filteredProducts.map(product => (
+                        <TouchableOpacity
+                          key={product._id || product.id}
+                          style={[
+                            styles.dropdownItem,
+                            entry.id === product.id && styles.dropdownItemSelected,
+                          ]}
+                          onPress={() => handleSelectProduct(product, index)}
+                        >
+                          <View style={styles.productDropdownItem}>
+                            <Text style={styles.dropdownItemText}>{product.name}</Text>
+                            <Text style={styles.productDropdownPrice}>
+                              PKR {product.price} / {product.unit || 'unit'}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+
+                  {showDropdownForIndex &&
+                    (productSearchTexts[index] || '').trim() !== '' &&
+                    filteredProducts.length === 0 && (
+                      <View style={styles.noResults}>
+                        <Text style={styles.noResultsText}>No products found</Text>
+                      </View>
+                    )}
+
+                  {/* Remove Product Button for entries after the first one */}
+                  {index > 0 && (
+                    <TouchableOpacity
+                      style={styles.removeProductEntryBtn}
+                      onPress={() => handleRemoveProduct(index)}
+                    >
+                      <Icon name="close-circle" size={18} color="#FF3B30" />
+                      <Text style={styles.removeProductEntryText}>Remove</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })}
 
             {errors.purchasedItems ? (
               <Text style={styles.errorText}>{errors.purchasedItems}</Text>
             ) : null}
 
-            {/* Product Search Results Dropdown */}
-            {showProductDropdown && productSearchResults.length > 0 && (
-              <View style={styles.dropdownList}>
-                {productSearchResults.map(product => (
-                  <TouchableOpacity
-                    key={product._id || product.id}
-                    style={[
-                      styles.dropdownItem,
-                      selectedProductForAdd?.id === product.id &&
-                        styles.dropdownItemSelected,
-                    ]}
-                    onPress={() => handleSelectProduct(product)}
-                  >
-                    <View style={styles.productDropdownItem}>
-                      <Text style={styles.dropdownItemText}>
-                        {product.name}
-                      </Text>
-                      <Text style={styles.productDropdownPrice}>
-                        PKR {product.price} / {product.unit || 'unit'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {showProductDropdown &&
-              productSearchText !== '' &&
-              productSearchResults.length === 0 && (
-                <View style={styles.noResults}>
-                  <Text style={styles.noResultsText}>No products found</Text>
-                </View>
-              )}
-
-            {/* Add Product Button - Simple Button */}
+            {/* Add Product Button */}
             <TouchableOpacity
               style={styles.addProductButton}
               onPress={handleAddProductToList}
@@ -706,24 +690,8 @@ const AdvanceUserAddScreen = () => {
               <Text style={styles.addProductButtonText}>+ Add New Product</Text>
             </TouchableOpacity>
 
-            {/* Selected Products List */}
-            {selectedProducts.length > 0 && (
-              <View style={styles.selectedProductsList}>
-                <Text style={styles.selectedProductsTitle}>
-                  Selected Products
-                </Text>
-                <FlatList
-                  data={selectedProducts}
-                  keyExtractor={(item, index) => `${item.id}-${index}`}
-                  renderItem={renderProductRow}
-                  scrollEnabled={false}
-                />
-              </View>
-            )}
-
             {/* Totals Row - Discount and Final Total */}
             <View style={styles.totalsRow}>
-              {/* Discount Box - First */}
               <View style={styles.totalFieldContainer}>
                 <Text style={styles.totalLabel}>Discount</Text>
                 <View style={styles.totalBox}>
@@ -749,7 +717,6 @@ const AdvanceUserAddScreen = () => {
                 )}
               </View>
 
-              {/* Final Total Box - Second */}
               <View style={styles.totalFieldContainer}>
                 <Text style={styles.totalLabel}>Final Total</Text>
                 <View style={[styles.totalBox, styles.finalTotalBox]}>
@@ -760,6 +727,7 @@ const AdvanceUserAddScreen = () => {
               </View>
             </View>
           </View>
+
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Date & Time *</Text>
             <View style={styles.dateTimeRow}>

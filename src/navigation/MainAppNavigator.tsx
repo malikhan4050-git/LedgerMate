@@ -7,7 +7,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 import DashboardHomeScreen from '../screens/Dashboard/DashboardHomeScreen';
 import LedgerScreen from '../screens/Ledger/LedgerScreen';
-import AddScreen from '../screens/Add/AddScreen';
+import AddScreen from '../screens/Add/AddScreens/AddScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import ProductsScreen from '../screens/Products/ProductsScreen';
 

@@ -47,7 +47,6 @@ const LoginScreen = ({ navigation }: Props) => {
       [key]: value,
     }));
 
-    // Remove error while typing
     setErrors(prev => ({
       ...prev,
       [key]: '',
@@ -113,11 +112,6 @@ const LoginScreen = ({ navigation }: Props) => {
     }
   };
 
-//   const handleLogin = async () => {
-//   // Bypass everything - just navigate directly
-//   navigation.replace('App'); // or 'BusinessDetails' if you want to test that screen
-// };
-
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
@@ -160,7 +154,7 @@ const LoginScreen = ({ navigation }: Props) => {
               { transform: [{ scale: pressed ? 0.98 : 1 }] },
             ]}
             onPress={() => {
-              // Add forgot password action here if needed
+              navigation.navigate('ForgotPassword' as never);
             }}
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>

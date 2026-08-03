@@ -15,6 +15,8 @@ import LanguageScreen from '../screens/Profile/stackScreens/LanguageScreen';
 import SettingsScreen from '../screens/Profile/stackScreens/SettingsScreen';
 import HelpSupportScreen from '../screens/Profile/stackScreens/HelpSupportScreen';
 import TermsPrivacyScreen from '../screens/Profile/stackScreens/TermsPrivacyScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
+// import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -32,6 +34,8 @@ export type RootStackParamList = {
   SettingsScreen : undefined;
   HelpSupportScreen : undefined;
   TermsPrivacyScreen : undefined;
+  ForgotPassword: undefined;
+  ResetPassword : { token: string } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -97,6 +101,8 @@ const RootNavigator = () => {
           component={TermsPrivacyScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{headerShown : false}}/>
+        {/* <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{headerShown : false}}/> */}
         <Stack.Screen name="App" component={MainAppNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

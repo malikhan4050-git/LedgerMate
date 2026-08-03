@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -18,14 +18,12 @@ import GradientButton from '../../components/Buttons/GradientButton';
 import AppLogo from '../../components/Logo/AppLogo';
 import { resetPassword } from '../../services/authApi';
 import styles from './stylesAuth';
-import LoginScreen from '../Login/LoginScreen';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { showAlert } = useAlert();
 
-  // ✅ Get token from route params (deep linking)
   const token = (route.params as any)?.token || '';
 
   const [newPassword, setNewPassword] = useState('');
@@ -39,37 +37,55 @@ const ResetPasswordScreen = () => {
   });
   const [tokenValid, setTokenValid] = useState<boolean>(!!token);
 
-  // ✅ Handle deep linking if token is not in route params
+  const hasNavigated = useRef(false);
+
   useEffect(() => {
     const handleDeepLink = async () => {
+      if (hasNavigated.current) return;
+
       const url = await Linking.getInitialURL();
       if (url) {
         console.log('Initial URL:', url);
-        // Extract token from URL
         const match = url.match(/reset-password\/([^/?]+)/);
         if (match && match[1]) {
+          const token = match[1];
           setTokenValid(true);
+          hasNavigated.current = true;
+          navigation.reset({
+            index: 0,
+            routes: [{ 
+              name: 'ResetPassword' as never, 
+              params: { token } 
+            }],
+          });
         }
       }
     };
 
     handleDeepLink();
 
-    // Listen for deep links while app is running
     const subscription = Linking.addEventListener('url', ({ url }) => {
       console.log('Deep link received:', url);
       const match = url.match(/reset-password\/([^/?]+)/);
       if (match && match[1]) {
+        const token = match[1];
         setTokenValid(true);
+        hasNavigated.current = true;
+        navigation.reset({
+          index: 0,
+          routes: [{ 
+            name: 'ResetPassword' as never, 
+            params: { token } 
+          }],
+        });
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [navigation]);
 
-  // If no token and not valid, show error
   useEffect(() => {
     if (!token && !tokenValid) {
       setTokenValid(false);
@@ -185,7 +201,6 @@ const ResetPasswordScreen = () => {
   };
 
   const handleGoBack = () => {
-    // Instead of goBack(), reset the navigation stack to Login
     navigation.reset({
       index: 0,
       routes: [{ name: 'Login' as never }],

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,23 +9,25 @@ import {
   ScrollView,
   ActivityIndicator,
   StatusBar,
+  Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAlert } from '../../hooks/useAlert';
 import GradientButton from '../../components/Buttons/GradientButton';
 import AppLogo from '../../components/Logo/AppLogo';
-import api from '../../api/axios';
+import { resetPassword } from '../../services/authApi';
 import styles from './stylesAuth';
+import LoginScreen from '../Login/LoginScreen';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { showAlert } = useAlert();
-  
-  // Get token from route params (passed from deep link or manual entry)
+
+  // ✅ Get token from route params (deep linking)
   const token = (route.params as any)?.token || '';
-  
+
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -35,12 +37,51 @@ const ResetPasswordScreen = () => {
     newPassword: '',
     confirmPassword: '',
   });
+  const [tokenValid, setTokenValid] = useState<boolean>(!!token);
+
+  // ✅ Handle deep linking if token is not in route params
+  useEffect(() => {
+    const handleDeepLink = async () => {
+      const url = await Linking.getInitialURL();
+      if (url) {
+        console.log('Initial URL:', url);
+        // Extract token from URL
+        const match = url.match(/reset-password\/([^/?]+)/);
+        if (match && match[1]) {
+          setTokenValid(true);
+        }
+      }
+    };
+
+    handleDeepLink();
+
+    // Listen for deep links while app is running
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      console.log('Deep link received:', url);
+      const match = url.match(/reset-password\/([^/?]+)/);
+      if (match && match[1]) {
+        setTokenValid(true);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  // If no token and not valid, show error
+  useEffect(() => {
+    if (!token && !tokenValid) {
+      setTokenValid(false);
+    }
+  }, [token, tokenValid]);
 
   const hasMinLength = newPassword.length >= 8;
   const hasUpperCase = /[A-Z]/.test(newPassword);
   const hasLowerCase = /[a-z]/.test(newPassword);
   const hasNumber = /[0-9]/.test(newPassword);
-  const isStrongPassword = hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+  const isStrongPassword =
+    hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
 
   const validateForm = () => {
     let isValid = true;
@@ -74,35 +115,67 @@ const ResetPasswordScreen = () => {
       return;
     }
 
-    if (!token) {
-      showAlert('Error', 'Invalid or missing reset token. Please request a new reset link.', 'error');
+    const actualToken = token || (route.params as any)?.token || '';
+
+    if (!actualToken) {
+      showAlert(
+        'Error',
+        'Invalid or missing reset token. Please request a new reset link.',
+        'error',
+      );
       return;
     }
 
     setLoading(true);
     try {
-      const response = await api.post('/auth/reset-password', {
-        token: token,
-        newPassword: newPassword.trim(),
-      });
+      const response = await resetPassword(actualToken, newPassword.trim());
+      console.log('Password reset successful:', response);
 
-      console.log('Password reset successful:', response.data);
-      
-      showAlert('Success', 'Password reset successfully! Please login with your new password.', 'success');
-      
+      showAlert(
+        'Success',
+        'Password reset successfully! Please login with your new password.',
+        'success',
+      );
+
       setTimeout(() => {
         navigation.reset({
           index: 0,
           routes: [{ name: 'Login' as never }],
         });
       }, 2000);
-      
     } catch (error: any) {
       console.error('Reset password error:', error);
-      const message = error?.response?.data?.message || 'Failed to reset password. Please try again.';
-      
-      if (message.toLowerCase().includes('expired')) {
-        showAlert('Link Expired', 'The reset link has expired. Please request a new one.', 'error');
+
+      const status = error.response?.status;
+      const message =
+        error.response?.data?.message ||
+        'Failed to reset password. Please try again.';
+
+      if (status === 400) {
+        if (message.toLowerCase().includes('expired')) {
+          showAlert(
+            'Link Expired',
+            'The reset link has expired. Please request a new one.',
+            'error',
+          );
+        } else if (
+          message.toLowerCase().includes('invalid') ||
+          message.toLowerCase().includes('token')
+        ) {
+          showAlert(
+            'Invalid Token',
+            'The reset token is invalid. Please request a new reset link.',
+            'error',
+          );
+        } else {
+          showAlert('Error', message, 'error');
+        }
+      } else if (status === 404) {
+        showAlert(
+          'Not Found',
+          'No account found. Please request a new reset link.',
+          'error',
+        );
       } else {
         showAlert('Error', message, 'error');
       }
@@ -112,7 +185,11 @@ const ResetPasswordScreen = () => {
   };
 
   const handleGoBack = () => {
-    navigation.goBack();
+    // Instead of goBack(), reset the navigation stack to Login
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' as never }],
+    });
   };
 
   return (
@@ -140,16 +217,19 @@ const ResetPasswordScreen = () => {
               </Text>
             </View>
 
-            {/* Token Status */}
-            {token ? (
+            {tokenValid || token ? (
               <View style={styles.tokenStatusContainer}>
                 <Icon name="checkmark-circle" size={20} color="#2E7D32" />
                 <Text style={styles.tokenStatusText}>Reset token verified</Text>
               </View>
             ) : (
-              <View style={[styles.tokenStatusContainer, styles.tokenStatusError]}>
+              <View
+                style={[styles.tokenStatusContainer, styles.tokenStatusError]}
+              >
                 <Icon name="alert-circle" size={20} color="#C62828" />
-                <Text style={styles.tokenStatusErrorText}>No reset token found</Text>
+                <Text style={styles.tokenStatusErrorText}>
+                  No reset token found
+                </Text>
               </View>
             )}
 
@@ -157,14 +237,18 @@ const ResetPasswordScreen = () => {
               <Text style={styles.label}>New Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
-                  style={[styles.input, errors.newPassword && styles.inputError]}
+                  style={[
+                    styles.input,
+                    errors.newPassword && styles.inputError,
+                  ]}
                   placeholder="Enter new password"
                   placeholderTextColor="#8E8E93"
                   secureTextEntry={!showPassword}
                   value={newPassword}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setNewPassword(text);
-                    if (errors.newPassword) setErrors((prev) => ({ ...prev, newPassword: '' }));
+                    if (errors.newPassword)
+                      setErrors(prev => ({ ...prev, newPassword: '' }));
                   }}
                   editable={!loading}
                 />
@@ -188,14 +272,18 @@ const ResetPasswordScreen = () => {
               <Text style={styles.label}>Confirm Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
-                  style={[styles.input, errors.confirmPassword && styles.inputError]}
+                  style={[
+                    styles.input,
+                    errors.confirmPassword && styles.inputError,
+                  ]}
                   placeholder="Confirm new password"
                   placeholderTextColor="#8E8E93"
                   secureTextEntry={!showConfirmPassword}
                   value={confirmPassword}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     setConfirmPassword(text);
-                    if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+                    if (errors.confirmPassword)
+                      setErrors(prev => ({ ...prev, confirmPassword: '' }));
                   }}
                   editable={!loading}
                 />
@@ -204,7 +292,9 @@ const ResetPasswordScreen = () => {
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   <Icon
-                    name={showConfirmPassword ? 'eye-outline' : 'eye-off-outline'}
+                    name={
+                      showConfirmPassword ? 'eye-outline' : 'eye-off-outline'
+                    }
                     size={22}
                     color="#8E8E93"
                   />
@@ -216,14 +306,21 @@ const ResetPasswordScreen = () => {
             </View>
 
             <View style={styles.requirementsContainer}>
-              <Text style={styles.requirementsTitle}>Password Requirements:</Text>
+              <Text style={styles.requirementsTitle}>
+                Password Requirements:
+              </Text>
               <View style={styles.requirementItem}>
                 <Icon
                   name={hasMinLength ? 'checkmark-circle' : 'ellipse-outline'}
                   size={16}
                   color={hasMinLength ? '#2E7D32' : '#8E8E93'}
                 />
-                <Text style={[styles.requirementText, hasMinLength && styles.requirementMet]}>
+                <Text
+                  style={[
+                    styles.requirementText,
+                    hasMinLength && styles.requirementMet,
+                  ]}
+                >
                   At least 8 characters
                 </Text>
               </View>
@@ -233,7 +330,12 @@ const ResetPasswordScreen = () => {
                   size={16}
                   color={hasUpperCase ? '#2E7D32' : '#8E8E93'}
                 />
-                <Text style={[styles.requirementText, hasUpperCase && styles.requirementMet]}>
+                <Text
+                  style={[
+                    styles.requirementText,
+                    hasUpperCase && styles.requirementMet,
+                  ]}
+                >
                   Include uppercase letter (A-Z)
                 </Text>
               </View>
@@ -243,7 +345,12 @@ const ResetPasswordScreen = () => {
                   size={16}
                   color={hasLowerCase ? '#2E7D32' : '#8E8E93'}
                 />
-                <Text style={[styles.requirementText, hasLowerCase && styles.requirementMet]}>
+                <Text
+                  style={[
+                    styles.requirementText,
+                    hasLowerCase && styles.requirementMet,
+                  ]}
+                >
                   Include lowercase letter (a-z)
                 </Text>
               </View>
@@ -253,7 +360,12 @@ const ResetPasswordScreen = () => {
                   size={16}
                   color={hasNumber ? '#2E7D32' : '#8E8E93'}
                 />
-                <Text style={[styles.requirementText, hasNumber && styles.requirementMet]}>
+                <Text
+                  style={[
+                    styles.requirementText,
+                    hasNumber && styles.requirementMet,
+                  ]}
+                >
                   Include at least one number (0-9)
                 </Text>
               </View>
@@ -267,12 +379,15 @@ const ResetPasswordScreen = () => {
                   title="Reset Password"
                   titleStyle={styles.buttonText}
                   onPress={handleResetPassword}
-                  disabled={!isStrongPassword || !token}
+                  disabled={!isStrongPassword || !tokenValid}
                 />
               )}
             </View>
 
-            <TouchableOpacity onPress={handleGoBack} style={styles.bottomContainer}>
+            <TouchableOpacity
+              onPress={handleGoBack}
+              style={styles.bottomContainer}
+            >
               <Text style={styles.bottomText}>Back to </Text>
               <Text style={styles.linkText}>Login</Text>
             </TouchableOpacity>

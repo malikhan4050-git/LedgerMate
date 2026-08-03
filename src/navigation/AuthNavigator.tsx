@@ -21,23 +21,24 @@ export type AuthStackParamList = {
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
+// ✅ Fixed AuthNavigator.tsx
 const AuthNavigator = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="BusinessDetails" component={BusinessDetailsScreen} />
-        <Stack.Screen name="SimpleDashboard" component={SimpleAppNavigator} />
-        <Stack.Screen name="AdvanceDashboard" component={AdvanceAppNavigator} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator
+      initialRouteName="Splash"
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="BusinessDetails" component={BusinessDetailsScreen} />
+      <Stack.Screen name="SimpleDashboard" component={SimpleAppNavigator} />
+      <Stack.Screen name="AdvanceDashboard" component={AdvanceAppNavigator} />
+    </Stack.Navigator>
   );
 };
 
 export default AuthNavigator;
+
+// export default AuthNavigator;

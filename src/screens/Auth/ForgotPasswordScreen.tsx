@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAlert } from '../../hooks/useAlert';
 import GradientButton from '../../components/Buttons/GradientButton';
 import AppLogo from '../../components/Logo/AppLogo';
-import api from '../../api/axios';
+import { forgotPassword } from '../../services/authApi';
 import styles from './stylesAuth';
 
 const ForgotPasswordScreen = () => {
@@ -44,11 +44,8 @@ const ForgotPasswordScreen = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/auth/forgot-password', {
-        email: email.trim(),
-      });
-
-      console.log('Reset link sent:', response.data);
+      const response = await forgotPassword(email.trim());
+      console.log('Reset link sent:', response);
       
       showAlert(
         'Check Your Email',
@@ -56,15 +53,23 @@ const ForgotPasswordScreen = () => {
         'success'
       );
       
-      // Navigate back to login after success
       setTimeout(() => {
         navigation.goBack();
       }, 3000);
       
     } catch (error: any) {
       console.error('Forgot password error:', error);
-      const message = error?.response?.data?.message || 'Failed to send reset link. Please try again.';
-      showAlert('Error', message, 'error');
+      
+      const status = error.response?.status;
+      const message = error.response?.data?.message || 'Failed to send reset link. Please try again.';
+      
+      if (status === 404) {
+        showAlert('Email Not Found', 'No account found with this email address.', 'error');
+      } else if (status === 429) {
+        showAlert('Too Many Requests', 'Please wait a few minutes before trying again.', 'warning');
+      } else {
+        showAlert('Error', message, 'error');
+      }
     } finally {
       setLoading(false);
     }

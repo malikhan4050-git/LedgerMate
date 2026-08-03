@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import Colors from '../../theme/Colors';
 import Sizes from '../../theme/Sizes';
 
@@ -60,7 +60,18 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primaryBlue,
   },
-  
+
+  forgotPasswordContainer: {
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#1E90FF',
+    fontWeight: '500',
+  },
 });
 
 export default styles;

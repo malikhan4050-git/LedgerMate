@@ -16,7 +16,7 @@ import SettingsScreen from '../screens/Profile/stackScreens/SettingsScreen';
 import HelpSupportScreen from '../screens/Profile/stackScreens/HelpSupportScreen';
 import TermsPrivacyScreen from '../screens/Profile/stackScreens/TermsPrivacyScreen';
 import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
-// import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
+import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import MainAppNavigator from './MainAppNavigator';
 
 export type RootStackParamList = {
@@ -40,9 +40,28 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// ✅ Deep Linking Configuration
+const linking = {
+  prefixes: [
+    'ledgermate://',  // For Android/iOS deep linking
+    'https://ledgermate.com', // For web links
+    'http://ledgermate.com',
+  ],
+  config: {
+    screens: {
+      ResetPassword: {
+        path: 'reset-password/:token',
+        parse: {
+          token: (token: string) => token,
+        },
+      },
+    },
+  },
+};
+
 const RootNavigator = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}> 
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{
@@ -102,7 +121,7 @@ const RootNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{headerShown : false}}/>
-        {/* <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{headerShown : false}}/> */}
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{headerShown : false}}/>
         <Stack.Screen name="App" component={MainAppNavigator} />
       </Stack.Navigator>
     </NavigationContainer>

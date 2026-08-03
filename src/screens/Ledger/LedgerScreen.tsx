@@ -56,6 +56,7 @@ const LedgerScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -76,7 +77,7 @@ const LedgerScreen = () => {
     if (isFocused) {
       fetchEntries(1, false);
     }
-  }, [isFocused]);
+  }, [isFocused, refreshTrigger]);
 
   useEffect(() => {
     let filtered = entries;
@@ -153,6 +154,8 @@ const LedgerScreen = () => {
       let entriesData = response?.entries || [];
       const totalPages = response?.totalPages || 1;
       const totalEntries = response?.totalEntries || 0;
+      console.log('Fetched entries:', entriesData);
+      console.log('First entry amount:', entriesData[0]?.manualTotalPrice);
 
       entriesData = entriesData.map((entry: any) => ({
         ...entry,
@@ -196,15 +199,21 @@ const LedgerScreen = () => {
     if (!selectedEntry) return;
 
     try {
-      const updated = await updateEntry(selectedEntry._id, updatedData);
-      setEntries(prev =>
-        prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
-      );
-      setFilteredEntries(prev =>
-        prev.map(e => (e._id === selectedEntry._id ? { ...e, ...updated } : e)),
-      );
-      showAlert('Success', 'Entry updated successfully!', 'success');
+      // Update the entry
+      await updateEntry(selectedEntry._id, updatedData);
+
+      // Close modal immediately
+      setEditModalVisible(false);
+      setSelectedEntry(null);
+
+      // Reset and refresh from page 1
+      setCurrentPage(1);
+      setHasMore(true);
+
+      // Fetch fresh data from API
+      await fetchEntries(1, false);
     } catch (error) {
+      console.error('Update error:', error);
       throw error;
     }
   };
@@ -411,7 +420,6 @@ const LedgerScreen = () => {
 
                           <View style={[styles.cardCell, styles.columnDetails]}>
                             <Text style={styles.cardItems} numberOfLines={1}>
-                              {/* For advance users: show product names from products array */}
                               {entry.products && entry.products.length > 0
                                 ? entry.products.map(p => p.name).join(', ')
                                 : entry.itemsDescription}
@@ -481,6 +489,9 @@ const LedgerScreen = () => {
           setSelectedEntry(null);
         }}
         onSave={handleUpdateEntry}
+        onRefresh={() => {
+          fetchEntries(1, false);
+        }}
       />
 
       <DeleteConfirmationModal

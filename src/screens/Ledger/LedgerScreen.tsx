@@ -10,7 +10,7 @@ import {
 import styles from './styles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import LedgerListView from './stackScreen/LedgerListView';
+import LedgerListView from './stackScreens/LedgerListView';
 
 
 const LedgerScreen = () => {

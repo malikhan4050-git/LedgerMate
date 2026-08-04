@@ -1,4 +1,3 @@
-// improve this header to match the overall scheme of the app.....
 
 import React from 'react';
 import {
@@ -60,7 +59,7 @@ const LedgerScreen = () => {
         {/* Card 2: Manage Customers Records */}
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('CustomerRecords' as never)}
+          onPress={() => navigation.navigate('PaymentHistory' as never)}
           activeOpacity={0.7}
         >
           <View style={styles.cardIconContainer}>

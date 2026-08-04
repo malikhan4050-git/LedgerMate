@@ -19,9 +19,10 @@ import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import MainAppNavigator from './MainAppNavigator';
 
-// ✅ IMPORT THE NEW LEDGER SCREENS
-import LedgerListView from '../screens/Ledger/stackScreen/LedgerListView';
-// import CustomerRecordsScreen from '../screens/Ledger/stackScreens/CustomerRecordsScreen';
+// IMPORT THE NEW LEDGER SCREENS
+import LedgerListView from '../screens/Ledger/stackScreens/LedgerListView';
+import CustomerRecordsScreen from '../screens/Ledger/stackScreens/CustomerRecordsScreen';
+import CustomerDetailScreen from '../screens/Ledger/stackScreens/CustomerDetailScreen';
 // import PaymentHistoryScreen from '../screens/Ledger/stackScreens/PaymentHistoryScreen';
 
 export type RootStackParamList = {
@@ -41,15 +42,16 @@ export type RootStackParamList = {
   TermsPrivacyScreen : undefined;
   ForgotPassword: undefined;
   ResetPassword : { token: string } | undefined;
-  // ✅ ADD THESE NEW SCREENS
+  // ADDED THESE NEW SCREENS
   LedgerListView: undefined;
   CustomerRecords: undefined;
+  CustomerDetail: { customer: any };
   PaymentHistory: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// ✅ Deep Linking Configuration
+//Deep Linking Configuration
 const linking = {
   prefixes: [
     'ledgermate://',
@@ -94,9 +96,10 @@ const RootNavigator = () => {
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerShown: false }} />
         <Stack.Screen name="App" component={MainAppNavigator} />
 
-        {/* ✅ ADD THE NEW LEDGER SCREENS HERE */}
+        {/* ADD THE NEW LEDGER SCREENS HERE */}
         <Stack.Screen name="LedgerListView" component={LedgerListView} />
-        {/* <Stack.Screen name="CustomerRecords" component={CustomerRecordsScreen} /> */}
+        <Stack.Screen name="CustomerRecords" component={CustomerRecordsScreen} />
+        <Stack.Screen name="CustomerDetail" component={CustomerDetailScreen} />
         {/* <Stack.Screen name="PaymentHistory" component={PaymentHistoryScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>

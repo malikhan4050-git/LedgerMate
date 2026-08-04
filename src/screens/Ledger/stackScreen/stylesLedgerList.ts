@@ -19,15 +19,13 @@ export default StyleSheet.create({
     paddingBottom: 20,
   },
 
-header: {
-  paddingTop: 10,
-  paddingBottom: 10,
-  backgroundColor: 'transparent',
-  borderBottomWidth: 0,           
-  marginBottom: 10,
-},
-
-// improve this header to match the overall scheme of the app.....
+  header: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0,
+    marginBottom: 10,
+  },
 
   headerTitle: {
     fontSize: 24,

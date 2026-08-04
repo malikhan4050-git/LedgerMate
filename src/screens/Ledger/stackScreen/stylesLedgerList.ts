@@ -20,11 +20,10 @@ export default StyleSheet.create({
   },
 
 header: {
-  paddingHorizontal: 20,
   paddingTop: 10,
   paddingBottom: 10,
-  backgroundColor: 'transparent', // ✅ removed white background
-  borderBottomWidth: 0,           // ✅ removed border
+  backgroundColor: 'transparent',
+  borderBottomWidth: 0,           
   marginBottom: 10,
 },
 

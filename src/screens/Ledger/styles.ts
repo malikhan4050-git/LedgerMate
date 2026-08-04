@@ -28,12 +28,12 @@ const styles = StyleSheet.create({
 
   cardsContainer: {
     padding: 16,
-    gap: 16,
+    gap: 30,
   },
   card: {
     backgroundColor: Colors.white,
-    borderRadius: Sizes.borderRadius,
-    padding: 50,
+    borderRadius: 50,
+    padding: 45,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

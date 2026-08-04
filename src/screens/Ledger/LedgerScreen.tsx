@@ -56,7 +56,6 @@ const LedgerScreen = () => {
           </Text>
         </TouchableOpacity>
         {/* Card 3: Payment History */}
-        {/* Card 2: Manage Customers Records */}
         <TouchableOpacity
           style={styles.card}
           onPress={() => navigation.navigate('PaymentHistory' as never)}

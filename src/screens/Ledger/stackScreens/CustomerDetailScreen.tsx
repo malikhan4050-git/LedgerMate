@@ -8,12 +8,19 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
+  StatusBar,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAlert } from '../../../hooks/useAlert';
-import { getEntries, updateEntry, deleteEntry } from '../../../services/entryApi';
-import styles from './stylesCustomerRecords';
+import {
+  getEntries,
+  updateEntry,
+  deleteEntry,
+} from '../../../services/entryApi';
+import styles from './stylesCustomerDetail';
 
 interface Transaction {
   id: string;
@@ -32,15 +39,18 @@ const CustomerDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCustomerTransactions = async () => {
     try {
       const response = await getEntries(1, 1000);
-      const entries = response?.entries || response?.data || response?.result || [];
+      const entries =
+        response?.entries || response?.data || response?.result || [];
 
       // Filter entries for this customer
       const customerEntries = entries.filter((entry: any) => {
-        const customerId = entry.customer?._id || entry.customer?.id || entry.customer;
+        const customerId =
+          entry.customer?._id || entry.customer?.id || entry.customer;
         return customerId === customer.id;
       });
 
@@ -48,12 +58,17 @@ const CustomerDetailScreen = () => {
       const txList: Transaction[] = customerEntries.map((entry: any) => ({
         id: entry._id,
         date: entry.transactionDate || entry.createdAt,
-        description: entry.products?.map((p: any) => p.name).join(', ') || entry.itemsDescription || 'Transaction',
+        description:
+          entry.products?.map((p: any) => p.name).join(', ') ||
+          entry.itemsDescription ||
+          'Transaction',
         amount: entry.totalAmount || entry.manualTotalPrice || 0,
       }));
 
       // Sort by date (newest first)
-      txList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      txList.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
 
       setTransactions(txList);
     } catch (error) {
@@ -88,7 +103,9 @@ const CustomerDetailScreen = () => {
       let updatedTransactions = [...transactions];
 
       // Sort by date descending (newest first) — LIFO
-      updatedTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      updatedTransactions.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
 
       let i = 0;
       while (remaining > 0 && i < updatedTransactions.length) {
@@ -114,14 +131,24 @@ const CustomerDetailScreen = () => {
       showAlert(
         'Success',
         `Payment of PKR ${amount.toLocaleString()} received successfully!`,
-        'success'
+        'success',
       );
     } catch (error) {
       console.error('Payment processing error:', error);
-      showAlert('Error', 'Failed to process payment. Please try again.', 'error');
+      showAlert(
+        'Error',
+        'Failed to process payment. Please try again.',
+        'error',
+      );
     } finally {
       setProcessing(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchCustomerTransactions();
+    setRefreshing(false);
   };
 
   const handleBack = () => {
@@ -138,79 +165,108 @@ const CustomerDetailScreen = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.detailHeader}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color="#1E90FF" />
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.detailName}>{customer.name}</Text>
-          <Text style={styles.detailTotal}>
-            PKR {totalOutstanding.toLocaleString()}
-          </Text>
-        </View>
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
 
-        <View style={styles.container}>
-          {transactions.length === 0 ? (
-            <View style={styles.noTransactions}>
-              <Text style={styles.noTransactionsText}>
-                No outstanding transactions
-              </Text>
-            </View>
-          ) : (
-            transactions.map(tx => (
-              <View key={tx.id} style={styles.transactionItem}>
-                <Text style={styles.transactionDate}>
-                  {new Date(tx.date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </Text>
-                <Text style={styles.transactionDesc}>{tx.description}</Text>
-                <Text style={styles.transactionAmount}>
-                  PKR {tx.amount.toLocaleString()}
+      <LinearGradient
+        colors={['#4A90E2', '#4CCB8C']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{
+          height:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          paddingTop:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+        }}
+      />
+
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'android' ? 'padding' : 'padding'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 64}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#1E90FF']}
+            />
+          }
+        >
+          {/* ✅ NEW HEADER SECTION (Exactly like AppearanceScreen) */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Customer Transactions</Text>
+            <Text style={styles.subtitle}>
+              View all transactions for customers
+            </Text>
+          </View>
+
+          {/* Rest of your content */}
+          <View style={styles.container}>
+            {transactions.length === 0 ? (
+              <View style={styles.noTransactions}>
+                <Text style={styles.noTransactionsText}>
+                  No outstanding transactions
                 </Text>
               </View>
-            ))
-          )}
+            ) : (
+              transactions.map(tx => (
+                <View key={tx.id} style={styles.transactionItem}>
+                  <Text style={styles.transactionDate}>
+                    {new Date(tx.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                  <Text style={styles.transactionDesc}>{tx.description}</Text>
+                  <Text style={styles.transactionAmount}>
+                    PKR {tx.amount.toLocaleString()}
+                  </Text>
+                </View>
+              ))
+            )}
 
-          {/* Receive Payment Section */}
-          <View style={styles.paymentContainer}>
-            <Text style={styles.paymentLabel}>Receive Payment</Text>
-            <View style={styles.paymentInputRow}>
-              <TextInput
-                style={styles.paymentInput}
-                placeholder="Enter amount"
-                placeholderTextColor="#8E8E93"
-                keyboardType="numeric"
-                value={paymentAmount}
-                onChangeText={setPaymentAmount}
-              />
-              {processing ? (
-                <ActivityIndicator size="small" color="#1E90FF" />
-              ) : (
-                <TouchableOpacity
-                  style={styles.payButton}
-                  onPress={handleReceivePayment}
-                  disabled={processing}
-                >
-                  <Text style={styles.payButtonText}>Pay</Text>
-                </TouchableOpacity>
-              )}
+            {/* Receive Payment Section */}
+            <View style={styles.paymentContainer}>
+              <Text style={styles.paymentLabel}>Receive Payment</Text>
+              <View style={styles.paymentInputRow}>
+                <TextInput
+                  style={styles.paymentInput}
+                  placeholder="Enter amount"
+                  placeholderTextColor="#8E8E93"
+                  keyboardType="numeric"
+                  value={paymentAmount}
+                  onChangeText={setPaymentAmount}
+                />
+                {processing ? (
+                  <ActivityIndicator size="small" color="#1E90FF" />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.payButton}
+                    onPress={handleReceivePayment}
+                    disabled={processing}
+                  >
+                    <Text style={styles.payButtonText}>Pay</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
   );
 };
 

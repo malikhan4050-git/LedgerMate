@@ -9,13 +9,16 @@ import {
   RefreshControl,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from 'react-native';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAlert } from '../../../hooks/useAlert';
 import { getEntries } from '../../../services/entryApi';
 import { searchCustomers, CustomerResult } from '../../../services/customerApi';
 import styles from './stylesCustomerRecords';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface CustomerSummary {
   id: string;
@@ -128,85 +131,109 @@ const CustomerRecordsScreen = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardContainer}
-      behavior={Platform.OS === 'android' ? 'padding' : 'padding'}
-      keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={['#1E90FF']}
-          />
-        }
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+
+      <LinearGradient
+        colors={['#4A90E2', '#4CCB8C']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{
+          height:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          paddingTop:
+            Platform.OS === 'ios' ? getStatusBarHeight() : getStatusBarHeight(),
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+        }}
+      />
+
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'android' ? 'padding' : 'padding'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
       >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Customer Records</Text>
-            <Text style={styles.headerSubtitle}>
-              View total outstanding for each customer
-            </Text>
-          </View>
-
-          <View style={styles.searchContainer}>
-            <Icon
-              name="search-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.searchIcon}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#1E90FF']}
             />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search customers..."
-              placeholderTextColor="#8E8E93"
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-            {searchText !== '' && (
-              <TouchableOpacity onPress={() => setSearchText('')}>
-                <Icon name="close-circle" size={20} color="#8E8E93" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {filteredCustomers.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Icon name="people-outline" size={48} color="#D1D1D6" />
-              <Text style={styles.emptyText}>No customers found</Text>
-              <Text style={styles.emptySubtext}>
-                Add customers from the Add tab
+          }
+        >
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Customer Records</Text>
+              <Text style={styles.headerSubtitle}>
+                View total outstanding for each customer
               </Text>
             </View>
-          ) : (
-            filteredCustomers.map(customer => (
-              <TouchableOpacity
-                key={customer.id}
-                style={styles.customerCard}
-                onPress={() => handleCustomerPress(customer)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.customerRow}>
-                  <View>
-                    <Text style={styles.customerName}>{customer.name}</Text>
-                    <Text style={styles.customerMeta}>
-                      {customer.transactionCount} transaction
-                      {customer.transactionCount > 1 ? 's' : ''}
+
+            <View style={styles.searchContainer}>
+              <Icon
+                name="search-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.searchIcon}
+              />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search customers..."
+                placeholderTextColor="#8E8E93"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+              {searchText !== '' && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                  <Icon name="close-circle" size={20} color="#8E8E93" />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {filteredCustomers.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Icon name="people-outline" size={48} color="#D1D1D6" />
+                <Text style={styles.emptyText}>No customers found</Text>
+                <Text style={styles.emptySubtext}>
+                  Add customers from the Add tab
+                </Text>
+              </View>
+            ) : (
+              filteredCustomers.map(customer => (
+                <TouchableOpacity
+                  key={customer.id}
+                  style={styles.customerCard}
+                  onPress={() => handleCustomerPress(customer)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.customerRow}>
+                    <View>
+                      <Text style={styles.customerName}>{customer.name}</Text>
+                      <Text style={styles.customerMeta}>
+                        {customer.transactionCount} transaction
+                        {customer.transactionCount > 1 ? 's' : ''}
+                      </Text>
+                    </View>
+                    <Text style={styles.customerTotal}>
+                      PKR {customer.totalOutstanding.toLocaleString()}
                     </Text>
                   </View>
-                  <Text style={styles.customerTotal}>
-                    PKR {customer.totalOutstanding.toLocaleString()}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))
-          )}
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
   );
 };
 

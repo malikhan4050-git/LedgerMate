@@ -27,6 +27,8 @@ const Colors = {
   WHITE: '#ffffff',
   
   BLACK: '#000000',
+
+  cardBackground: '#F0F4FF',
 };
 
 export default Colors;

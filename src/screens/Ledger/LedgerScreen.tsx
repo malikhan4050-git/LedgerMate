@@ -21,7 +21,7 @@ const LedgerScreen = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ledger</Text>
         <Text style={styles.headerSubtitle}>
-          Choose an option below to manage your records
+          Deal with all of your records and transactions in one place
         </Text>
       </View>
 

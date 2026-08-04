@@ -19,15 +19,16 @@ export default StyleSheet.create({
     paddingBottom: 20,
   },
 
-  header: {
-    marginTop: 10,
-    marginBottom: 16,
-    padding: 20,
-    paddingTop: 20, // ✅ reduced from 30 (since gradient handles status bar)
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
-  },
+header: {
+  paddingHorizontal: 20,
+  paddingTop: 10,
+  paddingBottom: 10,
+  backgroundColor: 'transparent', // ✅ removed white background
+  borderBottomWidth: 0,           // ✅ removed border
+  marginBottom: 10,
+},
+
+// improve this header to match the overall scheme of the app.....
 
   headerTitle: {
     fontSize: 24,

@@ -19,7 +19,7 @@ export interface PaymentResult {
 
 // ✅ Create a new payment record
 export const createPayment = async (data: PaymentPayload): Promise<PaymentResult> => {
-  const response = await api.post('/payment/', data);
+  const response = await api.post('/payment', data);
   return response.data?.result || response.data?.data || response.data;
 };
 

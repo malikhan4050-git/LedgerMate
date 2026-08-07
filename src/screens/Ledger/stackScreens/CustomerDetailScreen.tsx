@@ -27,11 +27,10 @@ import GradientButton from '../../../components/Buttons/GradientButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface Transaction {
-  id: string;
-  date: string;
-  description: string;
+  applicantId: string;
   amount: number;
   notes?: string;
+  date: string;
 }
 
 const CustomerDetailScreen = () => {
@@ -48,13 +47,14 @@ const CustomerDetailScreen = () => {
   const [processing, setProcessing] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
-  // ✅ New states for date/time and notes
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [isManuallySet, setIsManuallySet] = useState(false);
   const [notes, setNotes] = useState('');
+
+  // ✅ Add refresh trigger to force re-fetch
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchCustomerTransactions = async () => {
     try {
@@ -75,14 +75,10 @@ const CustomerDetailScreen = () => {
       });
 
       const txList: Transaction[] = filteredEntries.map((entry: any) => ({
-        id: entry._id,
-        date: entry.transactionDate || entry.createdAt,
-        description:
-          entry.products?.map((p: any) => p.name).join(', ') ||
-          entry.itemsDescription ||
-          'Transaction',
+        applicantId: entry._id,
         amount: entry.totalAmount || entry.manualTotalPrice || 0,
         notes: entry.notes || '',
+        date: entry.transactionDate || entry.createdAt,
       }));
 
       txList.sort(
@@ -95,21 +91,23 @@ const CustomerDetailScreen = () => {
       showAlert('Error', 'Failed to load transactions', 'error');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
+  // ✅ Trigger fetch on mount and whenever refreshTrigger changes
   useEffect(() => {
     fetchCustomerTransactions();
-  }, []);
+  }, [refreshTrigger]);
 
   const totalOutstanding = transactions.reduce((sum, t) => sum + t.amount, 0);
 
-  // ✅ Auto-update date/time every minute
+  // Auto-update date/time every minute
   useEffect(() => {
     if (!isManuallySet) {
       const interval = setInterval(() => {
         setSelectedDate(new Date());
-      }, 60000); // 1 minute
+      }, 60000);
       return () => clearInterval(interval);
     }
   }, [isManuallySet]);
@@ -160,7 +158,7 @@ const CustomerDetailScreen = () => {
 
       if (exactMatchIndex !== -1) {
         const exactOrder = updatedTransactions[exactMatchIndex];
-        await deleteEntry(exactOrder.id);
+        await deleteEntry(exactOrder.applicantId);
         updatedTransactions.splice(exactMatchIndex, 1);
         paymentNote = `User paid ${amount} from this order (full payment)`;
         remaining = 0;
@@ -175,7 +173,7 @@ const CustomerDetailScreen = () => {
 
           if (remaining >= current.amount) {
             remaining -= current.amount;
-            await deleteEntry(current.id);
+            await deleteEntry(current.applicantId);
             updatedTransactions.splice(i, 1);
           } else {
             const paidAmount = remaining;
@@ -193,7 +191,7 @@ const CustomerDetailScreen = () => {
               newNote = `User paid ${paidAmount} from this order`;
             }
 
-            await updateEntry(current.id, {
+            await updateEntry(current.applicantId, {
               manualTotalPrice: newAmount,
               notes: newNote,
             });
@@ -210,23 +208,25 @@ const CustomerDetailScreen = () => {
         customer: customer.id,
         amount: amount,
         note: paymentNote || `User paid ${amount} from this order`,
-        paymentDate: selectedDate.toISOString(), // ✅ Use selected date/time
+        paymentDate: selectedDate.toISOString(),
       });
 
-      updatedTransactions.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      );
-
+      // ✅ Update local state immediately
       setTransactions(updatedTransactions);
       setPaymentAmount('');
-      setNotes(''); // ✅ Clear notes after save
+      setNotes('');
+
+      // ✅ Wait 1 second then trigger re-fetch to sync with backend
+      setTimeout(() => {
+        setRefreshTrigger(prev => prev + 1);
+      }, 1000);
 
       showAlert(
         'Success',
         `Payment of PKR ${amount.toLocaleString()} received and recorded successfully!`,
         'success',
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment processing error:', error);
       showAlert(
         'Error',
@@ -241,7 +241,6 @@ const CustomerDetailScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchCustomerTransactions();
-    setRefreshing(false);
   };
 
   const handleBack = () => {
@@ -350,7 +349,7 @@ const CustomerDetailScreen = () => {
               </View>
             ) : (
               transactions.map(tx => (
-                <View key={tx.id} style={styles.transactionItem}>
+                <View key={tx.applicantId} style={styles.transactionItem}>
                   <View style={styles.transactionHeader}>
                     <Text style={styles.transactionDate}>
                       {new Date(tx.date).toLocaleDateString('en-US', {
@@ -368,7 +367,6 @@ const CustomerDetailScreen = () => {
                       PKR {tx.amount.toLocaleString()}
                     </Text>
                   </View>
-                  <Text style={styles.transactionDesc}>{tx.description}</Text>
                   {tx.notes && tx.notes.includes('User paid') && (
                     <Text style={styles.paymentNote}>{tx.notes}</Text>
                   )}
@@ -376,22 +374,7 @@ const CustomerDetailScreen = () => {
               ))
             )}
 
-            {/* ✅ Notes Section */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Notes (Optional)</Text>
-              <TextInput
-                style={styles.textArea}
-                placeholder="Add notes here..."
-                placeholderTextColor="#8E8E93"
-                multiline
-                numberOfLines={3}
-                value={notes}
-                onChangeText={setNotes}
-                textAlignVertical="top"
-              />
-            </View>
-
-            {/* ✅ Date & Time Section */}
+            {/* Date & Time Section */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Date & Time</Text>
               <View style={styles.dateTimeRow}>

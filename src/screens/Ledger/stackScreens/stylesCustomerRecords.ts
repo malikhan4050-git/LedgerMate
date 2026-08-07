@@ -134,4 +134,17 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
     marginTop: 8,
   },
+
+  amountText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  saleAmount: {
+    color: '#2E7D32',
+  },
+
+  purchaseAmount: {
+    color: '#C62828',
+  },
 });

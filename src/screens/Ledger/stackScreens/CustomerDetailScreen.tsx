@@ -24,6 +24,7 @@ import {
 import { createPayment } from '../../../services/paymentApi';
 import styles from './stylesCustomerDetail';
 import GradientButton from '../../../components/Buttons/GradientButton';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface Transaction {
   id: string;
@@ -39,7 +40,6 @@ const CustomerDetailScreen = () => {
   const { showAlert } = useAlert();
   const { customer } = route.params as any;
 
-  // ✅ Detect if this is a supplier (purchase) or customer (sale)
   const isSupplier = customer?.isSupplier || false;
   const partyName = customer?.name || 'Unknown';
 
@@ -49,13 +49,19 @@ const CustomerDetailScreen = () => {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // ✅ New states for date/time and notes
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [isManuallySet, setIsManuallySet] = useState(false);
+  const [notes, setNotes] = useState('');
+
   const fetchCustomerTransactions = async () => {
     try {
       const response = await getEntries(1, 1000);
       const entries =
         response?.entries || response?.data || response?.result || [];
 
-      // ✅ Filter entries based on customer or supplier
       const filteredEntries = entries.filter((entry: any) => {
         if (isSupplier) {
           const supplierId =
@@ -68,7 +74,6 @@ const CustomerDetailScreen = () => {
         }
       });
 
-      // Map to transaction format
       const txList: Transaction[] = filteredEntries.map((entry: any) => ({
         id: entry._id,
         date: entry.transactionDate || entry.createdAt,
@@ -80,7 +85,6 @@ const CustomerDetailScreen = () => {
         notes: entry.notes || '',
       }));
 
-      // Sort by date (newest first for display)
       txList.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
@@ -100,6 +104,38 @@ const CustomerDetailScreen = () => {
 
   const totalOutstanding = transactions.reduce((sum, t) => sum + t.amount, 0);
 
+  // ✅ Auto-update date/time every minute
+  useEffect(() => {
+    if (!isManuallySet) {
+      const interval = setInterval(() => {
+        setSelectedDate(new Date());
+      }, 60000); // 1 minute
+      return () => clearInterval(interval);
+    }
+  }, [isManuallySet]);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const newDate = new Date(selectedDate);
+      newDate.setHours(selectedDate.getHours());
+      newDate.setMinutes(selectedDate.getMinutes());
+      setSelectedDate(newDate);
+      setIsManuallySet(true);
+    }
+  };
+
+  const onTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      const newDate = new Date(selectedDate);
+      newDate.setHours(selectedTime.getHours());
+      newDate.setMinutes(selectedTime.getMinutes());
+      setSelectedDate(newDate);
+      setIsManuallySet(true);
+    }
+  };
+
   const handleReceivePayment = async () => {
     const amount = parseFloat(paymentAmount);
     if (!amount || amount <= 0) {
@@ -118,7 +154,6 @@ const CustomerDetailScreen = () => {
       let updatedTransactions = [...transactions];
       let paymentNote = '';
 
-      // ✅ STEP 1: Exact match check
       const exactMatchIndex = updatedTransactions.findIndex(
         tx => tx.amount === amount,
       );
@@ -130,7 +165,6 @@ const CustomerDetailScreen = () => {
         paymentNote = `User paid ${amount} from this order (full payment)`;
         remaining = 0;
       } else {
-        // ✅ STEP 2: FIFO (oldest first)
         updatedTransactions.sort(
           (a, b) => new Date(a.date).getTime() - new Date(a.date).getTime(),
         );
@@ -172,21 +206,20 @@ const CustomerDetailScreen = () => {
         }
       }
 
-      // ✅ STEP 3: Create payment history record (always use customer)
       await createPayment({
-        customer: customer.id, // ✅ Works for both customers and suppliers
+        customer: customer.id,
         amount: amount,
         note: paymentNote || `User paid ${amount} from this order`,
-        paymentDate: new Date().toISOString(),
+        paymentDate: selectedDate.toISOString(), // ✅ Use selected date/time
       });
 
-      // ✅ STEP 4: Sort back to newest first for display
       updatedTransactions.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
 
       setTransactions(updatedTransactions);
       setPaymentAmount('');
+      setNotes(''); // ✅ Clear notes after save
 
       showAlert(
         'Success',
@@ -232,7 +265,6 @@ const CustomerDetailScreen = () => {
         barStyle="light-content"
       />
 
-      {/* Gradient Header */}
       <LinearGradient
         colors={['#4A90E2', '#4CCB8C']}
         start={{ x: 0, y: 0 }}
@@ -265,15 +297,14 @@ const CustomerDetailScreen = () => {
             />
           }
         >
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>
               {isSupplier ? 'Supplier Transactions' : 'Customer Transactions'}
             </Text>
             <Text style={styles.headerSubtitle}>
               {isSupplier
-                ? `All transactions from ${partyName}`
-                : `All transactions for ${partyName}`}
+                ? `View all transactions for ${partyName}`
+                : `View all transactions for ${partyName}`}
             </Text>
           </View>
 
@@ -292,14 +323,7 @@ const CustomerDetailScreen = () => {
                   color="#FFFFFF"
                 />
               </View>
-              <Text
-                style={[
-                  styles.avatarChangeText,
-                  { color: isSupplier ? '#C62828' : '#2E7D32' },
-                ]}
-              >
-                Total Outstanding
-              </Text>
+              <Text style={styles.avatarChangeText}>Total Outstanding</Text>
               <Text
                 style={[
                   styles.avatarChangeText,
@@ -352,10 +376,84 @@ const CustomerDetailScreen = () => {
               ))
             )}
 
+            {/* ✅ Notes Section */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Notes (Optional)</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Add notes here..."
+                placeholderTextColor="#8E8E93"
+                multiline
+                numberOfLines={3}
+                value={notes}
+                onChangeText={setNotes}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* ✅ Date & Time Section */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Date & Time</Text>
+              <View style={styles.dateTimeRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.input,
+                    styles.dateTimeInput,
+                    styles.dateInput,
+                    { flex: 1, marginRight: 8 },
+                  ]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.dateTimeText}>
+                    {selectedDate.toLocaleDateString('en-US', {
+                      month: 'numeric',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.input,
+                    styles.dateTimeInput,
+                    styles.timeInput,
+                    { flex: 1, marginLeft: 8 },
+                  ]}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Text style={styles.dateTimeText}>
+                    {selectedDate.toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  onChange={onDateChange}
+                />
+              )}
+              {showTimePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="time"
+                  display="default"
+                  onChange={onTimeChange}
+                />
+              )}
+            </View>
+
             {/* Receive Payment / Pay Supplier Section */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>
-                {isSupplier ? 'Give Payment' : 'Receive Payment'}
+                {isSupplier ? 'Pay Supplier' : 'Receive Payment'}
               </Text>
               <View style={styles.inputContainer}>
                 <TextInput
@@ -376,7 +474,7 @@ const CustomerDetailScreen = () => {
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
                   <GradientButton
-                    title={isSupplier ? 'Give Payment' : 'Receive Payment'}
+                    title={isSupplier ? 'Pay Supplier' : 'Receive Payment'}
                     titleStyle={styles.saveButtonText}
                     onPress={handleReceivePayment}
                   />

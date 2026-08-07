@@ -11,25 +11,27 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAlert } from '../../../hooks/useAlert';
 import { getEntries } from '../../../services/entryApi';
-import { searchCustomers, CustomerResult } from '../../../services/customerApi';
 import styles from './stylesCustomerRecords';
-import LinearGradient from 'react-native-linear-gradient';
 
 interface CustomerSummary {
   id: string;
   name: string;
-  totalOutstanding: number;
+  salesTotal: number;
+  purchasesTotal: number;
+  netBalance: number;
   transactionCount: number;
 }
 
 const CustomerRecordsScreen = () => {
   const navigation = useNavigation();
   const { showAlert } = useAlert();
+
   const [customers, setCustomers] = useState<CustomerSummary[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<CustomerSummary[]>(
     [],
@@ -40,50 +42,64 @@ const CustomerRecordsScreen = () => {
 
   const fetchCustomerSummaries = async () => {
     try {
-      // Fetch all entries (transactions)
-      const response = await getEntries(1, 1000);
+      const response = await getEntries(1, 100);
       const entries =
         response?.entries || response?.data || response?.result || [];
 
-      // Group entries by customer
-      const customerMap = new Map<
+      const partyMap = new Map<
         string,
-        { name: string; total: number; count: number }
+        {
+          name: string;
+          salesTotal: number;
+          purchasesTotal: number;
+          count: number;
+        }
       >();
 
       entries.forEach((entry: any) => {
-        const customerId =
-          entry.customer?._id || entry.customer?.id || entry.customer;
-        const customerName = entry.customer?.name || entry.name || 'Unknown';
+        const amount = entry.totalAmount || entry.manualTotalPrice || 0;
+        const isSale = entry.entryType === 'sale';
 
-        if (customerId) {
-          const amount = entry.totalAmount || entry.manualTotalPrice || 0;
-          const existing = customerMap.get(customerId);
+        const partyId = isSale
+          ? entry.customer?._id || entry.customer?.id || entry.customer
+          : entry.supplier?._id || entry.supplier?.id || entry.supplier;
+
+        const partyName = isSale
+          ? entry.customer?.name || entry.name || 'Unknown'
+          : entry.supplier?.name || entry.name || 'Unknown';
+
+        if (partyId) {
+          const existing = partyMap.get(partyId);
           if (existing) {
-            existing.total += amount;
+            if (isSale) {
+              existing.salesTotal += amount;
+            } else {
+              existing.purchasesTotal += amount;
+            }
             existing.count += 1;
           } else {
-            customerMap.set(customerId, {
-              name: customerName,
-              total: amount,
+            partyMap.set(partyId, {
+              name: partyName,
+              salesTotal: isSale ? amount : 0,
+              purchasesTotal: isSale ? 0 : amount,
               count: 1,
             });
           }
         }
       });
 
-      // Convert to array
-      const summary: CustomerSummary[] = Array.from(customerMap.entries()).map(
+      const summary: CustomerSummary[] = Array.from(partyMap.entries()).map(
         ([id, data]) => ({
           id,
           name: data.name,
-          totalOutstanding: data.total,
+          salesTotal: data.salesTotal,
+          purchasesTotal: data.purchasesTotal,
+          netBalance: data.salesTotal - data.purchasesTotal,
           transactionCount: data.count,
         }),
       );
 
-      // Sort by total outstanding (highest first)
-      summary.sort((a, b) => b.totalOutstanding - a.totalOutstanding);
+      summary.sort((a, b) => b.netBalance - a.netBalance);
 
       setCustomers(summary);
       setFilteredCustomers(summary);
@@ -114,6 +130,7 @@ const CustomerRecordsScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchCustomerSummaries();
+    setRefreshing(false);
   };
 
   const handleCustomerPress = (customer: CustomerSummary) => {
@@ -157,7 +174,7 @@ const CustomerRecordsScreen = () => {
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === 'android' ? 'padding' : 'padding'}
-        keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 0}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 64 : 64}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
@@ -171,6 +188,7 @@ const CustomerRecordsScreen = () => {
           }
         >
           <View style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
               <Text style={styles.headerTitle}>Customer Records</Text>
               <Text style={styles.headerSubtitle}>
@@ -202,9 +220,15 @@ const CustomerRecordsScreen = () => {
             {filteredCustomers.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <Icon name="people-outline" size={48} color="#D1D1D6" />
-                <Text style={styles.emptyText}>No customers found</Text>
+                <Text style={styles.emptyText}>
+                  {searchText !== ''
+                    ? 'No customers found'
+                    : 'No customers yet'}
+                </Text>
                 <Text style={styles.emptySubtext}>
-                  Add customers from the Add tab
+                  {searchText !== ''
+                    ? 'Try searching with different keywords'
+                    : 'Add customers from the Add tab'}
                 </Text>
               </View>
             ) : (
@@ -223,9 +247,14 @@ const CustomerRecordsScreen = () => {
                         {customer.transactionCount > 1 ? 's' : ''}
                       </Text>
                     </View>
-                    <Text style={styles.customerTotal}>
-                      PKR {customer.totalOutstanding.toLocaleString()}
-                    </Text>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[styles.amountText, styles.saleAmount]}>
+                        + PKR {customer.salesTotal.toLocaleString()}
+                      </Text>
+                      <Text style={[styles.amountText, styles.purchaseAmount]}>
+                        - PKR {customer.purchasesTotal.toLocaleString()}
+                      </Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               ))

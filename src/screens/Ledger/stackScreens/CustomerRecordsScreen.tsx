@@ -26,6 +26,7 @@ interface CustomerSummary {
   purchasesTotal: number;
   netBalance: number;
   transactionCount: number;
+  isSupplier?: boolean;
 }
 
 const CustomerRecordsScreen = () => {
@@ -96,6 +97,7 @@ const CustomerRecordsScreen = () => {
           purchasesTotal: data.purchasesTotal,
           netBalance: data.salesTotal - data.purchasesTotal,
           transactionCount: data.count,
+          isSupplier: data.purchasesTotal > data.salesTotal,
         }),
       );
 
@@ -135,7 +137,12 @@ const CustomerRecordsScreen = () => {
 
   const handleCustomerPress = (customer: CustomerSummary) => {
     // @ts-ignore
-    navigation.navigate('CustomerDetail', { customer });
+    navigation.navigate('CustomerDetail', {
+      customer: {
+        ...customer,
+        isSupplier: customer.isSupplier || false,
+      },
+    });
   };
 
   if (loading) {

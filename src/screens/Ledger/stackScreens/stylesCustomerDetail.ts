@@ -135,4 +135,11 @@ export default StyleSheet.create({
     color: Colors.secondaryText,
     marginTop: 8,
   },
+
+  paymentNote: {
+    fontSize: 12,
+    color: '#2E7D32',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
 });

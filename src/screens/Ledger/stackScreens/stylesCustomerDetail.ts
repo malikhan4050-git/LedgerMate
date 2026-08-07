@@ -64,7 +64,6 @@ export default StyleSheet.create({
 
   avatarChangeText: {
     fontSize: 14,
-    color: '#2E7D32',
     fontWeight: '500',
   },
 
@@ -83,9 +82,9 @@ export default StyleSheet.create({
 
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: Colors.primaryText,
+    color: Colors.secondaryText,
     marginBottom: 6,
+    fontWeight: '600',
   },
 
   inputContainer: {
@@ -218,5 +217,52 @@ export default StyleSheet.create({
     fontSize: 14,
     color: Colors.secondaryText,
     marginTop: 8,
+  },
+
+  // Add inside the styles object:
+
+  textArea: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Sizes.borderRadius,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    fontSize: 14,
+    color: Colors.primaryText,
+    backgroundColor: Colors.white,
+    minHeight: 100,
+    maxHeight: 150,
+  },
+
+  dateTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  dateTimeInput: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    height: 50,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    backgroundColor: Colors.white,
+  },
+
+  dateInput: {
+    flex: 1.2,
+  },
+
+  timeInput: {
+    flex: 0.9,
+  },
+
+  dateTimeText: {
+    fontSize: 16,
+    color: Colors.primaryText,
+    textAlign: 'center',
   },
 });
